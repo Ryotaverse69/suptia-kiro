@@ -5,11 +5,16 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3000",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "next lint",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "format:check": "prettier . --check",
+    "typecheck": "tsc -p . --noEmit",
+    "headers:check": "node scripts/check-headers.mjs",
+    "jsonld:check": "node scripts/validate-jsonld.mjs",
+    "audit:ci": "pnpm audit --audit-level=moderate || true"
   },
   "dependencies": {
     "next": "14.2.5",
@@ -27,8 +32,10 @@
     "eslint": "^8.55.0",
     "eslint-config-next": "14.0.4",
     "jsdom": "^23.0.1",
+    "node-html-parser": "^7.0.1",
     "prettier": "^3.1.0",
     "typescript": "^5.0.0",
-    "vitest": "^1.0.4"
+    "vitest": "^1.0.4",
+    "wait-on": "^8.0.4"
   }
 }
