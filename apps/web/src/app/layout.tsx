@@ -1,3 +1,6 @@
+// Validate environment variables at startup
+import "@/env";
+
 export default function RootLayout({
   children,
 }: {

@@ -25,10 +25,20 @@ export function WarningBanner({
     onDismiss?.();
   };
 
+  // Sort violations by severity (high -> medium -> low)
+  const sortedViolations = [...violations].sort((a, b) => {
+    const severityOrder = { high: 3, medium: 2, low: 1 };
+    return (
+      (severityOrder[b.pattern as keyof typeof severityOrder] || 0) -
+      (severityOrder[a.pattern as keyof typeof severityOrder] || 0)
+    );
+  });
+
   return (
     <div
       className={`bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 ${className}`}
-      role="alert"
+      role="status"
+      aria-live="polite"
     >
       <div className="flex">
         <div className="flex-shrink-0">
@@ -53,7 +63,7 @@ export function WarningBanner({
               以下の表現について、より適切な表現をご提案します：
             </p>
             <ul className="list-disc list-inside space-y-1">
-              {violations.map((violation, index) => (
+              {sortedViolations.map((violation, index) => (
                 <li key={index}>
                   <span className="font-medium">
                     「{violation.originalText}」

@@ -9,4 +9,8 @@ npx lint-staged
 echo "🧪 Running tests..."
 npm run test
 
+# Check environment variable synchronization
+echo "🔍 Checking environment variables..."
+npm run env:check
+
 echo "✅ Pre-commit checks passed!"

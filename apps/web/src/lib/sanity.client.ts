@@ -1,8 +1,5 @@
-import { createClient } from "@sanity/client";
+// Legacy client - use sanityPublic or sanityServer instead
+import { sanityPublic } from "./sanityPublic";
 
-export const sanity = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-  apiVersion: "2025-07-01",
-  useCdn: true,
-});
+// Re-export for backward compatibility
+export const sanity = sanityPublic;

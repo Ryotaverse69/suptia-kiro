@@ -14,7 +14,9 @@
     "test": "cd apps/web && npm run test",
     "test:watch": "cd apps/web && npm run test:watch",
     "type-check": "cd apps/web && npm run type-check",
-    "precommit": "npm run format && npm run lint && npm run test",
+    "env:check": "node scripts/check-env-sync.mjs",
+    "sitemap": "next-sitemap",
+    "precommit": "npm run format && npm run lint && npm run test && npm run env:check",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -31,9 +33,12 @@
     ]
   },
   "dependencies": {
+    "@lhci/cli": "^0.15.1",
     "@sanity/client": "^7.8.2",
     "@sanity/vision": "^4.3.0",
     "groq": "^4.3.0",
-    "sanity": "^3.99.0"
+    "next-sitemap": "^4.2.3",
+    "sanity": "^3.99.0",
+    "zod": "^4.0.17"
   }
 }

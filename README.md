@@ -22,7 +22,16 @@ npm install
 cp .env.local.example .env.local
 ```
 
-`.env.local`ファイルを編集して、SanityプロジェクトIDを設定してください。
+`.env.local`ファイルを編集して、必要な環境変数を設定してください：
+
+#### 公開環境変数（クライアントに露出）
+- `NEXT_PUBLIC_SANITY_PROJECT_ID`: SanityプロジェクトID
+- `NEXT_PUBLIC_SANITY_DATASET`: Sanityデータセット名
+
+#### 秘密環境変数（サーバーのみ）
+- `SANITY_API_TOKEN`: Sanity書き込み用トークン（オプション）
+
+**重要**: `NEXT_PUBLIC_*` 以外の環境変数は秘密情報として扱われ、クライアントバンドルには含まれません。
 
 ### 3. 開発サーバーの起動
 
@@ -49,6 +58,8 @@ npm run dev
 - `npm run lint` - ESLintでコードをチェック
 - `npm run format` - Prettierでコードをフォーマット
 - `npm run type-check` - TypeScriptの型チェックを実行
+- `npm run env:check` - 環境変数の同期チェック
+- `npm run sitemap` - サイトマップ生成
 
 ### apps/webディレクトリから実行
 
@@ -129,6 +140,50 @@ npm run build
 # プロダクションサーバー起動
 npm run start
 ```
+
+## セキュリティ
+
+### セキュリティヘッダー
+アプリケーションは以下のセキュリティヘッダーを自動配信します：
+- Content Security Policy (CSP)
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: DENY
+- Referrer-Policy: strict-origin-when-cross-origin
+- Permissions-Policy
+
+### 環境変数の使い分け
+- **NEXT_PUBLIC_***: クライアントに露出される公開変数
+- **その他**: サーバーのみで利用される秘密変数
+
+### Rate Limiting
+API エンドポイントには自動的にレート制限が適用されます。
+
+## SEO
+
+### 自動生成機能
+- 動的メタタグ（title, description, OG, Twitter Card）
+- JSON-LD構造化データ（Product, BreadcrumbList）
+- サイトマップ（sitemap.xml）とrobots.txt
+- 正規URL（トラッキングパラメータ除去）
+
+### Core Web Vitals
+- Next.js Image最適化
+- フォントプリロード
+- CLS防止対策
+
+## LLM/エージェント安全性
+
+### セキュリティポリシー
+- 外部コンテンツの指示実行禁止
+- 許可ドメインのみネットワークアクセス
+- Git/Sanity書き込み前の明示確認
+
+### コミュニケーション
+- 既定言語: 日本語
+- コード/識別子: 英語保持
+- `#override-language` タグでのみ言語切替可能
+
+詳細は `.kiro/steering/` ディレクトリを参照してください。
 
 ## ライセンス
 

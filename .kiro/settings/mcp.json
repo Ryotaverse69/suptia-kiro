@@ -10,12 +10,23 @@
         "http-first"
       ],
       "disabled": false,
-      "autoApprove": [
-        "list_workspace_schemas",
-        "create_document",
-        "get_schema",
-        "query_documents"
-      ]
+      "autoApprove": [],
+      "allowedDomains": ["sanity.io", "*.sanity.io"]
     }
+  },
+  "security": {
+    "allowedDomains": [
+      "*.sanity.io",
+      "*.suptia.com",
+      "localhost",
+      "127.0.0.1"
+    ],
+    "requireConfirmation": [
+      "create_document",
+      "update_document",
+      "delete_document",
+      "git_commit",
+      "git_push"
+    ]
   }
 }

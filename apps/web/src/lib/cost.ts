@@ -22,25 +22,52 @@ export interface CostCalculationResult {
  * Formula: priceJPY / servingsPerContainer * servingsPerDay
  */
 export function calculateEffectiveCostPerDay(product: ProductCostData): number {
+  // Validate required fields
+  if (typeof product.priceJPY !== "number" || isNaN(product.priceJPY)) {
+    throw new Error("価格が無効です");
+  }
+
   if (
-    !product.priceJPY ||
-    !product.servingsPerContainer ||
-    !product.servingsPerDay
+    typeof product.servingsPerContainer !== "number" ||
+    isNaN(product.servingsPerContainer)
   ) {
-    throw new Error("Missing required data for cost calculation");
+    throw new Error("容量が無効です");
+  }
+
+  if (
+    typeof product.servingsPerDay !== "number" ||
+    isNaN(product.servingsPerDay)
+  ) {
+    throw new Error("1日摂取量が無効です");
+  }
+
+  // Validate ranges
+  if (product.priceJPY < 0) {
+    throw new Error("価格は0以上である必要があります");
   }
 
   if (product.servingsPerContainer <= 0) {
-    throw new Error("Servings per container must be greater than 0");
+    throw new Error("容量は0より大きい必要があります");
   }
 
-  if (product.priceJPY < 0 || product.servingsPerDay < 0) {
-    throw new Error("Price and servings per day must be non-negative");
+  if (product.servingsPerDay <= 0) {
+    throw new Error("1日摂取量は0より大きい必要があります");
   }
 
-  return (
-    (product.priceJPY / product.servingsPerContainer) * product.servingsPerDay
-  );
+  // Check for division by zero
+  if (product.servingsPerContainer === 0) {
+    throw new Error("ゼロ除算エラー: 容量が0です");
+  }
+
+  const result =
+    (product.priceJPY / product.servingsPerContainer) * product.servingsPerDay;
+
+  // Validate result
+  if (!isFinite(result)) {
+    throw new Error("計算結果が無効です");
+  }
+
+  return result;
 }
 
 /**
