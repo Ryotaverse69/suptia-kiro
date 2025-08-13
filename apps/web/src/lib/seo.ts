@@ -1,7 +1,7 @@
 import { Metadata } from "next";
-import { getSiteUrl } from "./runtimeConfig";
 
 // Base SEO configuration
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://suptia.com";
 const SITE_NAME = "サプティア";
 const SITE_DESCRIPTION = "安全 × 価格 × 説明可能性のサプリ意思決定エンジン";
 
@@ -23,17 +23,14 @@ export function generateMetadata({
   keywords = [],
 }: SEOProps = {}): Metadata {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
-  const siteUrl = getSiteUrl();
-  const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
-  const imageUrl = ogImage || `${siteUrl}/og-default.jpg`;
+  const canonicalUrl = canonical ? `${BASE_URL}${canonical}` : BASE_URL;
+  const imageUrl = ogImage || `${BASE_URL}/og-default.jpg`;
 
   return {
     title: fullTitle,
     description,
     keywords: keywords.join(", "),
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    canonical: canonicalUrl,
     robots: noIndex ? "noindex,nofollow" : "index,follow",
 
     openGraph: {
@@ -58,6 +55,10 @@ export function generateMetadata({
       title: fullTitle,
       description,
       images: [imageUrl],
+    },
+
+    alternates: {
+      canonical: canonicalUrl,
     },
   };
 }
@@ -109,10 +110,10 @@ export function generateProductJsonLd(product: ProductSEOData) {
       price: product.priceJPY,
       priceCurrency: "JPY",
       availability: "https://schema.org/InStock",
-      url: `${getSiteUrl()}/products/${product.slug}`,
+      url: `${BASE_URL}/products/${product.slug}`,
     },
-    image: product.images?.[0] || `${getSiteUrl()}/product-placeholder.jpg`,
-    url: `${getSiteUrl()}/products/${product.slug}`,
+    image: product.images?.[0] || `${BASE_URL}/product-placeholder.jpg`,
+    url: `${BASE_URL}/products/${product.slug}`,
   };
 }
 
@@ -126,7 +127,7 @@ export function generateBreadcrumbJsonLd(
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: `${getSiteUrl()}${item.url}`,
+      item: `${BASE_URL}${item.url}`,
     })),
   };
 }

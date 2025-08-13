@@ -62,7 +62,7 @@ function sanitizeSpan(span: any): any {
     _key: span._key,
     text: typeof span.text === "string" ? span.text : "",
     marks: Array.isArray(span.marks)
-      ? span.marks.filter((mark: any) => ALLOWED_MARKS.includes(mark))
+      ? span.marks.filter((mark) => ALLOWED_MARKS.includes(mark))
       : [],
   };
 }

@@ -48,7 +48,7 @@ export function withValidation<T>(
         return NextResponse.json(
           {
             error: "Validation failed",
-            details: error.issues.map((e) => ({
+            details: error.errors.map((e) => ({
               field: e.path.join("."),
               message: e.message,
             })),

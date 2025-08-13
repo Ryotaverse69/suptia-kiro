@@ -1,8 +1,5 @@
 // Validate environment variables at startup
 import "@/env";
-import { headers } from "next/headers";
-import Script from "next/script";
-import { getSiteUrl } from "@/lib/runtimeConfig";
 
 export default function RootLayout({
   children,

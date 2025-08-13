@@ -33,6 +33,15 @@ cp .env.local.example .env.local
 
 **重要**: `NEXT_PUBLIC_*` 以外の環境変数は秘密情報として扱われ、クライアントバンドルには含まれません。
 
+#### 公開環境変数（クライアントに露出）
+- `NEXT_PUBLIC_SANITY_PROJECT_ID`: SanityプロジェクトID
+- `NEXT_PUBLIC_SANITY_DATASET`: Sanityデータセット名
+
+#### 秘密環境変数（サーバーのみ）
+- `SANITY_API_TOKEN`: Sanity書き込み用トークン（オプション）
+
+**重要**: `NEXT_PUBLIC_*` 以外の環境変数は秘密情報として扱われ、クライアントバンドルには含まれません。
+
 ### 3. MCP設定（Kiro IDE使用時）
 
 ```bash

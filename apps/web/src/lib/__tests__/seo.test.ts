@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, beforeAll } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
   generateMetadata,
   generateProductMetadata,
@@ -9,11 +9,6 @@ import {
 
 describe("SEO Utilities", () => {
   const originalEnv = process.env;
-
-  // テスト時に SITE_URL を明示的に設定して、実装と期待値を一致させる
-  beforeAll(() => {
-    process.env.NEXT_PUBLIC_SITE_URL = "https://suptia.com";
-  });
 
   beforeEach(() => {
     process.env = { ...originalEnv };
@@ -34,7 +29,7 @@ describe("SEO Utilities", () => {
 
       expect(metadata.title).toBe("テストページ | サプティア");
       expect(metadata.description).toBe("テスト説明");
-      expect(metadata.alternates?.canonical).toBe("https://suptia.com/test");
+      expect(metadata.canonical).toBe("https://suptia.com/test");
       expect(metadata.openGraph?.title).toBe("テストページ | サプティア");
       expect(metadata.twitter?.title).toBe("テストページ | サプティア");
     });
@@ -46,7 +41,7 @@ describe("SEO Utilities", () => {
       expect(metadata.description).toBe(
         "安全 × 価格 × 説明可能性のサプリ意思決定エンジン",
       );
-      expect(metadata.alternates?.canonical).toBe("https://suptia.com");
+      expect(metadata.canonical).toBe("https://suptia.com");
     });
 
     it("noIndexが設定される", () => {
@@ -80,7 +75,7 @@ describe("SEO Utilities", () => {
         "ビタミンC 1000mg - テストブランド | サプティア",
       );
       expect(metadata.description).toBe("テスト商品の説明");
-      expect(metadata.alternates?.canonical).toBe(
+      expect(metadata.canonical).toBe(
         "https://suptia.com/products/vitamin-c-1000",
       );
     });

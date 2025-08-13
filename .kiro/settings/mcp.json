@@ -10,30 +10,23 @@
         "http-first"
       ],
       "disabled": false,
-      "autoApprove": []
-    },
-    "github": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e",
-        "GITHUB_PERSONAL_ACCESS_TOKEN",
-        "ghcr.io/github/github-mcp-server"
-      ],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_ここにPAT"
-      },
-      "disabled": false,
-      "autoApprove": [
-        "get_pull_request",
-        "get_pull_request_status",
-        "list_workflow_runs",
-        "get_job_logs",
-        "list_workflow_jobs",
-        "get_workflow_run"
-      ]
+      "autoApprove": [],
+      "allowedDomains": ["sanity.io", "*.sanity.io"]
     }
+  },
+  "security": {
+    "allowedDomains": [
+      "*.sanity.io",
+      "*.suptia.com",
+      "localhost",
+      "127.0.0.1"
+    ],
+    "requireConfirmation": [
+      "create_document",
+      "update_document",
+      "delete_document",
+      "git_commit",
+      "git_push"
+    ]
   }
 }
