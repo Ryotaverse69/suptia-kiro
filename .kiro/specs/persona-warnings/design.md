@@ -70,19 +70,25 @@ export function checkProductCompliance(product: Product): ComplianceResult;
 // lib/persona-rules.ts
 interface PersonaRule {
   id: string;
-  personaTag: 'pregnancy' | 'lactation' | 'medication' | 'stimulant-sensitivity';
-  ingredientPattern: string;
-  severity: 'low' | 'medium' | 'high';
-  warningMessage: string;
-  recommendedAction: string;
+  tag: 'pregnancy' | 'lactation' | 'medication' | 'stimulant-sensitivity'; // 必須フィールド
+  ingredient: string; // 必須フィールド（ingredientPatternから変更）
+  severity: 'low' | 'mid' | 'high'; // 必須フィールド
+  message: string; // 必須フィールド（warningMessageから変更）
+  recommendedAction?: string; // オプション
 }
 
 interface PersonaWarning {
   ruleId: string;
-  severity: 'low' | 'medium' | 'high';
+  severity: 'low' | 'mid' | 'high';
   message: string;
-  action: string;
+  action?: string;
   affectedIngredients: string[];
+}
+
+interface WarningAggregation {
+  warnings: PersonaWarning[];
+  sortBySeverity(): PersonaWarning[]; // severity降順
+  deduplicateMessages(): PersonaWarning[]; // 重複メッセージ折り畳み
 }
 
 interface PersonaCheckResult {
@@ -346,9 +352,10 @@ describe('PersonaWarnings', () => {
 ## Accessibility Considerations
 
 ### WCAG Compliance
-- 警告バナーにrole="alert"を設定
+- 警告バナーにrole="status"を設定（非緊急警告用）
 - 重要度に応じたaria-levelを設定
 - キーボードナビゲーション対応（Tab, Enter, Escape）
+- フォーカス管理：Esc/×で閉じる、閉じたら呼出元へフォーカス返却
 - スクリーンリーダー用の詳細説明
 
 ### Visual Design

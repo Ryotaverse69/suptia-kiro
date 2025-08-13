@@ -1,12 +1,13 @@
 # Implementation Plan
 
-- [ ] 1. Set up lib/cost.ts with core calculation functions
+- [ ] 1. Set up lib/cost.ts with precise calculation functions **[M]**
   - Create lib directory structure if it doesn't exist
   - Implement calculateEffectiveCostPerDay function with proper error handling
-  - Implement calculateNormalizedCostPerMgPerDay function with validation
-  - Implement calculateProductCosts wrapper function that returns complete result
+  - Implement calculateNormalizedCostPerMgPerDay function with mg/day = sum(ingredients.amountMgPerServing) * servingsPerDay formula
+  - Implement calculateProductCosts wrapper function with full precision internal calculation
   - Add TypeScript interfaces for ProductCostData and CostCalculationResult
-  - _Requirements: 1.1, 2.1, 2.2, 5.1, 5.2_
+  - Add Intl.NumberFormat('ja-JP',{style:'currency',currency:'JPY'}) for display formatting
+  - _Requirements: 1.1, 2.1, 2.2, 4.3, 4.4, 5.1, 5.2, 6.5_
 
 - [ ] 2. Create comprehensive unit tests for cost calculation logic
   - Set up test file lib/__tests__/cost.test.ts
@@ -47,10 +48,11 @@
   - Ensure price calculations work with real Sanity schema structure
   - _Requirements: 1.2, 1.3, 2.3, 5.1_
 
-- [ ] 7. Implement accessibility features and final polish
+- [ ] 7. Implement accessibility features and final polish **[R]**
   - Add proper ARIA labels and table headers for screen readers
+  - Implement <caption> element, <th scope="col"> attributes, and aria-sort functionality
   - Implement keyboard navigation support
+  - Ensure color contrast 4.5:1 compliance
   - Add loading states and skeleton UI for price calculations
-  - Ensure WCAG compliance for color contrast and text sizing
   - Add proper semantic HTML structure for price information
-  - _Requirements: 4.1, 4.2, 4.3_
+  - _Requirements: 4.1, 4.2, 4.3, 7.1, 7.2, 7.3, 7.4_

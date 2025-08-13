@@ -1,5 +1,7 @@
 # Product Price Table Design Document
 
+**specVersion**: 2025-08-13
+
 ## Overview
 
 商品詳細ページ（`/products/[slug]`）に正規化価格テーブルを実装し、実効コスト/日とmg/日あたりコストを表示します。この機能により、ユーザーはサプリメントのコストパフォーマンスを簡単に理解できるようになります。
@@ -39,17 +41,28 @@ interface CostCalculationResult {
 }
 
 interface ProductCostData {
-  priceJPY: number;
+  priceJPY: number; // JPY固定、税込み
   servingsPerContainer: number;
   servingsPerDay: number;
   ingredients: Array<{
     amountMgPerServing: number;
   }>;
+  slug: string; // 必須・ユニーク・kebab-case
 }
 
+// mg/日の定義: Σ(ingredients.amountMgPerServing) × servingsPerDay
+export function calculateMgPerDay(product: ProductCostData): number;
 export function calculateEffectiveCostPerDay(product: ProductCostData): number;
 export function calculateNormalizedCostPerMgPerDay(product: ProductCostData): number;
 export function calculateProductCosts(product: ProductCostData): CostCalculationResult;
+
+// 異常系処理: servingsPerContainer <= 0 または mgPerDay <= 0 は例外
+export class InsufficientDataError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InsufficientDataError';
+  }
+}
 ```
 
 ### Price Table Component
@@ -62,13 +75,14 @@ interface PriceTableProps {
 }
 
 interface PriceDisplayData {
-  effectiveCostPerDay: string;
-  normalizedCostPerMgPerDay: string;
+  effectiveCostPerDay: string; // 四捨五入2桁表示
+  normalizedCostPerMgPerDay: string; // 四捨五入2桁表示
   totalMgPerDay: string;
   isCalculable: boolean;
   error?: string;
 }
 
+// A11y対応: caption、scope="col"、aria-sort必須
 export function PriceTable({ product, className }: PriceTableProps): JSX.Element;
 ```
 
@@ -210,9 +224,14 @@ describe('PriceTable', () => {
 - スクリーンリーダー対応
 
 ### Internationalization
-- 通貨フォーマットはIntl.NumberFormatを使用
+- 通貨フォーマットはIntl.NumberFormat('ja-JP',{style:'currency',currency:'JPY'})を使用
+- 内部計算はフル精度、表示時のみ四捨五入2桁で丸める
 - 日本語UIテキストを適切に配置
 - 将来的な多言語対応を考慮した構造
+
+### Color Accessibility
+- 色コントラスト4.5:1を確保
+- 色だけでなくテキストでも情報を提供
 
 ## Security Considerations
 

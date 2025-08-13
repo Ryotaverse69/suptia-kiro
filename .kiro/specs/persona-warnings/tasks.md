@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [ ] 1. Create compliance checker service with rules.json integration
+- [ ] 1. Create compliance checker service with rules.json integration **[R]**
   - Create lib/compliance.ts with ComplianceChecker interface and implementation
   - Implement checkText function that loads and applies rules from tools/phrase-checker/rules.json
   - Add loadRules function to dynamically read rules.json file
@@ -8,11 +8,11 @@
   - Add proper error handling for file loading and pattern matching failures
   - _Requirements: 1.1, 1.2, 1.3, 5.1, 5.2_
 
-- [ ] 2. Create minimal persona rules engine
-  - Create lib/persona-rules.ts with PersonaRule interfaces and types
+- [ ] 2. Create minimal persona rules engine with required fields **[R]**
+  - Create lib/persona-rules.ts with PersonaRule interfaces using required fields {tag, ingredient, severity('low'|'mid'|'high'), message}
   - Implement getMinimalPersonaRules function with basic pregnancy, lactation, medication, and stimulant sensitivity rules
-  - Implement checkPersonaRules function that matches product ingredients against persona rules
-  - Add severity-based sorting and warning message generation
+  - Implement checkPersonaRules function with severity-descending sort and message deduplication
+  - Add warning aggregation logic for folding duplicate messages
   - Include proper TypeScript types for all persona-related data structures
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 6.1, 6.2, 6.3_
 
@@ -24,12 +24,12 @@
   - Write tests for edge cases (empty strings, null values, malformed rules)
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 4. Create WarningBanner component with severity-based styling
+- [ ] 4. Create WarningBanner component with enhanced accessibility **[R]**
   - Create components/WarningBanner.tsx with proper TypeScript interfaces
-  - Implement severity-based styling (high=red, medium=orange, low=yellow) using Tailwind CSS
-  - Add dismiss functionality with onDismiss callback
+  - Implement severity-based styling (high=red, mid=orange, low=yellow) using Tailwind CSS
+  - Add dismiss functionality with onDismiss callback and focus management
   - Implement responsive design for mobile and desktop layouts
-  - Add proper ARIA attributes for accessibility (role="alert", aria-level)
+  - Add proper ARIA attributes (role="status", aria-level) and keyboard navigation (Esc/× to close, focus return)
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
 - [ ] 5. Create PersonaWarnings container component

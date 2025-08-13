@@ -144,7 +144,7 @@ function calculateEvidenceScore(product: Product): ScoreBreakdown {
   const avgEvidenceLevel = calculateAverageEvidenceLevel(evidenceLevels);
   factors.push({
     name: 'エビデンスレベル',
-    value: evidenceLevelToScore(avgEvidenceLevel), // A=100, B=70, C=40
+    value: evidenceLevelToScore(avgEvidenceLevel), // A=90, B=75, C=60
     weight: 0.4,
     description: '成分の科学的根拠の質'
   });
@@ -184,10 +184,11 @@ function calculateSafetyScore(product: Product): ScoreBreakdown {
   const factors = [];
   
   // Factor 1: Side Effects (40% weight)
-  const sideEffectSeverity = calculateSideEffectSeverity(product);
+  const sideEffectLevel = getSideEffectLevel(product); // none/low/mid/high
+  const sideEffectScore = { none: 100, low: 85, mid: 70, high: 40 }[sideEffectLevel];
   factors.push({
     name: '副作用リスク',
-    value: 100 - sideEffectSeverity, // Lower severity = higher score
+    value: sideEffectScore,
     weight: 0.4,
     description: '報告されている副作用の重篤度'
   });
@@ -236,11 +237,12 @@ function calculateCostScore(product: Product): ScoreBreakdown {
   });
   
   // Factor 2: Cost per mg (40% weight)
-  const costPerMg = calculateCostPerMg(product);
-  const costPerMgScore = normalizeCostPerMg(costPerMg);
+  const productCostPerMgPerDay = calculateCostPerMgPerDay(product);
+  const minCostPerMgPerDay = getMarketMinCostPerMgPerDay(); // 市場最安値
+  const costScore = Math.min(100, 100 * (minCostPerMgPerDay / productCostPerMgPerDay));
   factors.push({
     name: 'mg単価',
-    value: costPerMgScore,
+    value: costScore,
     weight: 0.4,
     description: '有効成分1mgあたりのコスト'
   });
@@ -261,9 +263,10 @@ function calculateCostScore(product: Product): ScoreBreakdown {
 function calculatePracticalityScore(product: Product): ScoreBreakdown {
   const factors = [];
   
-  // Factor 1: Dosing Frequency (40% weight)
+  // Factor 1: Dosing Frequency (40% weight) - MVPは1日回数のみ
   const dosingFrequency = product.servingsPerDay;
-  const dosingScore = calculateDosingScore(dosingFrequency); // 1/day=100, 3+/day=60
+  const dosageBurdenIndex = Math.min(40, (dosingFrequency - 1) * 15); // 1回=0, 2回=15, 3回=30, 4回以上=40
+  const dosingScore = 100 - dosageBurdenIndex;
   factors.push({
     name: '摂取頻度',
     value: dosingScore,
@@ -319,8 +322,9 @@ export const DEFAULT_WEIGHTS: ScoreWeights = {
 
 ### Score Validation
 - スコア範囲チェック（0-100）
-- 重み合計チェック（1.0）
+- 重み合計チェック（1.0）必須検証
 - 異常値検出と補正
+- 表示は0.1刻み四捨五入（Math.round(score * 10) / 10）
 
 ## Testing Strategy
 

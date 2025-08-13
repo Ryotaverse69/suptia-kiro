@@ -1,20 +1,20 @@
 # Implementation Plan
 
-- [ ] 1. Create core scoring engine with weighted calculation logic
+- [ ] 1. Create core scoring engine with precise calculation logic **[M]**
   - Create apps/web/src/lib/scoring.ts with TypeScript interfaces for ScoreResult, ScoreComponents, and ScoreWeights
-  - Implement main score(product) function that returns complete scoring result
-  - Implement applyWeights function with default weights (evidence:0.35, safety:0.30, cost:0.20, practicality:0.15)
+  - Implement main score(product) function with weighted average calculation and 0.1 precision rounding
+  - Implement applyWeights function with weight sum=1.0 validation (evidence:0.35, safety:0.30, cost:0.20, practicality:0.15)
   - Add normalizeScore utility function for value normalization (0-100 range)
   - Add proper error handling for missing or invalid product data
-  - _Requirements: 1.1, 1.2, 5.1, 5.2_
+  - _Requirements: 1.1, 1.2, 1.6, 1.7, 5.1, 5.2_
 
-- [ ] 2. Implement individual scoring algorithms for each component
-  - Implement calculateEvidenceScore function with evidence level, study count, and study quality factors
-  - Implement calculateSafetyScore function with side effects, drug interactions, and contraindications factors
-  - Implement calculateCostScore function with market comparison and cost per mg factors
-  - Implement calculatePracticalityScore function with dosing frequency, form factor, and container size factors
+- [ ] 2. Implement individual scoring algorithms with fixed formulas **[M]**
+  - Implement calculateEvidenceScore function with A=90, B=75, C=60 fixed values
+  - Implement calculateSafetyScore function with none=100, low=85, mid=70, high=40 fixed values
+  - Implement calculateCostScore function with 100*(minCostPerMgPerDay/productCostPerMgPerDay) clamped to 0..100
+  - Implement calculatePracticalityScore function with 100 - dosageBurdenIndex (MVP: 1日回数のみ指数化)
   - Add ScoreBreakdown interface and detailed factor explanations for each component
-  - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 6.1, 6.2_
+  - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 6.1, 6.2_
 
 - [ ] 3. Create comprehensive unit tests for scoring logic
   - Set up test file lib/__tests__/scoring.test.ts with complete test coverage

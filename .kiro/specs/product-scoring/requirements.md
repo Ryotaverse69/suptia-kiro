@@ -23,10 +23,12 @@
 #### Acceptance Criteria
 
 1. WHEN ユーザーが商品詳細ページを表示する THEN システムは4つの個別スコア（0-100）を計算して表示する SHALL
-2. WHEN エビデンススコアを計算する THEN システムは成分のエビデンスレベル（A/B/C）と研究の質を考慮する SHALL
-3. WHEN 安全性スコアを計算する THEN システムは副作用、相互作用、安全性注意事項を考慮する SHALL
-4. WHEN コストスコアを計算する THEN システムは市場平均との比較と成分あたりコストを考慮する SHALL
-5. WHEN 実用性スコアを計算する THEN システムは摂取頻度、形状、容量を考慮する SHALL
+2. WHEN エビデンススコアを計算する THEN システムはA=90, B=75, C=60の固定値を使用する SHALL
+3. WHEN 安全性スコアを計算する THEN システムはnone=100, low=85, mid=70, high=40の固定値を使用する SHALL
+4. WHEN コストスコアを計算する THEN システムは100*(minCostPerMgPerDay/productCostPerMgPerDay)を0..100にクランプする SHALL
+5. WHEN 実用性スコアを計算する THEN システムは100 - dosageBurdenIndex（MVPは1日回数のみを指数化）を使用する SHALL
+6. WHEN 総合スコアを計算する THEN システムは加重平均を使用し、表示は0.1刻み四捨五入する SHALL
+7. WHEN 重み設定を検証する THEN システムは重み合計=1であることを確認する SHALL
 
 ### Requirement 3
 

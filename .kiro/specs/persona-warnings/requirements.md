@@ -26,7 +26,7 @@
 1. WHEN ユーザーがペルソナを設定している THEN システムはペルソナルールに基づいて商品をチェックする SHALL
 2. WHEN 商品にペルソナに適さない成分が含まれる THEN システムは警告メッセージを表示する SHALL
 3. WHEN 警告が表示される THEN システムは具体的なリスクと推奨アクションを説明する SHALL
-4. WHEN 複数の警告がある THEN システムは重要度順に表示する SHALL
+4. WHEN 複数の警告がある THEN システムはseverity降順で表示し、重複メッセージは折り畳む SHALL
 
 ### Requirement 3
 
@@ -47,7 +47,7 @@
 1. WHEN 警告バナーが表示される THEN システムは非ブロッキングで目立つが邪魔にならないデザインで表示する SHALL
 2. WHEN モバイルデバイスで表示する THEN システムは警告バナーをレスポンシブに表示する SHALL
 3. WHEN 警告の重要度が高い THEN システムは視覚的に強調して表示する SHALL
-4. WHEN アクセシビリティを考慮する THEN システムはスクリーンリーダー対応とキーボードナビゲーションを提供する SHALL
+4. WHEN アクセシビリティを考慮する THEN システムはrole="status"とフォーカス管理（Esc/×で閉じる、閉じたら呼出元へフォーカス返却）を実装する SHALL
 
 ### Requirement 5
 
@@ -66,7 +66,7 @@
 
 #### Acceptance Criteria
 
-1. WHEN ペルソナルールセットを定義する THEN システムは妊娠中、授乳中、薬物相互作用、刺激物過敏性の基本ルールを含む SHALL
+1. WHEN ペルソナルールセットを定義する THEN システムは{tag, ingredient, severity('low'|'mid'|'high'), message}の必須フィールドを含む SHALL
 2. WHEN ペルソナルールを適用する THEN システムは成分レベルでのチェックを実行する SHALL
 3. WHEN ルールに該当する THEN システムは具体的で実用的な警告メッセージを表示する SHALL
 4. WHEN ペルソナが設定されていない THEN システムは一般的な注意事項のみを表示する SHALL
