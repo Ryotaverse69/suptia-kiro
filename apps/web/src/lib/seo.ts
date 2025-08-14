@@ -30,7 +30,9 @@ export function generateMetadata({
     title: fullTitle,
     description,
     keywords: keywords.join(", "),
-    canonical: canonicalUrl,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     robots: noIndex ? "noindex,nofollow" : "index,follow",
 
     openGraph: {
