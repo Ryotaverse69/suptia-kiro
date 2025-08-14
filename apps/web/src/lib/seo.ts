@@ -58,10 +58,6 @@ export function generateMetadata({
       description,
       images: [imageUrl],
     },
-
-    alternates: {
-      canonical: canonicalUrl,
-    },
   };
 }
 
