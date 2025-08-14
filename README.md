@@ -24,7 +24,26 @@ cp .env.local.example .env.local
 
 `.env.local`ファイルを編集して、SanityプロジェクトIDを設定してください。
 
-### 3. 開発サーバーの起動
+### 3. MCP設定（Kiro IDE使用時）
+
+```bash
+# MCPテンプレートをコピー
+cp .kiro/settings/mcp.json.template .kiro/settings/mcp.json
+```
+
+`.kiro/settings/mcp.json`ファイルを編集して、GitHub Personal Access Tokenを設定してください：
+
+```json
+{
+  "env": {
+    "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_pat_here"
+  }
+}
+```
+
+**注意**: このファイルは機密情報を含むため、Gitにコミットされません。
+
+### 4. 開発サーバーの起動
 
 ```bash
 # ルートディレクトリから実行
@@ -36,6 +55,48 @@ npm run dev
 ```
 
 アプリケーションは http://localhost:3000 で起動します。
+
+## リポジトリ設定の自動化
+
+### Repository Bootstrap Script
+
+リポジトリの設定（ブランチ保護、auto-merge、ラベル管理）を自動化するスクリプトが用意されています。
+
+#### 使用方法
+
+```bash
+# GitHub CLIでの認証が必要
+gh auth login
+
+# スクリプトの実行
+bash .tools/bootstrap_repo.sh OWNER REPO BRANCH
+
+# 例: このリポジトリの場合
+bash .tools/bootstrap_repo.sh Ryotaverse69 suptia-kiro master
+```
+
+#### スクリプトが実行する内容
+
+1. **Auto-merge有効化**: リポジトリでauto-mergeを有効にします
+2. **ラベル作成**: `automerge` ラベルを作成します
+3. **ブランチ保護設定**: masterブランチに以下の保護ルールを適用：
+   - 必須チェック: `format:check`, `lint`, `test`, `typecheck`, `build`, `headers`, `jsonld`
+   - ブランチを最新に保つ: 有効
+   - 会話の解決を必須: 有効
+   - 線形履歴を必須: 有効
+   - 強制プッシュ・削除を禁止: 有効
+   - 承認は不要（個人開発用）
+4. **PR管理**: PR #1, #2を以下のように処理：
+   - Draft状態を解除（Ready for review）
+   - `automerge` ラベルを適用
+   - Auto-mergeを有効化
+5. **ワークフロー再実行**: 失敗したワークフローがあれば再実行
+
+#### 前提条件
+
+- [GitHub CLI](https://cli.github.com/) がインストール済み
+- GitHub CLIで認証済み（`gh auth login`）
+- リポジトリへの管理者権限
 
 ## 利用可能なスクリプト
 
@@ -65,6 +126,8 @@ npm run format
 ## プロジェクト構造
 
 ```
+├── .tools/                  # 開発・運用ツール
+│   └── bootstrap_repo.sh    # リポジトリ設定自動化スクリプト
 ├── apps/
 │   └── web/                 # Next.js アプリケーション
 │       ├── src/
