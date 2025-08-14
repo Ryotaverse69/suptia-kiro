@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "type-check": "pnpm run typecheck",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -20,7 +21,8 @@
     "@sanity/client": "^7.8.2",
     "@sanity/vision": "^4.3.0",
     "groq": "^4.3.0",
-    "sanity": "^3.99.0"
+    "sanity": "^3.99.0",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
@@ -35,5 +37,6 @@
     "eslint": "^8.55.0",
     "eslint-config-next": "14.0.4",
     "prettier": "^3.1.0"
-  }
+  },
+  "packageManager": "pnpm@9.0.0"
 }

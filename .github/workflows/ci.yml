@@ -14,6 +14,23 @@ defaults:
     working-directory: apps/web
 
 jobs:
+  secrets-scan:
+    name: secrets-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fail if any .env or .env.local files are tracked
+        run: |
+          set -e
+          tracked=$(git ls-files | rg -n '(^|/)\.env(\..*)?$|(^|/)\.env\.local$' || true)
+          if [ -n "$tracked" ]; then
+            echo "Found tracked env files:" && echo "$tracked"
+            exit 1
+          fi
+          echo "No tracked env files detected."
+
   format:
     name: format:check
     runs-on: ubuntu-latest
@@ -80,6 +97,10 @@ jobs:
   typecheck:
     name: typecheck
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+      NEXT_PUBLIC_SANITY_DATASET: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -101,6 +122,10 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+      NEXT_PUBLIC_SANITY_DATASET: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -123,6 +148,10 @@ jobs:
     name: headers
     runs-on: ubuntu-latest
     needs: build
+    env:
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+      NEXT_PUBLIC_SANITY_DATASET: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -154,6 +183,10 @@ jobs:
     name: jsonld
     runs-on: ubuntu-latest
     needs: build
+    env:
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+      NEXT_PUBLIC_SANITY_DATASET: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -207,6 +240,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     continue-on-error: true
+    env:
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+      NEXT_PUBLIC_SANITY_DATASET: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4

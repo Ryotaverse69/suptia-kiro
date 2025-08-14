@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.NEXT_PUBLIC_BASE_URL || 'https://suptia.com',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://suptia.com',
   generateRobotsText: true,
   generateIndexSitemap: false,
   changefreq: 'daily',
@@ -36,7 +36,7 @@ module.exports = {
       },
     ],
     additionalSitemaps: [
-      `${process.env.NEXT_PUBLIC_BASE_URL || 'https://suptia.com'}/sitemap.xml`,
+      `${process.env.NEXT_PUBLIC_SITE_URL || 'https://suptia.com'}/sitemap.xml`,
     ],
   },
   
