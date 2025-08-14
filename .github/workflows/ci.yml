@@ -9,9 +9,7 @@ on:
 env:
   NODE_VERSION: '20'
 
-defaults:
-  run:
-    working-directory: apps/web
+# Remove global working-directory to avoid conflicts
 
 jobs:
   format:
@@ -29,12 +27,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
+          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: apps/web
 
       - name: Check formatting
         run: pnpm run format:check
+        working-directory: apps/web
 
   lint:
     name: lint
@@ -51,12 +52,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
+          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: apps/web
 
       - name: Run linter
         run: pnpm run lint
+        working-directory: apps/web
 
   test:
     name: test
@@ -73,12 +77,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
+          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: apps/web
 
       - name: Run tests
         run: pnpm run test
+        working-directory: apps/web
 
   typecheck:
     name: typecheck
@@ -95,12 +102,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
+          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: apps/web
 
       - name: Type check
         run: pnpm run typecheck
+        working-directory: apps/web
 
   build:
     name: build
@@ -117,12 +127,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
+          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: apps/web
 
       - name: Build application
         run: pnpm run build
+        working-directory: apps/web
 
   headers:
     name: headers
@@ -140,21 +153,26 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
+          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: apps/web
 
       - name: Build application
         run: pnpm run build
+        working-directory: apps/web
 
       - name: Start application
         run: pnpm start &
+        working-directory: apps/web
 
       - name: Wait for application
         run: npx wait-on http://localhost:3000
 
       - name: Check headers
         run: node scripts/check-headers.mjs || echo "Headers check skipped - script not found"
+        working-directory: apps/web
 
   jsonld:
     name: jsonld
@@ -172,21 +190,26 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
+          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: apps/web
 
       - name: Build application
         run: pnpm run build
+        working-directory: apps/web
 
       - name: Start application
         run: pnpm start &
+        working-directory: apps/web
 
       - name: Wait for application
         run: npx wait-on http://localhost:3000
 
       - name: Validate JSON-LD
         run: node scripts/validate-jsonld.mjs || echo "JSON-LD validation skipped - script not found"
+        working-directory: apps/web
 
   audit:
     name: audit
@@ -203,12 +226,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
+          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: apps/web
 
       - name: Run security audit
         run: pnpm audit --audit-level moderate || true
+        working-directory: apps/web
 
   lighthouse:
     name: lighthouse (non-blocking)
@@ -227,15 +253,19 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
+          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: apps/web
 
       - name: Build application
         run: pnpm run build
+        working-directory: apps/web
 
       - name: Start application
         run: pnpm start &
+        working-directory: apps/web
 
       - name: Wait for application
         run: npx wait-on http://localhost:3000
