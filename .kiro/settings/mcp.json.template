@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "sanity-dev": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.sanity.io/developer",
+        "--transport",
+        "http-first"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "list_workspace_schemas",
+        "create_document",
+        "get_schema",
+        "query_documents"
+      ]
+    },
+    "github": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "YOUR_GITHUB_PAT_HERE"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}

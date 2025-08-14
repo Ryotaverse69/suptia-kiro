@@ -2,6 +2,7 @@
   "name": "@suptia/web",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,7 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "next lint",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "format:check": "prettier . --check",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "next": "14.2.5",
