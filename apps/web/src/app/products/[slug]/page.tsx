@@ -12,6 +12,9 @@ import { isValidSlug } from "@/lib/sanitize";
 import Image from "next/image";
 import { headers } from "next/headers";
 import Script from "next/script";
+import { deriveScoreInputFromProduct, scoreProduct } from "@/lib/scoring";
+import { ScoreDisplay } from "@/components/ScoreDisplay";
+import { ScoreBreakdown } from "@/components/ScoreBreakdown";
 
 interface Product {
   _id: string;
@@ -116,6 +119,23 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <div className="container mx-auto px-4 py-8">
         {/* Persona-based Warning Banner */}
         <PersonaWarnings text={description} personas={personas} />
+
+        {/* Product Score */}
+        {(() => {
+          const input = deriveScoreInputFromProduct({
+            priceJPY: product.priceJPY,
+            servingsPerContainer: product.servingsPerContainer,
+            servingsPerDay: product.servingsPerDay,
+            description,
+          });
+          const score = scoreProduct(input);
+          return (
+            <div className="mb-8" aria-label="製品スコア表示">
+              <ScoreDisplay score={score} />
+              <ScoreBreakdown score={score} />
+            </div>
+          );
+        })()}
 
         {/* Breadcrumb Navigation */}
         <nav className="text-sm text-gray-500 mb-4" aria-label="パンくずリスト">
