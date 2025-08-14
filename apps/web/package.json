@@ -2,6 +2,7 @@
   "name": "@suptia/web",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,7 +12,7 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "format:check": "prettier . --check",
-    "typecheck": "tsc -p . --noEmit",
+    "typecheck": "tsc --noEmit",
     "headers:check": "node scripts/check-headers.mjs",
     "jsonld:check": "node scripts/validate-jsonld.mjs",
     "audit:ci": "pnpm audit --audit-level=moderate || true"
@@ -20,6 +21,10 @@
     "next": "14.2.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "@sanity/client": "^7.8.2",
+    "@sanity/vision": "^4.3.0",
+    "groq": "^4.3.0",
+    "sanity": "^3.99.0",
     "server-only": "^0.0.1"
   },
   "devDependencies": {
