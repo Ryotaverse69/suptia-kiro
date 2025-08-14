@@ -9,8 +9,6 @@ on:
 env:
   NODE_VERSION: '20'
 
-# Remove global working-directory to avoid conflicts
-
 jobs:
   format:
     name: format:check
@@ -19,22 +17,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
+          cache: 'npm'
+          cache-dependency-path: 'apps/web/package-lock.json'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         working-directory: apps/web
 
       - name: Check formatting
-        run: pnpm run format:check
+        run: npm run format:check
         working-directory: apps/web
 
   lint:
@@ -44,22 +39,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
+          cache: 'npm'
+          cache-dependency-path: 'apps/web/package-lock.json'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         working-directory: apps/web
 
       - name: Run linter
-        run: pnpm run lint
+        run: npm run lint
         working-directory: apps/web
 
   test:
@@ -69,22 +61,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
+          cache: 'npm'
+          cache-dependency-path: 'apps/web/package-lock.json'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         working-directory: apps/web
 
       - name: Run tests
-        run: pnpm run test
+        run: npm run test
         working-directory: apps/web
 
   typecheck:
@@ -94,22 +83,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
+          cache: 'npm'
+          cache-dependency-path: 'apps/web/package-lock.json'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         working-directory: apps/web
 
       - name: Type check
-        run: pnpm run typecheck
+        run: npm run typecheck
         working-directory: apps/web
 
   build:
@@ -119,22 +105,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
+          cache: 'npm'
+          cache-dependency-path: 'apps/web/package-lock.json'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         working-directory: apps/web
 
       - name: Build application
-        run: pnpm run build
+        run: npm run build
         working-directory: apps/web
 
   headers:
@@ -145,26 +128,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
+          cache: 'npm'
+          cache-dependency-path: 'apps/web/package-lock.json'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         working-directory: apps/web
 
       - name: Build application
-        run: pnpm run build
+        run: npm run build
         working-directory: apps/web
 
       - name: Start application
-        run: pnpm start &
+        run: npm start &
         working-directory: apps/web
 
       - name: Wait for application
@@ -182,26 +162,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
+          cache: 'npm'
+          cache-dependency-path: 'apps/web/package-lock.json'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         working-directory: apps/web
 
       - name: Build application
-        run: pnpm run build
+        run: npm run build
         working-directory: apps/web
 
       - name: Start application
-        run: pnpm start &
+        run: npm start &
         working-directory: apps/web
 
       - name: Wait for application
@@ -218,22 +195,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
+          cache: 'npm'
+          cache-dependency-path: 'apps/web/package-lock.json'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         working-directory: apps/web
 
       - name: Run security audit
-        run: pnpm audit --audit-level moderate || true
+        run: npm audit --audit-level moderate || true
         working-directory: apps/web
 
   lighthouse:
@@ -245,26 +219,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: 'apps/web/pnpm-lock.yaml'
+          cache: 'npm'
+          cache-dependency-path: 'apps/web/package-lock.json'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
         working-directory: apps/web
 
       - name: Build application
-        run: pnpm run build
+        run: npm run build
         working-directory: apps/web
 
       - name: Start application
-        run: pnpm start &
+        run: npm start &
         working-directory: apps/web
 
       - name: Wait for application
