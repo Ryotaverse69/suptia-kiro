@@ -10,6 +10,8 @@ import {
 import { notFound } from "next/navigation";
 import { isValidSlug } from "@/lib/sanitize";
 import Image from "next/image";
+import { headers } from "next/headers";
+import Script from "next/script";
 
 interface Product {
   _id: string;
@@ -97,18 +99,17 @@ export default async function ProductDetailPage({ params }: PageProps) {
     { name: "商品", url: "/products" },
     { name: product.name, url: `/products/${product.slug.current}` },
   ]);
+  const nonce = headers().get("x-nonce") || undefined;
 
   return (
     <>
       {/* JSON-LD Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
+      <Script id="product-jsonld" type="application/ld+json" nonce={nonce}>
+        {JSON.stringify(productJsonLd)}
+      </Script>
+      <Script id="breadcrumb-jsonld" type="application/ld+json" nonce={nonce}>
+        {JSON.stringify(breadcrumbJsonLd)}
+      </Script>
 
       <div className="container mx-auto px-4 py-8">
         {/* Compliance Warning Banner */}

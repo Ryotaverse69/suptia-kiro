@@ -31,7 +31,8 @@
         "get_pull_request_status",
         "list_workflow_runs",
         "get_job_logs",
-        "list_workflow_jobs"
+        "list_workflow_jobs",
+        "get_workflow_run"
       ]
     }
   }

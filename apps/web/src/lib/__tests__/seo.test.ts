@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, beforeAll } from "vitest";
 import {
   generateMetadata,
   generateProductMetadata,
@@ -9,6 +9,11 @@ import {
 
 describe("SEO Utilities", () => {
   const originalEnv = process.env;
+
+  // テスト時に SITE_URL を明示的に設定して、実装と期待値を一致させる
+  beforeAll(() => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://suptia.com";
+  });
 
   beforeEach(() => {
     process.env = { ...originalEnv };
