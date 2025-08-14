@@ -1,0 +1,18 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "schedule": [
+    "before 4am on Monday"
+  ],
+  "timezone": "Asia/Tokyo",
+  "labels": ["dependencies"],
+  "assignees": ["Ryotaverse69"],
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["*"],
+      "rangeStrategy": "bump"
+    }
+  ]
+}
