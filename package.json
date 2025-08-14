@@ -1,20 +1,21 @@
 {
   "name": "suptia-kiro",
   "private": true,
+  "packageManager": "pnpm@latest",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "dev": "cd apps/web && npm run dev",
-    "build": "cd apps/web && npm run build",
-    "start": "cd apps/web && npm run start",
-    "lint": "cd apps/web && npm run lint",
-    "format": "cd apps/web && npm run format",
-    "test": "cd apps/web && npm run test",
-    "test:watch": "cd apps/web && npm run test:watch",
-    "type-check": "cd apps/web && npm run type-check",
-    "precommit": "npm run format && npm run lint && npm run test",
+    "dev": "cd apps/web && pnpm run dev",
+    "build": "cd apps/web && pnpm run build",
+    "start": "cd apps/web && pnpm run start",
+    "lint": "cd apps/web && pnpm run lint",
+    "format": "cd apps/web && pnpm run format",
+    "test": "cd apps/web && pnpm run test",
+    "test:watch": "cd apps/web && pnpm run test:watch",
+    "type-check": "cd apps/web && pnpm run type-check",
+    "precommit": "pnpm run format && pnpm run lint && pnpm run test",
     "prepare": "husky"
   },
   "devDependencies": {
