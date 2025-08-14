@@ -1,6 +1,6 @@
 import { sanityServer } from "@/lib/sanityServer";
 import { checkCompliance, generateSampleDescription } from "@/lib/compliance";
-import { WarningBanner } from "@/components/WarningBanner";
+import { PersonaWarnings } from "@/components/PersonaWarnings";
 import { PriceTable } from "@/components/PriceTable";
 import {
   generateProductMetadata,
@@ -79,8 +79,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const description =
     product.description || generateSampleDescription(product.name);
 
-  // Check compliance
-  const complianceResult = checkCompliance(description);
+  // Personas can later come from user profile or context; for now choose a conservative default
+  const personas: ("general" | "medical_professional" | "underage")[] = [
+    "general",
+  ];
 
   // Generate JSON-LD structured data
   const productJsonLd = generateProductJsonLd({
@@ -111,10 +113,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
       />
 
       <div className="container mx-auto px-4 py-8">
-        {/* Compliance Warning Banner */}
-        {complianceResult.hasViolations && (
-          <WarningBanner violations={complianceResult.violations} />
-        )}
+        {/* Persona-based Warning Banner */}
+        <PersonaWarnings text={description} personas={personas} />
 
         {/* Breadcrumb Navigation */}
         <nav className="text-sm text-gray-500 mb-4" aria-label="パンくずリスト">
