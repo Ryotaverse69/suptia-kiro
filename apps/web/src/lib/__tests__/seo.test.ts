@@ -29,7 +29,7 @@ describe("SEO Utilities", () => {
 
       expect(metadata.title).toBe("テストページ | サプティア");
       expect(metadata.description).toBe("テスト説明");
-      expect(metadata.canonical).toBe("https://suptia.com/test");
+      expect(metadata.alternates?.canonical).toBe("https://suptia.com/test");
       expect(metadata.openGraph?.title).toBe("テストページ | サプティア");
       expect(metadata.twitter?.title).toBe("テストページ | サプティア");
     });
@@ -41,7 +41,7 @@ describe("SEO Utilities", () => {
       expect(metadata.description).toBe(
         "安全 × 価格 × 説明可能性のサプリ意思決定エンジン",
       );
-      expect(metadata.canonical).toBe("https://suptia.com");
+      expect(metadata.alternates?.canonical).toBe("https://suptia.com");
     });
 
     it("noIndexが設定される", () => {
@@ -75,7 +75,7 @@ describe("SEO Utilities", () => {
         "ビタミンC 1000mg - テストブランド | サプティア",
       );
       expect(metadata.description).toBe("テスト商品の説明");
-      expect(metadata.canonical).toBe(
+      expect(metadata.alternates?.canonical).toBe(
         "https://suptia.com/products/vitamin-c-1000",
       );
     });
