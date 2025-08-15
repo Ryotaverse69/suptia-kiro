@@ -1,84 +1,163 @@
-// Compliance checker for pharmaceutical regulations
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export interface ComplianceRule {
   pattern: string;
   suggest: string;
 }
 
+export interface ComplianceRules {
+  ng: ComplianceRule[];
+}
+
 export interface ComplianceViolation {
-  originalText: string;
-  suggestedText: string;
   pattern: string;
-}
-
-export interface ComplianceResult {
-  hasViolations: boolean;
-  violations: ComplianceViolation[];
-}
-
-// Load rules from tools/phrase-checker/rules.json
-const COMPLIANCE_RULES: ComplianceRule[] = [
-  {
-    pattern: "完治",
-    suggest: "改善が期待される",
-  },
-  {
-    pattern: "即効|速攻",
-    suggest: "短期間での変化が報告されている",
-  },
-  {
-    pattern: "必ず痩せる",
-    suggest: "体重管理をサポートする可能性",
-  },
-];
-
-/**
- * Check text for compliance violations
- */
-export function checkCompliance(text: string): ComplianceResult {
-  if (!text || typeof text !== "string") {
-    return {
-      hasViolations: false,
-      violations: [],
-    };
-  }
-
-  const violations: ComplianceViolation[] = [];
-
-  for (const rule of COMPLIANCE_RULES) {
-    const regex = new RegExp(rule.pattern, "gi");
-    const matches = text.match(regex);
-
-    if (matches) {
-      for (const match of matches) {
-        violations.push({
-          originalText: match,
-          suggestedText: rule.suggest,
-          pattern: rule.pattern,
-        });
-      }
-    }
-  }
-
-  return {
-    hasViolations: violations.length > 0,
-    violations,
+  match: string;
+  suggestion: string;
+  position: {
+    start: number;
+    end: number;
   };
 }
 
-/**
- * Generate sample product description (for demo purposes)
- */
-export function generateSampleDescription(productName: string): string {
-  const descriptions = [
-    `${productName}は健康維持をサポートする高品質なサプリメントです。`,
-    `${productName}で毎日の栄養バランスを整えましょう。`,
-    `${productName}は科学的根拠に基づいて開発された製品です。`,
-    `${productName}は即効性があり、必ず痩せる効果が期待できます。`, // NG表現を含む例
-    `${productName}で完治を目指しましょう。`, // NG表現を含む例
-  ];
+export interface ComplianceChecker {
+  checkText(text: string): ComplianceViolation[];
+  loadRules(): ComplianceRules;
+  suggestAlternatives(text: string): string;
+}
 
-  // ランダムに説明文を選択（デモ用）
-  const randomIndex = Math.floor(Math.random() * descriptions.length);
-  return descriptions[randomIndex];
+class ComplianceCheckerImpl implements ComplianceChecker {
+  private rules: ComplianceRules | null = null;
+  private rulesPath: string;
+
+  constructor(rulesPath?: string) {
+    // デフォルトのパスを設定（プロジェクトルートからの相対パス）
+    this.rulesPath =
+      rulesPath || join(process.cwd(), "tools/phrase-checker/rules.json");
+  }
+
+  /**
+   * rules.jsonファイルを動的に読み込む
+   */
+  loadRules(): ComplianceRules {
+    try {
+      if (!this.rules) {
+        const rulesContent = readFileSync(this.rulesPath, "utf-8");
+        this.rules = JSON.parse(rulesContent) as ComplianceRules;
+      }
+      return this.rules;
+    } catch (error) {
+      throw new Error(
+        `Failed to load rules from ${this.rulesPath}: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    }
+  }
+
+  /**
+   * テキストをチェックしてコンプライアンス違反を検出
+   */
+  checkText(text: string): ComplianceViolation[] {
+    if (!text || typeof text !== "string") {
+      return [];
+    }
+
+    try {
+      const rules = this.loadRules();
+      const violations: ComplianceViolation[] = [];
+
+      for (const rule of rules.ng) {
+        try {
+          const regex = new RegExp(rule.pattern, "gi");
+          let match;
+
+          while ((match = regex.exec(text)) !== null) {
+            violations.push({
+              pattern: rule.pattern,
+              match: match[0],
+              suggestion: rule.suggest,
+              position: {
+                start: match.index,
+                end: match.index + match[0].length,
+              },
+            });
+
+            // 無限ループを防ぐ
+            if (regex.lastIndex === match.index) {
+              regex.lastIndex++;
+            }
+          }
+        } catch (patternError) {
+          console.warn(`Invalid regex pattern: ${rule.pattern}`, patternError);
+          continue;
+        }
+      }
+
+      // 位置順でソート
+      return violations.sort((a, b) => a.position.start - b.position.start);
+    } catch (error) {
+      console.error("Error checking text for compliance violations:", error);
+      return [];
+    }
+  }
+
+  /**
+   * テキストの代替案を提案
+   */
+  suggestAlternatives(text: string): string {
+    if (!text || typeof text !== "string") {
+      return text;
+    }
+
+    try {
+      const violations = this.checkText(text);
+      let result = text;
+
+      // 後ろから前に向かって置換（位置がずれないように）
+      for (let i = violations.length - 1; i >= 0; i--) {
+        const violation = violations[i];
+        const before = result.substring(0, violation.position.start);
+        const after = result.substring(violation.position.end);
+        result = before + violation.suggestion + after;
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Error suggesting alternatives:", error);
+      return text;
+    }
+  }
+}
+
+// シングルトンインスタンス
+let complianceCheckerInstance: ComplianceChecker | null = null;
+
+/**
+ * ComplianceCheckerのシングルトンインスタンスを取得
+ */
+export function getComplianceChecker(rulesPath?: string): ComplianceChecker {
+  if (!complianceCheckerInstance) {
+    complianceCheckerInstance = new ComplianceCheckerImpl(rulesPath);
+  }
+  return complianceCheckerInstance;
+}
+
+/**
+ * テキストをチェックする便利関数
+ */
+export function checkText(text: string): ComplianceViolation[] {
+  return getComplianceChecker().checkText(text);
+}
+
+/**
+ * 代替案を提案する便利関数
+ */
+export function suggestAlternatives(text: string): string {
+  return getComplianceChecker().suggestAlternatives(text);
+}
+
+/**
+ * ルールを読み込む便利関数
+ */
+export function loadRules(): ComplianceRules {
+  return getComplianceChecker().loadRules();
 }
