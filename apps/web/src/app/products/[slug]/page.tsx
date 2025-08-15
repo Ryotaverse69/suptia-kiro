@@ -1,6 +1,6 @@
 import { sanityServer } from "@/lib/sanityServer";
 import { checkCompliance, generateSampleDescription } from "@/lib/compliance";
-import { WarningBanner } from "@/components/WarningBanner";
+import { PersonaWarnings } from "@/components/PersonaWarnings";
 import { PriceTable } from "@/components/PriceTable";
 import {
   generateProductMetadata,
@@ -12,6 +12,9 @@ import { isValidSlug } from "@/lib/sanitize";
 import Image from "next/image";
 import { headers } from "next/headers";
 import Script from "next/script";
+import { score, type Product as ScoringProduct } from "@/lib/scoring";
+import { ScoreDisplay } from "@/components/ScoreDisplay";
+import { ScoreBreakdown } from "@/components/ScoreBreakdown";
 
 interface Product {
   _id: string;
@@ -30,6 +33,17 @@ interface Product {
     };
     alt?: string;
   }>;
+  // Additional fields for scoring
+  ingredients?: Array<{
+    name?: string;
+    evidenceLevel?: "A" | "B" | "C";
+    studyCount?: number;
+    studyQuality?: number;
+  }>;
+  sideEffectLevel?: "none" | "low" | "mid" | "high";
+  interactionRisk?: number;
+  contraindicationCount?: number;
+  form?: "capsule" | "tablet" | "powder";
 }
 
 async function getProduct(slug: string): Promise<Product | null> {
@@ -52,7 +66,17 @@ async function getProduct(slug: string): Promise<Product | null> {
         url
       },
       alt
-    }
+    },
+    ingredients[]{
+      name,
+      evidenceLevel,
+      studyCount,
+      studyQuality
+    },
+    sideEffectLevel,
+    interactionRisk,
+    contraindicationCount,
+    form
   }`;
 
   try {
@@ -81,10 +105,48 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const description =
     product.description || generateSampleDescription(product.name);
 
-  // Check compliance
-  const complianceResult = checkCompliance(description);
+  // Extract ingredients from product data
+  const ingredients =
+    product.ingredients?.map((ing) => ing.name || "").filter(Boolean) || [];
 
-  // Generate JSON-LD structured data
+  // Mock persona detection (in real implementation, this would come from user profile/session)
+  const personas: ("general" | "medical_professional" | "underage")[] = [
+    "general",
+  ];
+
+  // Add error handling for warning system
+  const handleWarningsChange = (warnings: any[]) => {
+    // Log warnings for analytics/monitoring
+    if (warnings.length > 0) {
+      console.info(
+        `Product ${product.name} has ${warnings.length} warnings:`,
+        warnings,
+      );
+    }
+  };
+
+  // Calculate product score
+  const scoringProduct: ScoringProduct = {
+    priceJPY: product.priceJPY,
+    servingsPerContainer: product.servingsPerContainer,
+    servingsPerDay: product.servingsPerDay,
+    description,
+    ingredients: product.ingredients,
+    sideEffectLevel: product.sideEffectLevel,
+    interactionRisk: product.interactionRisk,
+    contraindicationCount: product.contraindicationCount,
+    form: product.form,
+  };
+
+  const scoreResult = score(scoringProduct);
+
+  // Convert 0-100 score to 1-5 scale for aggregateRating
+  const aggregateRating = Math.max(
+    1,
+    Math.min(5, Math.round((scoreResult.total / 100) * 4) + 1),
+  );
+
+  // Generate JSON-LD structured data with aggregateRating
   const productJsonLd = generateProductJsonLd({
     name: product.name,
     brand: product.brand,
@@ -92,6 +154,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
     slug: product.slug.current,
     description,
     images: product.images?.map((img) => img.asset?.url).filter(Boolean),
+    aggregateRating: {
+      ratingValue: aggregateRating,
+      bestRating: 5,
+      worstRating: 1,
+      ratingCount: 1, // Since this is system-generated
+    },
   });
 
   const breadcrumbJsonLd = generateBreadcrumbJsonLd([
@@ -112,10 +180,26 @@ export default async function ProductDetailPage({ params }: PageProps) {
       </Script>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Compliance Warning Banner */}
-        {complianceResult.hasViolations && (
-          <WarningBanner violations={complianceResult.violations} />
-        )}
+        {/* Persona-based Warning Banner */}
+        <PersonaWarnings
+          text={description}
+          ingredients={ingredients}
+          personas={personas}
+          enableCompliance={true}
+          showDetails={true}
+          onWarningsChange={handleWarningsChange}
+          className="mb-6"
+        />
+
+        {/* Product Score */}
+        <div className="mb-8" aria-label="製品スコア表示">
+          <ScoreDisplay scoreResult={scoreResult} showBreakdown={true} />
+          <ScoreBreakdown
+            breakdown={scoreResult.breakdown}
+            weights={scoreResult.weights}
+            className="mt-6"
+          />
+        </div>
 
         {/* Breadcrumb Navigation */}
         <nav className="text-sm text-gray-500 mb-4" aria-label="パンくずリスト">
