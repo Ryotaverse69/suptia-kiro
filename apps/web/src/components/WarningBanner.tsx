@@ -10,7 +10,6 @@ export interface WarningBannerProps {
   dismissible?: boolean;
   className?: string;
   id?: string;
-  ariaLevel?: 1 | 2 | 3 | 4 | 5 | 6;
 }
 
 const SEVERITY_STYLES = {
@@ -45,7 +44,6 @@ export const WarningBanner = memo<WarningBannerProps>(
     dismissible = true,
     className = "",
     id,
-    ariaLevel = 2,
   }) => {
     const [isVisible, setIsVisible] = useState(true);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -81,7 +79,6 @@ export const WarningBanner = memo<WarningBannerProps>(
         id={id}
         className={`relative rounded-lg border p-4 transition-all duration-150 ease-in-out ${styles.container} ${isAnimating ? "opacity-0 transform scale-95" : "opacity-100 transform scale-100"} ${className}`}
         role="status"
-        aria-level={ariaLevel}
         aria-live="polite"
         onKeyDown={handleKeyDown}
       >
@@ -170,7 +167,6 @@ export const WarningBannerList = memo<WarningBannerListProps>(
             severity={warning.severity}
             message={warning.message}
             onDismiss={() => handleDismiss(warning.id)}
-            ariaLevel={index === 0 ? 2 : 3}
           />
         ))}
 

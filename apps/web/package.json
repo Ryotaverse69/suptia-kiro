@@ -9,6 +9,9 @@
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:a11y": "playwright test --grep=\"A11y Light E2E\"",
     "lint": "next lint",
     "format": "prettier --write .",
     "format:check": "prettier . --check",
@@ -36,7 +39,9 @@
     "jsdom": "^23.0.1",
     "eslint": "^8.55.0",
     "eslint-config-next": "14.0.4",
-    "prettier": "^3.1.0"
+    "prettier": "^3.1.0",
+    "@playwright/test": "^1.40.0",
+    "@axe-core/playwright": "^4.8.2"
   },
   "packageManager": "pnpm@9.0.0"
 }
