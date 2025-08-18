@@ -132,7 +132,46 @@ npm run dev
 npm run test
 npm run lint
 npm run format
+npm run check:dod  # Definition of Done チェック
 ```
+
+## Definition of Done (DoD) チェック
+
+M0 DoDチェックリストの自動検証機能が利用できます。
+
+### 手動実行
+
+```bash
+# apps/webディレクトリから実行
+cd apps/web
+npm run check:dod
+
+# または直接実行
+node ../../scripts/check-dod.mjs
+```
+
+### 自動実行
+
+- **PR作成時**: 自動的にDoDチェックが実行され、結果がPRコメントに表示されます
+- **CI/CD**: 必須CIチェックの一部として実行されます
+
+### チェック項目
+
+#### 必須CIチェック
+- `format:check` - コードフォーマット
+- `lint` - ESLint静的解析
+- `test` - ユニットテスト
+- `typecheck` - TypeScript型チェック
+- `build` - ビルド成功
+- `headers` - セキュリティヘッダー検証
+- `jsonld` - JSON-LD構造化データ検証
+
+#### 機能実装チェック
+- 価格機能（楽天・Yahoo!コネクタ、マッチャー、正規化、コスト計算）
+- コンプライアンス・安全性（診断フロー、薬機法チェック）
+- 品質保証（A11yテスト、JSON-LD、テスト実装）
+- UI/UX統合（コンポーネント統合、商品詳細ページ）
+- SEO・構造化データ（メタデータ、評価システム）
 
 ## プロジェクト構造
 
@@ -193,6 +232,35 @@ npm run format
 # 型チェック
 npm run type-check
 ```
+
+### パフォーマンス予算チェック
+
+Lighthouseを使用したパフォーマンス予算の監視機能が利用できます。
+
+```bash
+# 基本的な予算チェック（警告のみ）
+npm run lighthouse:budget
+
+# 詳細ログ付きチェック
+npm run lighthouse:budget:verbose
+
+# 厳格モード（予算超過時にビルド失敗）
+npm run lighthouse:budget:strict
+
+# Lighthouse CI実行
+npm run lighthouse:ci
+```
+
+#### 予算閾値
+
+- **LCP (Largest Contentful Paint)**: ≤2.5s (警告), ≤4.0s (エラー)
+- **TBT (Total Blocking Time)**: ≤200ms (警告), ≤600ms (エラー)
+- **CLS (Cumulative Layout Shift)**: ≤0.1 (警告), ≤0.25 (エラー)
+- **JavaScript Bundle**: ≤300KB (警告), ≤500KB (エラー)
+
+#### CI統合
+
+GitHub Actionsで自動的にパフォーマンス予算がチェックされ、PRコメントに結果が表示されます。デフォルトでは警告のみでビルドは継続されます。
 
 ### ビルドとデプロイ
 

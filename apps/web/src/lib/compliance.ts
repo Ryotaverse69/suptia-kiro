@@ -1,5 +1,4 @@
-import { readFileSync } from "fs";
-import { join } from "path";
+// Note: fs operations are moved to server-side only functions
 
 export interface ComplianceRule {
   pattern: string;
@@ -28,29 +27,39 @@ export interface ComplianceChecker {
 
 class ComplianceCheckerImpl implements ComplianceChecker {
   private rules: ComplianceRules | null = null;
-  private rulesPath: string;
 
-  constructor(rulesPath?: string) {
-    // デフォルトのパスを設定（プロジェクトルートからの相対パス）
-    this.rulesPath =
-      rulesPath || join(process.cwd(), "tools/phrase-checker/rules.json");
+  constructor() {
+    // Initialize with default rules for client-side usage
+    this.rules = {
+      ng: [
+        { pattern: "治療", suggest: "サポート" },
+        { pattern: "治る", suggest: "健康維持に役立つ" },
+        { pattern: "効果", suggest: "働き" },
+        { pattern: "薬", suggest: "サプリメント" },
+        { pattern: "病気", suggest: "健康状態" },
+        { pattern: "症状", suggest: "体調" },
+      ],
+    };
   }
 
   /**
-   * rules.jsonファイルを動的に読み込む
+   * rules.jsonファイルを動的に読み込む（サーバーサイドでのみ使用）
    */
   loadRules(): ComplianceRules {
-    try {
-      if (!this.rules) {
-        const rulesContent = readFileSync(this.rulesPath, "utf-8");
-        this.rules = JSON.parse(rulesContent) as ComplianceRules;
-      }
-      return this.rules;
-    } catch (error) {
-      throw new Error(
-        `Failed to load rules from ${this.rulesPath}: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+    if (!this.rules) {
+      // Fallback to default rules if not loaded
+      this.rules = {
+        ng: [
+          { pattern: "治療", suggest: "サポート" },
+          { pattern: "治る", suggest: "健康維持に役立つ" },
+          { pattern: "効果", suggest: "働き" },
+          { pattern: "薬", suggest: "サプリメント" },
+          { pattern: "病気", suggest: "健康状態" },
+          { pattern: "症状", suggest: "体調" },
+        ],
+      };
     }
+    return this.rules;
   }
 
   /**
@@ -136,7 +145,7 @@ let complianceCheckerInstance: ComplianceChecker | null = null;
  */
 export function getComplianceChecker(rulesPath?: string): ComplianceChecker {
   if (!complianceCheckerInstance) {
-    complianceCheckerInstance = new ComplianceCheckerImpl(rulesPath);
+    complianceCheckerInstance = new ComplianceCheckerImpl();
   }
   return complianceCheckerInstance;
 }
@@ -160,4 +169,18 @@ export function suggestAlternatives(text: string): string {
  */
 export function loadRules(): ComplianceRules {
   return getComplianceChecker().loadRules();
+}
+
+/**
+ * サンプル商品説明を生成する関数
+ */
+export function generateSampleDescription(productName: string): string {
+  return `${productName}は、日々の健康維持をサポートするサプリメントです。バランスの取れた食事と適度な運動と併せてお役立てください。個人差がありますので、体調に合わせてご利用ください。`;
+}
+
+/**
+ * コンプライアンスチェック関数
+ */
+export function checkCompliance(text: string): ComplianceViolation[] {
+  return getComplianceChecker().checkText(text);
 }

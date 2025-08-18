@@ -227,7 +227,7 @@ function PersonaWarningsContent({
       acc[warning.severity].push(warning);
       return acc;
     },
-    {} as Record<string, PersonaWarning[]>,
+    {} as Record<string, CombinedWarning[]>,
   );
 
   if (warnings.length === 0) {
