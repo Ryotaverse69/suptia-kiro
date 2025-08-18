@@ -65,7 +65,7 @@ w# Implementation Plan
   - Ensure test covers component existence and screen reader announcements
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 8. DoDチェックリストをPRテンプレに組み込み
+- [x] 8. DoDチェックリストをPRテンプレに組み込み
   - Update .github/pull_request_template.md with M0 DoD checklist items
   - Add mandatory CI checks verification: ["format:check","lint","test","typecheck","build","headers","jsonld"]
   - Include price matching validation (2 sources per product with lowest price indication)
@@ -74,7 +74,7 @@ w# Implementation Plan
   - Implement automated DoD verification in CI pipeline with clear pass/fail reporting
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 9. lighthouse-budget.json を追加し CI で警告運用 **[継続]**
+- [x] 9. lighthouse-budget.json を追加し CI で警告運用 **[継続]**
   - Create lighthouse-budget.json with LCP≤2.5s, TBT≤200ms, CLS≤0.1, JS≤300KB thresholds
   - Implement lib/release/lighthouse-budget.ts for budget management
   - Add scripts/release/check-lighthouse-budget.ts for CI integration
@@ -83,14 +83,14 @@ w# Implementation Plan
   - Add Lighthouse CI integration with temporary public storage
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 10. Configure Next.js security headers and strict CSP **[継続]**
+- [x] 10. Configure Next.js security headers and strict CSP **[継続]**
   - Update next.config.js with strict CSP: script-src 'self' (no unsafe-inline), style-src 'self' 'unsafe-inline', img-src 'self' https://cdn.sanity.io data:, connect-src 'self' https://*.sanity.io, upgrade-insecure-requests
   - Add conditional GA4 support with gtm (commented configuration)
   - Add X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy headers
   - Create middleware.ts for request-level security header application
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7_
 
-- [ ] 11. Implement enhanced rate limiting with logging **[継続]**
+- [x] 11. Implement enhanced rate limiting with logging **[継続]**
   - Create lib/security/rate-limit.ts with 60 req/10 min/IP limit
   - Implement 429 status code with Retry-After header
   - Add IP hash and route logging for rate limit violations
@@ -98,7 +98,7 @@ w# Implementation Plan
   - Ensure Sanity tokens are not exposed to client-side code
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 12. Create enhanced LLM agent safety framework **[継続]**
+- [x] 12. Create enhanced LLM agent safety framework **[継続]**
   - Update .kiro/steering/security.md with dry-run → approval → execution workflow
   - Implement lib/agent/content-filter.ts for external instruction detection
   - Create lib/agent/domain-whitelist.ts with sanity.io and company domain restrictions

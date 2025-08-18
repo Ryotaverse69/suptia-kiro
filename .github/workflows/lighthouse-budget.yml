@@ -1,0 +1,178 @@
+name: Lighthouse Budget Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  # 手動実行も可能
+  workflow_dispatch:
+    inputs:
+      strict_mode:
+        description: 'Enable strict mode (fail on budget violations)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  lighthouse-budget:
+    name: Lighthouse Performance Budget
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        working-directory: apps/web
+
+      - name: Start application server
+        run: |
+          npm run start &
+          # サーバーが起動するまで待機
+          npx wait-on http://localhost:3000 --timeout 60000
+        working-directory: apps/web
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.12.x
+
+      - name: Run Lighthouse CI
+        run: lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Run Budget Check (Warning Mode)
+        if: ${{ !inputs.strict_mode }}
+        run: npx tsx scripts/release/check-lighthouse-budget.ts --verbose
+        continue-on-error: true
+
+      - name: Run Budget Check (Strict Mode)
+        if: ${{ inputs.strict_mode }}
+        run: npx tsx scripts/release/check-lighthouse-budget.ts --strict --verbose
+
+      - name: Upload Lighthouse Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-report
+          path: |
+            lighthouse-report.json
+            .lighthouseci/
+          retention-days: 30
+
+      - name: Comment PR with Budget Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Lighthouse レポートが存在するかチェック
+            const reportPath = 'lighthouse-report.json';
+            if (!fs.existsSync(reportPath)) {
+              console.log('Lighthouse report not found, skipping PR comment');
+              return;
+            }
+            
+            try {
+              const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+              const { LighthouseBudgetManager } = require('./apps/web/src/lib/release/lighthouse-budget.ts');
+              
+              const budgetManager = new LighthouseBudgetManager();
+              const metrics = budgetManager.extractMetricsFromLighthouseReport(report);
+              const result = budgetManager.checkBudget(metrics);
+              
+              const comment = `
+              ## 🚀 Lighthouse Budget Report
+              
+              ${result.passed ? '✅ All budget checks passed!' : '⚠️ Budget violations detected'}
+              
+              **Summary:** ${result.summary.warnings} warnings, ${result.summary.errors} errors
+              
+              ### 📊 Performance Metrics
+              - **LCP (Largest Contentful Paint):** ${metrics.lcp.toFixed(0)}ms
+              - **TBT (Total Blocking Time):** ${metrics.tbt.toFixed(0)}ms  
+              - **CLS (Cumulative Layout Shift):** ${metrics.cls.toFixed(3)}
+              - **JavaScript Bundle:** ${metrics.jsSize.toFixed(1)}KB
+              
+              ### 💡 Budget Thresholds
+              - LCP: ≤2500ms (warning), ≤4000ms (error)
+              - TBT: ≤200ms (warning), ≤600ms (error)
+              - CLS: ≤0.1 (warning), ≤0.25 (error)
+              - JS: ≤300KB (warning), ≤500KB (error)
+              
+              ${result.violations.length > 0 ? `
+              ### 📋 Violations
+              ${result.violations.map(v => `- ${v.severity === 'error' ? '❌' : '⚠️'} ${v.message}`).join('\n')}
+              ` : ''}
+              
+              > 💡 This check runs in **warning-only mode** and will not fail the build.
+              `;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+              
+            } catch (error) {
+              console.error('Failed to create PR comment:', error);
+            }
+
+  # 定期実行（毎日午前2時）でパフォーマンス監視
+  lighthouse-monitoring:
+    name: Daily Performance Monitoring
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and test production build
+        run: |
+          npm run build
+          npm run start &
+          npx wait-on http://localhost:3000 --timeout 60000
+        working-directory: apps/web
+
+      - name: Run comprehensive Lighthouse audit
+        run: |
+          npx tsx scripts/release/check-lighthouse-budget.ts --verbose
+          npx tsx scripts/release/check-lighthouse-budget.ts --url http://localhost:3000/products/test --verbose
+          npx tsx scripts/release/check-lighthouse-budget.ts --url http://localhost:3000/compare --verbose
+
+      - name: Archive monitoring results
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-lighthouse-monitoring
+          path: |
+            lighthouse-report.json
+            .lighthouseci/
+          retention-days: 90
+
+# 定期実行スケジュール（毎日午前2時 JST = 17:00 UTC）
+on:
+  schedule:
+    - cron: '0 17 * * *'

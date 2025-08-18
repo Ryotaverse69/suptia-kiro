@@ -16,7 +16,15 @@
     "type-check": "cd apps/web && npm run type-check",
     "env:check": "node scripts/check-env-sync.mjs",
     "sitemap": "next-sitemap",
-    "precommit": "npm run format && npm run lint && npm run test && npm run env:check",
+    "lint:compliance": "tsx scripts/lint-compliance.ts",
+    "lint:compliance:verbose": "tsx scripts/lint-compliance.ts --verbose",
+    "lint:compliance:json": "tsx scripts/lint-compliance.ts --json",
+    "lint:compliance:strict": "tsx scripts/lint-compliance.ts --strict",
+    "lighthouse:budget": "tsx scripts/release/check-lighthouse-budget.ts",
+    "lighthouse:budget:strict": "tsx scripts/release/check-lighthouse-budget.ts --strict",
+    "lighthouse:budget:verbose": "tsx scripts/release/check-lighthouse-budget.ts --verbose",
+    "lighthouse:ci": "lhci autorun",
+    "precommit": "npm run format && npm run lint && npm run test && npm run lint:compliance && npm run env:check",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -39,6 +47,8 @@
     "groq": "^4.3.0",
     "next-sitemap": "^4.2.3",
     "sanity": "^3.99.0",
-    "zod": "^4.0.17"
+    "zod": "^4.0.17",
+    "glob": "^10.3.10",
+    "tsx": "^4.7.0"
   }
 }

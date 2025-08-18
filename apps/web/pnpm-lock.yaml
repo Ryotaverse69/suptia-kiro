@@ -19,7 +19,7 @@ importers:
         version: 4.4.0
       next:
         specifier: 14.2.5
-        version: 14.2.5(@babel/core@7.28.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 14.2.5(@babel/core@7.28.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -33,6 +33,12 @@ importers:
         specifier: ^4.0.17
         version: 4.0.17
     devDependencies:
+      '@axe-core/playwright':
+        specifier: ^4.8.2
+        version: 4.10.2(playwright-core@1.54.2)
+      '@playwright/test':
+        specifier: ^1.40.0
+        version: 1.54.2
       '@testing-library/jest-dom':
         specifier: ^6.1.5
         version: 6.7.0
@@ -132,6 +138,11 @@ packages:
   '@aws-lite/ssm@0.2.5':
     resolution: {integrity: sha512-1B8mZ79ySqlTEfSQ87KZ0XkmTOKQFMO3lUYUGUtwNTUncJINr6nhRWEjk128oBWwEQnpJ7NfpDPjdfg1ICe3xw==}
     engines: {node: '>=16'}
+
+  '@axe-core/playwright@4.10.2':
+    resolution: {integrity: sha512-6/b5BJjG6hDaRNtgzLIfKr5DfwyiLHO4+ByTLB0cJgWSM8Ll7KqtdblIS6bEkwSF642/Ex91vNqIl3GLXGlceg==}
+    peerDependencies:
+      playwright-core: '>= 1.0.0'
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -1495,6 +1506,11 @@ packages:
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
+
+  '@playwright/test@1.54.2':
+    resolution: {integrity: sha512-A+znathYxPf+72riFd1r1ovOLqsIIB0jKIoPjyK2kqEIe30/6jF6BC7QNluHuwUmsD2tv1XZVugN8GqfTMOxsA==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   '@portabletext/block-tools@1.1.38':
     resolution: {integrity: sha512-Mm+8GrE0iwfUCqF5lJ8Xbt0BIRo7qdbILtK4mldKiHjliG7gX78u/qimAFPlKuozZO0Vu21beDVnEI+tZ4zbXw==}
@@ -3336,6 +3352,11 @@ packages:
   fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
+  fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -4628,6 +4649,16 @@ packages:
 
   player.style@0.1.9:
     resolution: {integrity: sha512-aFmIhHMrnAP8YliFYFMnRw+5AlHqBvnqWy4vHGo2kFxlC+XjmTXqgg62qSxlE8ubAY83c0ViEZGYglSJi6mGCA==}
+
+  playwright-core@1.54.2:
+    resolution: {integrity: sha512-n5r4HFbMmWsB4twG7tJLDN9gmBUeSPcsBZiWSE4DnYz9mJMAFqr2ID7+eGC9kpEnxExJ1epttwR59LEWCk8mtA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.54.2:
+    resolution: {integrity: sha512-Hu/BMoA1NAdRUuulyvQC0pEqZ4vQbGfn8f7wPXcnqQmM+zct9UliKxsIkLNmz/ku7LElUNqmaiv1TG/aL5ACsw==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   pluralize-esm@9.0.5:
     resolution: {integrity: sha512-Kb2dcpMsIutFw2hYrN0EhsAXOUJTd6FVMIxvNAkZCMQLVt9NGZqQczvGpYDxNWCZeCWLHUPxQIBudWzt1h7VVA==}
@@ -6072,6 +6103,11 @@ snapshots:
   '@aws-lite/s3@0.1.22': {}
 
   '@aws-lite/ssm@0.2.5': {}
+
+  '@axe-core/playwright@4.10.2(playwright-core@1.54.2)':
+    dependencies:
+      axe-core: 4.10.3
+      playwright-core: 1.54.2
 
   '@babel/code-frame@7.27.1':
     dependencies:
@@ -7520,6 +7556,10 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
+  '@playwright/test@1.54.2':
+    dependencies:
+      playwright: 1.54.2
+
   '@portabletext/block-tools@1.1.38(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))(@types/react@18.3.23)':
     dependencies:
       '@sanity/types': 3.99.0(@types/react@18.3.23)(debug@4.4.1)
@@ -7890,15 +7930,15 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@sanity/presentation-comlink@1.0.28(@sanity/client@7.8.2)(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))':
+  '@sanity/presentation-comlink@1.0.28(@sanity/client@7.8.2(debug@4.4.1))(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))':
     dependencies:
       '@sanity/client': 7.8.2(debug@4.4.1)
       '@sanity/comlink': 3.0.9
-      '@sanity/visual-editing-types': 1.1.5(@sanity/client@7.8.2)(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))
+      '@sanity/visual-editing-types': 1.1.5(@sanity/client@7.8.2(debug@4.4.1))(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))
     transitivePeerDependencies:
       - '@sanity/types'
 
-  '@sanity/preview-url-secret@2.1.14(@sanity/client@7.8.2)':
+  '@sanity/preview-url-secret@2.1.14(@sanity/client@7.8.2(debug@4.4.1))':
     dependencies:
       '@sanity/client': 7.8.2(debug@4.4.1)
       '@sanity/uuid': 3.0.2
@@ -8110,7 +8150,7 @@ snapshots:
       - react-dom
       - react-is
 
-  '@sanity/visual-editing-types@1.1.5(@sanity/client@7.8.2)(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))':
+  '@sanity/visual-editing-types@1.1.5(@sanity/client@7.8.2(debug@4.4.1))(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))':
     dependencies:
       '@sanity/client': 7.8.2(debug@4.4.1)
     optionalDependencies:
@@ -9498,7 +9538,7 @@ snapshots:
       '@typescript-eslint/parser': 6.21.0(eslint@8.57.1)(typescript@5.9.2)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1)
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.5(eslint@8.57.1)
@@ -9518,7 +9558,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1):
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.1(supports-color@8.1.1)
@@ -9533,14 +9573,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 6.21.0(eslint@8.57.1)(typescript@5.9.2)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -9555,7 +9595,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1))(eslint@8.57.1)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -9873,6 +9913,9 @@ snapshots:
   fs-constants@1.0.0: {}
 
   fs.realpath@1.0.0: {}
+
+  fsevents@2.3.2:
+    optional: true
 
   fsevents@2.3.3:
     optional: true
@@ -10853,7 +10896,7 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  next@14.2.5(@babel/core@7.28.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next@14.2.5(@babel/core@7.28.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@next/env': 14.2.5
       '@swc/helpers': 0.5.5
@@ -10874,6 +10917,7 @@ snapshots:
       '@next/swc-win32-arm64-msvc': 14.2.5
       '@next/swc-win32-ia32-msvc': 14.2.5
       '@next/swc-win32-x64-msvc': 14.2.5
+      '@playwright/test': 1.54.2
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
@@ -11206,6 +11250,14 @@ snapshots:
       media-chrome: 4.11.1(react@18.3.1)
     transitivePeerDependencies:
       - react
+
+  playwright-core@1.54.2: {}
+
+  playwright@1.54.2:
+    dependencies:
+      playwright-core: 1.54.2
+    optionalDependencies:
+      fsevents: 2.3.2
 
   pluralize-esm@9.0.5: {}
 
@@ -11664,8 +11716,8 @@ snapshots:
       '@sanity/message-protocol': 0.13.3
       '@sanity/migrate': 3.99.0(@types/react@18.3.23)
       '@sanity/mutator': 3.99.0(@types/react@18.3.23)
-      '@sanity/presentation-comlink': 1.0.28(@sanity/client@7.8.2)(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))
-      '@sanity/preview-url-secret': 2.1.14(@sanity/client@7.8.2)
+      '@sanity/presentation-comlink': 1.0.28(@sanity/client@7.8.2(debug@4.4.1))(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))
+      '@sanity/preview-url-secret': 2.1.14(@sanity/client@7.8.2(debug@4.4.1))
       '@sanity/schema': 3.99.0(@types/react@18.3.23)(debug@4.4.1)
       '@sanity/sdk': 0.0.0-alpha.25(@types/react@18.3.23)(debug@4.4.1)(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))
       '@sanity/telemetry': 0.8.1(react@18.3.1)
