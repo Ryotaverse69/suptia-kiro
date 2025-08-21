@@ -16,6 +16,13 @@ function buildDevCSP() {
 }
 
 const nextConfig = {
+  // Performance optimizations
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['@/components', '@/lib'],
+  },
+  
+  // Image optimization
   images: {
     remotePatterns: [
       {
@@ -23,6 +30,53 @@ const nextConfig = {
         hostname: "cdn.sanity.io",
       },
     ],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: false,
+  },
+  
+  // Compiler optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  
+  // Bundle optimization
+  webpack: (config, { dev, isServer }) => {
+    // Production optimizations
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          default: false,
+          vendors: false,
+          // Vendor chunk for stable dependencies
+          vendor: {
+            name: 'vendor',
+            chunks: 'all',
+            test: /node_modules/,
+            priority: 20,
+          },
+          // Common chunk for shared code
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            priority: 10,
+            reuseExistingChunk: true,
+            enforce: true,
+          },
+          // Compare feature chunk
+          compare: {
+            name: 'compare',
+            chunks: 'all',
+            test: /[\\/]components[\\/]compare[\\/]/,
+            priority: 30,
+          },
+        },
+      };
+    }
+    
+    return config;
   },
   async headers() {
     const isDev = process.env.NODE_ENV === "development";

@@ -112,7 +112,7 @@ export class ContentFilter {
    */
   analyzeContent(content: string): ContentFilterResult {
     const detectedPatterns: string[] = [];
-    let riskLevel: ContentFilterResult["riskLevel"] = "low";
+    let riskLevel: "low" | "medium" | "high" | "critical" = "low";
 
     // Check for blocked instructions
     const blockedFound = this.config.blockedInstructions.filter((instruction) =>
@@ -131,7 +131,13 @@ export class ContentFilter {
       const matches = content.match(pattern);
       if (matches) {
         detectedPatterns.push(`Suspicious pattern: ${pattern.source}`);
-        riskLevel = riskLevel === "low" ? "medium" : "critical";
+        if (riskLevel === "low") {
+          riskLevel = "medium";
+        } else if (riskLevel === "medium") {
+          riskLevel = "high";
+        } else {
+          riskLevel = "critical";
+        }
       }
     });
 
@@ -155,7 +161,7 @@ export class ContentFilter {
 
     // Determine recommendation
     let recommendation: ContentFilterResult["recommendation"] = "allow";
-    if (riskLevel === "critical" || isExternalInstruction) {
+    if ((riskLevel as string) === "critical" || isExternalInstruction) {
       recommendation = "block";
     } else if (riskLevel === "high") {
       recommendation = "block";
@@ -185,7 +191,7 @@ export class ContentFilter {
 
     // Remove script tags
     sanitized = sanitized.replace(
-      /<script[^>]*>.*?<\/script>/gis,
+      /<script[^>]*>[\s\S]*?<\/script>/gi,
       "[SCRIPT_REMOVED]",
     );
 
