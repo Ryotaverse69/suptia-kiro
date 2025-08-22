@@ -1,0 +1,122 @@
+name: PR DoD Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  pr-dod-validation:
+    name: PR DoD Validation
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+        working-directory: apps/web
+
+      - name: Run DoD Check
+        id: dod-check
+        run: |
+          cd apps/web
+          if node ../../scripts/check-dod.mjs > dod-results.txt 2>&1; then
+            echo "dod_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "dod_passed=false" >> $GITHUB_OUTPUT
+          fi
+          cat dod-results.txt
+        continue-on-error: true
+
+      - name: Comment PR with DoD Results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // DoDチェック結果を読み込み
+            let dodResults = '';
+            try {
+              dodResults = fs.readFileSync('apps/web/dod-results.txt', 'utf8');
+            } catch (error) {
+              dodResults = 'DoDチェック結果の読み込みに失敗しました。';
+            }
+            
+            const dodPassed = '${{ steps.dod-check.outputs.dod_passed }}' === 'true';
+            
+            const comment = `## 📋 Definition of Done (DoD) 自動チェック結果
+
+            ${dodPassed ? '✅ **すべてのDoDチェックが通過しました！**' : '❌ **一部のDoDチェックが失敗しています**'}
+
+            ### 詳細結果
+            \`\`\`
+            ${dodResults}
+            \`\`\`
+
+            ### 次のステップ
+            ${dodPassed 
+              ? '- すべてのチェックが通過しているため、レビューを依頼できます\n- マージ前に最終確認を行ってください' 
+              : '- 失敗したチェック項目を修正してください\n- 修正後、再度プッシュすると自動的に再チェックされます'
+            }
+
+            ### 手動確認が必要な項目
+            以下の項目は手動で確認してください：
+            - [ ] 価格マッチング（2ソース/商品、最安値表示）
+            - [ ] 実効コスト/日ソート機能
+            - [ ] 診断→商品詳細フローでのNG表現ゼロ
+            - [ ] UI統合（ScoreDisplay + PersonaWarnings + PriceTable）
+            - [ ] アクセシビリティ（スクリーンリーダー対応）
+
+            ---
+            *このコメントは自動生成されました。最新の結果を確認するには、新しいコミットをプッシュしてください。*`;
+
+            // 既存のコメントを検索
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Definition of Done (DoD) 自動チェック結果')
+            );
+
+            if (botComment) {
+              // 既存のコメントを更新
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // 新しいコメントを作成
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+      - name: Set PR Status
+        if: steps.dod-check.outputs.dod_passed == 'false'
+        run: |
+          echo "::warning::一部のDoDチェックが失敗しています。詳細はPRコメントを確認してください。"
+          exit 1

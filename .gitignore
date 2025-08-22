@@ -73,3 +73,15 @@ pids/
 # Temporary folders
 tmp/
 temp/
+.kiro/settings/mcp.json
+
+# Generated
+apps/web/playwright-report/
+apps/web/tsconfig.tsbuildinfo
+package-lock.json
+
+# Generated
+apps/web/playwright-report/
+apps/web/tsconfig.tsbuildinfo
+package-lock.json
+.vercel

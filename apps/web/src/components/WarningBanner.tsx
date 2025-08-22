@@ -1,101 +1,183 @@
 "use client";
 
-import { useState } from "react";
-import { ComplianceViolation } from "@/lib/compliance";
+import { useState, useCallback, useRef, useEffect, memo } from "react";
+import type { Severity } from "@/lib/persona-rules";
 
-interface WarningBannerProps {
-  violations: ComplianceViolation[];
+export interface WarningBannerProps {
+  severity: Severity;
+  message: string;
   onDismiss?: () => void;
+  dismissible?: boolean;
   className?: string;
+  id?: string;
 }
 
-export function WarningBanner({
-  violations,
-  onDismiss,
-  className = "",
-}: WarningBannerProps) {
-  const [isDismissed, setIsDismissed] = useState(false);
+const SEVERITY_STYLES = {
+  high: {
+    container: "bg-red-50 border-red-200 text-red-800",
+    icon: "text-red-500",
+    button: "text-red-600 hover:text-red-800 focus:ring-red-500",
+  },
+  mid: {
+    container: "bg-orange-50 border-orange-200 text-orange-800",
+    icon: "text-orange-500",
+    button: "text-orange-600 hover:text-orange-800 focus:ring-orange-500",
+  },
+  low: {
+    container: "bg-yellow-50 border-yellow-200 text-yellow-800",
+    icon: "text-yellow-500",
+    button: "text-yellow-600 hover:text-yellow-800 focus:ring-yellow-500",
+  },
+} as const;
 
-  if (violations.length === 0 || isDismissed) {
-    return null;
-  }
+const SEVERITY_LABELS = {
+  high: "重要な警告",
+  mid: "注意事項",
+  low: "情報",
+} as const;
 
-  const handleDismiss = () => {
-    setIsDismissed(true);
-    onDismiss?.();
-  };
+export const WarningBanner = memo<WarningBannerProps>(
+  ({
+    severity,
+    message,
+    onDismiss,
+    dismissible = true,
+    className = "",
+    id,
+  }) => {
+    const [isVisible, setIsVisible] = useState(true);
+    const [isAnimating, setIsAnimating] = useState(false);
 
-  // Sort violations by severity (high -> medium -> low)
-  const sortedViolations = [...violations].sort((a, b) => {
-    const severityOrder = { high: 3, medium: 2, low: 1 };
-    return (
-      (severityOrder[b.pattern as keyof typeof severityOrder] || 0) -
-      (severityOrder[a.pattern as keyof typeof severityOrder] || 0)
+    const styles = SEVERITY_STYLES[severity];
+    const label = SEVERITY_LABELS[severity];
+
+    const handleDismiss = useCallback(() => {
+      if (!dismissible) return;
+      setIsAnimating(true);
+      setTimeout(() => {
+        setIsVisible(false);
+        onDismiss?.();
+      }, 150);
+    }, [dismissible, onDismiss]);
+
+    const handleKeyDown = useCallback(
+      (event: React.KeyboardEvent) => {
+        if (event.key === "Escape" && dismissible) {
+          event.preventDefault();
+          handleDismiss();
+        }
+      },
+      [dismissible, handleDismiss],
     );
-  });
 
-  return (
-    <div
-      className={`bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 ${className}`}
-      role="status"
-      aria-live="polite"
-    >
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <svg
-            className="h-5 w-5 text-yellow-400"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-        <div className="ml-3 flex-1">
-          <h3 className="text-sm font-medium text-yellow-800">
-            表現に関する注意
-          </h3>
-          <div className="mt-2 text-sm text-yellow-700">
-            <p className="mb-2">
-              以下の表現について、より適切な表現をご提案します：
-            </p>
-            <ul className="list-disc list-inside space-y-1">
-              {sortedViolations.map((violation, index) => (
-                <li key={index}>
-                  <span className="font-medium">
-                    「{violation.originalText}」
-                  </span>
-                  {" → "}
-                  <span className="text-green-700">
-                    「{violation.suggestedText}」
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <div className="ml-auto pl-3">
-          <div className="-mx-1.5 -my-1.5">
-            <button
-              type="button"
-              onClick={handleDismiss}
-              className="inline-flex bg-yellow-50 rounded-md p-1.5 text-yellow-500 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-yellow-50 focus:ring-yellow-600"
-              aria-label="警告を閉じる"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
+    if (!isVisible) {
+      return null;
+    }
+
+    return (
+      <div
+        id={id}
+        className={`relative rounded-lg border p-4 transition-all duration-150 ease-in-out ${styles.container} ${isAnimating ? "opacity-0 transform scale-95" : "opacity-100 transform scale-100"} ${className}`}
+        role="status"
+        aria-live="polite"
+        onKeyDown={handleKeyDown}
+      >
+        <div className="flex items-start space-x-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <span className="sr-only">{label}: </span>
+                <p className="text-sm font-medium leading-relaxed">{message}</p>
+              </div>
+              {dismissible && (
+                <div className="flex-shrink-0 ml-4">
+                  <button
+                    type="button"
+                    className={`inline-flex rounded-md p-1.5 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent ${styles.button}`}
+                    onClick={handleDismiss}
+                    aria-label={`${label}を閉じる`}
+                    title="警告を閉じる (Escキー)"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  },
+);
+
+WarningBanner.displayName = "WarningBanner";
+
+export interface WarningBannerListProps {
+  warnings: Array<{
+    id: string;
+    severity: Severity;
+    message: string;
+  }>;
+  onDismiss?: (id: string) => void;
+  className?: string;
+  maxVisible?: number;
 }
+
+export const WarningBannerList = memo<WarningBannerListProps>(
+  ({ warnings, onDismiss, className = "", maxVisible = 5 }) => {
+    const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+
+    const handleDismiss = useCallback(
+      (id: string) => {
+        setDismissedIds((prev) => new Set([...prev, id]));
+        onDismiss?.(id);
+      },
+      [onDismiss],
+    );
+
+    const visibleWarnings = warnings
+      .filter((warning) => !dismissedIds.has(warning.id))
+      .slice(0, maxVisible);
+
+    if (visibleWarnings.length === 0) {
+      return null;
+    }
+
+    return (
+      <div
+        className={`space-y-3 ${className}`}
+        role="region"
+        aria-label="警告一覧"
+      >
+        {visibleWarnings.map((warning, index) => (
+          <WarningBanner
+            key={warning.id}
+            id={`warning-${warning.id}`}
+            severity={warning.severity}
+            message={warning.message}
+            onDismiss={() => handleDismiss(warning.id)}
+          />
+        ))}
+
+        {warnings.length > maxVisible && (
+          <div className="text-sm text-gray-600 text-center py-2">
+            他に {warnings.length - maxVisible} 件の警告があります
+          </div>
+        )}
+      </div>
+    );
+  },
+);
+
+WarningBannerList.displayName = "WarningBannerList";

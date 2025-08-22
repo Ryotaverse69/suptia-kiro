@@ -6,6 +6,7 @@ import {
   generateBreadcrumbJsonLd,
   cleanUrl,
 } from "../seo";
+import { ScoreResult, DEFAULT_WEIGHTS } from "../scoring";
 
 describe("SEO Utilities", () => {
   const originalEnv = process.env;
@@ -114,6 +115,29 @@ describe("SEO Utilities", () => {
       images: ["https://example.com/image.jpg"],
     };
 
+    const mockScoreResult: ScoreResult = {
+      total: 75.5,
+      components: {
+        evidence: 80,
+        safety: 85,
+        cost: 60,
+        practicality: 70,
+      },
+      weights: DEFAULT_WEIGHTS,
+      breakdown: {
+        evidence: { score: 80, factors: [], explanation: "Test evidence" },
+        safety: { score: 85, factors: [], explanation: "Test safety" },
+        cost: { score: 60, factors: [], explanation: "Test cost" },
+        practicality: {
+          score: 70,
+          factors: [],
+          explanation: "Test practicality",
+        },
+      },
+      isComplete: true,
+      missingData: [],
+    };
+
     it("Product JSON-LDを生成する", () => {
       const jsonLd = generateProductJsonLd(mockProduct);
 
@@ -132,6 +156,90 @@ describe("SEO Utilities", () => {
       const jsonLd = generateProductJsonLd(productWithoutImage);
 
       expect(jsonLd.image).toBe("https://suptia.com/product-placeholder.jpg");
+    });
+
+    it("scoreResultからaggregateRatingを生成する", () => {
+      const productWithScore = {
+        ...mockProduct,
+        scoreResult: mockScoreResult,
+        reviewCount: 10,
+      };
+      const jsonLd = generateProductJsonLd(productWithScore);
+
+      expect(jsonLd.aggregateRating).toBeDefined();
+      expect(jsonLd.aggregateRating["@type"]).toBe("AggregateRating");
+      expect(jsonLd.aggregateRating.ratingValue).toBe(3.8); // 75.5 / 100 * 5 = 3.775 -> 3.8
+      expect(jsonLd.aggregateRating.bestRating).toBe(5);
+      expect(jsonLd.aggregateRating.worstRating).toBe(0);
+      expect(jsonLd.aggregateRating.ratingCount).toBe(10);
+    });
+
+    it("手動のaggregateRatingを優先する（scoreResultより）", () => {
+      const manualRating = {
+        "@type": "AggregateRating" as const,
+        ratingValue: 4.2,
+        bestRating: 5,
+        worstRating: 0,
+        ratingCount: 25,
+      };
+
+      const productWithBoth = {
+        ...mockProduct,
+        scoreResult: mockScoreResult,
+        aggregateRating: manualRating,
+      };
+      const jsonLd = generateProductJsonLd(productWithBoth);
+
+      // scoreResultがあってもmanualRatingが優先される
+      expect(jsonLd.aggregateRating.ratingValue).toBe(4.2);
+      expect(jsonLd.aggregateRating.ratingCount).toBe(25);
+    });
+
+    it("scoreResultが0の場合aggregateRatingを含まない", () => {
+      const zeroScoreResult = { ...mockScoreResult, total: 0 };
+      const productWithZeroScore = {
+        ...mockProduct,
+        scoreResult: zeroScoreResult,
+      };
+      const jsonLd = generateProductJsonLd(productWithZeroScore);
+
+      expect(jsonLd.aggregateRating).toBeUndefined();
+    });
+
+    it("無効なaggregateRatingの場合は含まない", () => {
+      const invalidRating = {
+        "@type": "AggregateRating" as const,
+        ratingValue: 6, // Invalid: above bestRating
+        bestRating: 5,
+        worstRating: 0,
+        ratingCount: 10,
+      };
+
+      const productWithInvalidRating = {
+        ...mockProduct,
+        aggregateRating: invalidRating,
+      };
+      const jsonLd = generateProductJsonLd(productWithInvalidRating);
+
+      expect(jsonLd.aggregateRating).toBeUndefined();
+    });
+
+    it("ratingCountが0の場合aggregateRatingを含まない", () => {
+      const zeroCountRating = {
+        "@type": "AggregateRating" as const,
+        ratingValue: 4.0,
+        bestRating: 5,
+        worstRating: 0,
+        ratingCount: 0,
+      };
+
+      const productWithZeroCount = {
+        ...mockProduct,
+        aggregateRating: zeroCountRating,
+      };
+      const jsonLd = generateProductJsonLd(productWithZeroCount);
+
+      expect(jsonLd.aggregateRating).toBeUndefined();
     });
   });
 

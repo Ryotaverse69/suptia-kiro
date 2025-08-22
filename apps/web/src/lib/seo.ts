@@ -1,5 +1,10 @@
 import { Metadata } from "next";
 import { getSiteUrl } from "./runtimeConfig";
+import { ScoreResult } from "./scoring";
+import {
+  calculateAggregateRating,
+  validateAggregateRating,
+} from "./seo/aggregate-rating";
 
 // Base SEO configuration
 const SITE_NAME = "サプティア";
@@ -70,6 +75,14 @@ export interface ProductSEOData {
   priceJPY: number;
   slug: string;
   images?: string[];
+  scoreResult?: ScoreResult;
+  reviewCount?: number;
+  aggregateRating?: {
+    ratingValue: number;
+    bestRating: number;
+    worstRating: number;
+    ratingCount: number;
+  };
 }
 
 export function generateProductMetadata(product: ProductSEOData): Metadata {
@@ -95,7 +108,7 @@ export function generateProductMetadata(product: ProductSEOData): Metadata {
 
 // JSON-LD structured data generators
 export function generateProductJsonLd(product: ProductSEOData) {
-  return {
+  const jsonLd: any = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
@@ -114,6 +127,51 @@ export function generateProductJsonLd(product: ProductSEOData) {
     image: product.images?.[0] || `${getSiteUrl()}/product-placeholder.jpg`,
     url: `${getSiteUrl()}/products/${product.slug}`,
   };
+
+  // Add aggregateRating - prioritize manual aggregateRating over scoreResult
+  let aggregateRating = product.aggregateRating;
+
+  // Only use scoreResult if no manual aggregateRating is provided
+  if (
+    !aggregateRating &&
+    product.scoreResult &&
+    product.scoreResult.total > 0
+  ) {
+    const calculatedRating = calculateAggregateRating(
+      product.scoreResult,
+      product.reviewCount || 1,
+    );
+
+    // Validate the calculated rating
+    const validation = validateAggregateRating(calculatedRating);
+    if (validation.isValid) {
+      aggregateRating = calculatedRating;
+    }
+  }
+
+  // Validate manual aggregateRating if provided
+  if (aggregateRating) {
+    const ratingWithType = {
+      "@type": "AggregateRating" as const,
+      ...aggregateRating,
+    };
+    const validation = validateAggregateRating(ratingWithType);
+    if (!validation.isValid) {
+      aggregateRating = undefined;
+    }
+  }
+
+  if (aggregateRating && aggregateRating.ratingCount > 0) {
+    jsonLd.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: aggregateRating.ratingValue,
+      bestRating: aggregateRating.bestRating,
+      worstRating: aggregateRating.worstRating,
+      ratingCount: aggregateRating.ratingCount,
+    };
+  }
+
+  return jsonLd;
 }
 
 export function generateBreadcrumbJsonLd(
