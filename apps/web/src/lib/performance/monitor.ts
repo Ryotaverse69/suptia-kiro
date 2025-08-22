@@ -222,7 +222,7 @@ export class PerformanceMonitor {
    */
   generateReport(budget: PerformanceBudget = DEFAULT_BUDGET): {
     metrics: Partial<PerformanceMetrics>;
-    compliance: ReturnType<typeof this.checkBudgetCompliance>;
+    compliance: ReturnType<PerformanceMonitor["checkBudgetCompliance"]>;
     recommendations: string[];
   } {
     const compliance = this.checkBudgetCompliance(budget);
