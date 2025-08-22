@@ -52,55 +52,7 @@ export function compareProducts(products: Product[]): ComparisonResult {
 /**
  * 各カテゴリのスコア要約を計算する
  */
-export function calculateScoreSummary(
-  products: Product[],
-): Record<string, ScoreSummary> {
-  if (products.length === 0) {
-    return {};
-  }
-
-  // 全製品のスコアBreakdownからカテゴリを抽出
-  const categories = new Set<string>();
-  products.forEach((product) => {
-    if (product.scoreBreakdown) {
-      Object.keys(product.scoreBreakdown).forEach((category) => {
-        categories.add(category);
-      });
-    }
-  });
-
-  const summary: Record<string, ScoreSummary> = {};
-
-  categories.forEach((category) => {
-    const scores: number[] = [];
-    const productScores: Array<{ productId: string; score: number }> = [];
-
-    products.forEach((product) => {
-      const score = product.scoreBreakdown?.[category];
-      if (typeof score === "number" && !isNaN(score)) {
-        scores.push(score);
-        productScores.push({
-          productId: product.id,
-          score,
-        });
-      }
-    });
-
-    if (scores.length > 0) {
-      summary[category] = {
-        category,
-        maxScore: Math.max(...scores),
-        minScore: Math.min(...scores),
-        averageScore: Math.round(
-          scores.reduce((a, b) => a + b, 0) / scores.length,
-        ),
-        products: productScores,
-      };
-    }
-  });
-
-  return summary;
-}
+// スコア要約の計算は score-summary モジュールに委譲
 
 /**
  * 比較データを前処理し、不正なデータをフィルタリングする

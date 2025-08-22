@@ -18,7 +18,8 @@ function buildCSP(isDev = false) {
 const nextConfig = {
   // Performance optimizations
   experimental: {
-    optimizeCss: true,
+    // Disable critters-based CSS inlining to avoid missing dependency on some environments
+    // (Vercel/monorepo root without explicit critters install).
     optimizePackageImports: ['@/components', '@/lib'],
   },
   

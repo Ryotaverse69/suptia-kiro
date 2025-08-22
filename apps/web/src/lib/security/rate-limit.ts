@@ -1,4 +1,20 @@
-import { createHash } from "crypto";
+// Edge/runtime-safe non-cryptographic hashing to obfuscate IPs
+function fnv1a32(str: string): number {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    hash ^= str.charCodeAt(i);
+    // 32-bit FNV prime: 16777619
+    hash =
+      (hash +
+        ((hash << 1) +
+          (hash << 4) +
+          (hash << 7) +
+          (hash << 8) +
+          (hash << 24))) >>>
+      0;
+  }
+  return hash >>> 0;
+}
 
 /**
  * レート制限設定
@@ -53,10 +69,14 @@ const DEFAULT_CONFIG: RateLimitConfig = {
  * IPアドレスをハッシュ化（プライバシー保護）
  */
 function hashIP(ip: string): string {
-  return createHash("sha256")
-    .update(ip + process.env.RATE_LIMIT_SALT || "default-salt")
-    .digest("hex")
-    .substring(0, 16);
+  const salt = process.env.RATE_LIMIT_SALT || "default-salt";
+  const h1 = fnv1a32(ip + ":" + salt)
+    .toString(16)
+    .padStart(8, "0");
+  const h2 = fnv1a32(salt + ":" + ip)
+    .toString(16)
+    .padStart(8, "0");
+  return (h1 + h2).substring(0, 16);
 }
 
 /**
