@@ -1,0 +1,316 @@
+name: Auto Branch Cleanup
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # Pre-check job to validate conditions
+  pre-check:
+    name: Validate Branch Cleanup Conditions
+    runs-on: ubuntu-latest
+    outputs:
+      should_cleanup: ${{ steps.check.outputs.should_cleanup }}
+      branch_name: ${{ steps.check.outputs.branch_name }}
+      reason: ${{ steps.check.outputs.reason }}
+    steps:
+      - name: Check Cleanup Conditions
+        id: check
+        run: |
+          echo "=== Auto Branch Cleanup Condition Check ===" | tee condition-check.log
+          
+          # Only proceed if PR was merged
+          if [ "${{ github.event.pull_request.merged }}" != "true" ]; then
+            echo "❌ PR was not merged - skipping cleanup" | tee -a condition-check.log
+            echo "should_cleanup=false" >> $GITHUB_OUTPUT
+            echo "reason=PR not merged" >> $GITHUB_OUTPUT
+            cat condition-check.log
+            exit 0
+          fi
+          
+          # Only proceed if base branch is master
+          if [ "${{ github.event.pull_request.base.ref }}" != "master" ]; then
+            echo "❌ Base branch is not master - skipping cleanup" | tee -a condition-check.log
+            echo "should_cleanup=false" >> $GITHUB_OUTPUT
+            echo "reason=Base branch is not master" >> $GITHUB_OUTPUT
+            cat condition-check.log
+            exit 0
+          fi
+          
+          # Get the head branch name
+          HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
+          echo "Head branch: $HEAD_BRANCH" | tee -a condition-check.log
+          
+          # Check if it's a work branch (feat/, chore/, fix/, etc.)
+          if [[ "$HEAD_BRANCH" =~ ^(feat|feature|chore|fix|hotfix|bugfix|docs|style|refactor|perf|test|build|ci)/ ]]; then
+            echo "✅ Work branch detected: $HEAD_BRANCH" | tee -a condition-check.log
+            echo "should_cleanup=true" >> $GITHUB_OUTPUT
+            echo "branch_name=$HEAD_BRANCH" >> $GITHUB_OUTPUT
+            echo "reason=Work branch merged to master" >> $GITHUB_OUTPUT
+          else
+            echo "ℹ️  Not a standard work branch pattern: $HEAD_BRANCH" | tee -a condition-check.log
+            echo "should_cleanup=false" >> $GITHUB_OUTPUT
+            echo "reason=Not a standard work branch pattern" >> $GITHUB_OUTPUT
+          fi
+          
+          cat condition-check.log
+      
+      - name: Generate Pre-check Summary
+        if: always()
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ## 🧹 Auto Branch Cleanup Pre-check
+          
+          **PR**: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}
+          **Head Branch**: `${{ github.event.pull_request.head.ref }}`
+          **Base Branch**: `${{ github.event.pull_request.base.ref }}`
+          **Merged**: ${{ github.event.pull_request.merged }}
+          
+          **Should Cleanup**: ${{ steps.check.outputs.should_cleanup == 'true' && '✅ Yes' || '❌ No' }}
+          **Reason**: ${{ steps.check.outputs.reason }}
+          
+          ${{ steps.check.outputs.should_cleanup == 'true' && '### Next Step\n✅ Branch cleanup will proceed automatically.' || '### Next Step\n❌ Branch cleanup will be skipped.' }}
+          EOF
+
+  cleanup:
+    name: Auto Branch Cleanup
+    runs-on: ubuntu-latest
+    needs: pre-check
+    if: needs.pre-check.outputs.should_cleanup == 'true'
+    
+    permissions:
+      contents: write
+      pull-requests: read
+      actions: read
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Git Configuration
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Initialize Cleanup Variables
+        id: init
+        run: |
+          BRANCH_NAME="${{ needs.pre-check.outputs.branch_name }}"
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          REPORT_FILE=".kiro/reports/auto-cleanup-$(date +%Y%m%d-%H%M%S).md"
+          
+          echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "timestamp=${TIMESTAMP}" >> $GITHUB_OUTPUT
+          echo "report_file=${REPORT_FILE}" >> $GITHUB_OUTPUT
+          echo "pr_url=${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
+          
+          echo "🧹 Auto cleanup for branch: ${BRANCH_NAME}"
+          echo "📅 Timestamp: ${TIMESTAMP}"
+      
+      - name: Update Master Branch
+        id: update-master
+        run: |
+          echo "=== Updating Master Branch ===" | tee master-update.log
+          
+          # Switch to master and update
+          if git switch master >> master-update.log 2>&1; then
+            echo "✅ Switched to master branch" | tee -a master-update.log
+            
+            if git pull --ff-only origin master >> master-update.log 2>&1; then
+              echo "✅ Master branch updated successfully" | tee -a master-update.log
+              echo "master_update=success" >> $GITHUB_OUTPUT
+              
+              LATEST_COMMIT=$(git rev-parse HEAD)
+              COMMIT_URL="https://github.com/${{ github.repository }}/commit/${LATEST_COMMIT}"
+              echo "latest_commit=${LATEST_COMMIT}" >> $GITHUB_OUTPUT
+              echo "commit_url=${COMMIT_URL}" >> $GITHUB_OUTPUT
+              echo "📍 Latest commit: ${LATEST_COMMIT}" | tee -a master-update.log
+            else
+              echo "⚠️  Master update failed (non-fast-forward)" | tee -a master-update.log
+              echo "master_update=failed" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "❌ Failed to switch to master" | tee -a master-update.log
+            echo "master_update=switch_failed" >> $GITHUB_OUTPUT
+          fi
+          
+          cat master-update.log
+      
+      - name: Delete Remote Branch
+        id: delete-remote
+        run: |
+          echo "=== Deleting Remote Branch ===" | tee remote-delete.log
+          
+          BRANCH_NAME="${{ steps.init.outputs.branch_name }}"
+          echo "Target branch: ${BRANCH_NAME}" | tee -a remote-delete.log
+          
+          # Check if remote branch exists
+          if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
+            echo "📍 Remote branch '$BRANCH_NAME' exists" | tee -a remote-delete.log
+            
+            # Attempt deletion
+            if git push origin --delete "$BRANCH_NAME" >> remote-delete.log 2>&1; then
+              echo "✅ Successfully deleted remote branch '$BRANCH_NAME'" | tee -a remote-delete.log
+              echo "remote_delete=success" >> $GITHUB_OUTPUT
+              
+              # Verify deletion
+              sleep 2
+              if ! git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
+                echo "✅ Deletion verified" | tee -a remote-delete.log
+                echo "deletion_verified=true" >> $GITHUB_OUTPUT
+              else
+                echo "⚠️  Deletion verification failed" | tee -a remote-delete.log
+                echo "deletion_verified=false" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "❌ Failed to delete remote branch" | tee -a remote-delete.log
+              if grep -q "protected" remote-delete.log; then
+                echo "🔒 Branch is protected" | tee -a remote-delete.log
+                echo "remote_delete=protected" >> $GITHUB_OUTPUT
+              elif grep -q "permission" remote-delete.log; then
+                echo "🚫 Insufficient permissions" | tee -a remote-delete.log
+                echo "remote_delete=no_permission" >> $GITHUB_OUTPUT
+              else
+                echo "❓ Unknown error" | tee -a remote-delete.log
+                echo "remote_delete=unknown_error" >> $GITHUB_OUTPUT
+              fi
+            fi
+          else
+            echo "ℹ️  Remote branch '$BRANCH_NAME' does not exist" | tee -a remote-delete.log
+            echo "remote_delete=not_found" >> $GITHUB_OUTPUT
+          fi
+          
+          cat remote-delete.log
+      
+      - name: Cleanup References
+        id: cleanup-refs
+        run: |
+          echo "=== Cleaning Up References ===" | tee ref-cleanup.log
+          
+          # Prune remote references
+          if git remote prune origin >> ref-cleanup.log 2>&1; then
+            echo "✅ Remote references pruned" | tee -a ref-cleanup.log
+            echo "prune=success" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Remote prune failed" | tee -a ref-cleanup.log
+            echo "prune=failed" >> $GITHUB_OUTPUT
+          fi
+          
+          # Fetch with prune
+          if git fetch --prune origin >> ref-cleanup.log 2>&1; then
+            echo "✅ Fetch with prune completed" | tee -a ref-cleanup.log
+            echo "fetch_prune=success" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Fetch with prune failed" | tee -a ref-cleanup.log
+            echo "fetch_prune=failed" >> $GITHUB_OUTPUT
+          fi
+          
+          # Count final branches
+          LOCAL_BRANCHES=$(git branch | wc -l)
+          REMOTE_BRANCHES=$(git ls-remote --heads origin | wc -l)
+          
+          echo "final_local_branches=${LOCAL_BRANCHES}" >> $GITHUB_OUTPUT
+          echo "final_remote_branches=${REMOTE_BRANCHES}" >> $GITHUB_OUTPUT
+          
+          echo "📊 Final state:" | tee -a ref-cleanup.log
+          echo "  Local branches: ${LOCAL_BRANCHES}" | tee -a ref-cleanup.log
+          echo "  Remote branches: ${REMOTE_BRANCHES}" | tee -a ref-cleanup.log
+          
+          cat ref-cleanup.log
+      
+      - name: Generate Cleanup Report
+        if: always()
+        run: |
+          REPORT_FILE="${{ steps.init.outputs.report_file }}"
+          mkdir -p $(dirname "$REPORT_FILE")
+          
+          cat > "$REPORT_FILE" << EOF
+          # Auto Branch Cleanup Report
+          
+          ## 📋 Execution Details
+          - **Timestamp**: ${{ steps.init.outputs.timestamp }}
+          - **PR**: [#${{ github.event.pull_request.number }}](${{ steps.init.outputs.pr_url }}) - ${{ github.event.pull_request.title }}
+          - **Target Branch**: \`${{ steps.init.outputs.branch_name }}\`
+          - **Triggered By**: ${{ github.actor }}
+          - **Workflow Run**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          
+          ## 🔄 Operation Results
+          
+          | Operation | Status | Details |
+          |-----------|--------|---------|
+          | Master Update | ${{ steps.update-master.outputs.master_update == 'success' && '✅ Success' || '❌ Failed' }} | ${{ steps.update-master.outputs.commit_url && format('[{0}]({1})', steps.update-master.outputs.latest_commit, steps.update-master.outputs.commit_url) || 'Update failed' }} |
+          | Remote Branch Deletion | ${{ steps.delete-remote.outputs.remote_delete == 'success' && '✅ Deleted' || steps.delete-remote.outputs.remote_delete == 'not_found' && 'ℹ️ Not Found' || steps.delete-remote.outputs.remote_delete == 'protected' && '🔒 Protected' || '❌ Failed' }} | ${{ steps.init.outputs.branch_name }} |
+          | Reference Cleanup | ${{ steps.cleanup-refs.outputs.prune == 'success' && steps.cleanup-refs.outputs.fetch_prune == 'success' && '✅ Success' || '⚠️ Partial' }} | Pruned stale references |
+          
+          ## 📊 Final Repository State
+          - **Local Branches**: ${{ steps.cleanup-refs.outputs.final_local_branches || 'Unknown' }}
+          - **Remote Branches**: ${{ steps.cleanup-refs.outputs.final_remote_branches || 'Unknown' }}
+          
+          ## 🎯 Git Operation Rules Compliance
+          ✅ **Master-only Production**: Repository maintains master as the single production branch  
+          ✅ **Work Branch Cleanup**: Merged work branch has been automatically removed  
+          ✅ **Clean State**: Repository is in clean state for next development cycle  
+          
+          ---
+          *Auto-generated by Branch Cleanup Automation*
+          EOF
+          
+          echo "📄 Report generated: $REPORT_FILE"
+      
+      - name: Commit Report
+        if: always()
+        run: |
+          REPORT_FILE="${{ steps.init.outputs.report_file }}"
+          
+          if [ -f "$REPORT_FILE" ]; then
+            git add "$REPORT_FILE"
+            
+            if ! git diff --staged --quiet; then
+              git commit -m "chore: auto cleanup report for ${{ steps.init.outputs.branch_name }}
+
+              - PR: #${{ github.event.pull_request.number }}
+              - Branch: ${{ steps.init.outputs.branch_name }}
+              - Timestamp: ${{ steps.init.outputs.timestamp }}"
+              
+              git push origin master || echo "Failed to push report"
+            fi
+          fi
+      
+      - name: Generate Summary
+        if: always()
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ## 🧹 Auto Branch Cleanup Results
+          
+          ### PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}
+          
+          **Target Branch**: `${{ steps.init.outputs.branch_name }}`  
+          **Execution Time**: ${{ steps.init.outputs.timestamp }}
+          
+          ### 🔄 Operation Results
+          
+          | Operation | Status | Details |
+          |-----------|--------|---------|
+          | Master Update | ${{ steps.update-master.outputs.master_update == 'success' && '✅ Success' || '❌ Failed' }} | ${{ steps.update-master.outputs.commit_url && format('[Latest Commit]({0})', steps.update-master.outputs.commit_url) || 'Update failed' }} |
+          | Remote Branch Cleanup | ${{ steps.delete-remote.outputs.remote_delete == 'success' && '✅ Deleted' || steps.delete-remote.outputs.remote_delete == 'not_found' && 'ℹ️ Not Found' || steps.delete-remote.outputs.remote_delete == 'protected' && '🔒 Protected' || '❌ Failed' }} | `${{ steps.init.outputs.branch_name }}` |
+          | Reference Cleanup | ${{ steps.cleanup-refs.outputs.prune == 'success' && '✅ Success' || '⚠️ Partial' }} | Stale references removed |
+          
+          ### 📊 Repository State
+          - **Local Branches**: ${{ steps.cleanup-refs.outputs.final_local_branches || '?' }}
+          - **Remote Branches**: ${{ steps.cleanup-refs.outputs.final_remote_branches || '?' }}
+          
+          ### 🎯 Git Operation Rules Status
+          ${{ steps.delete-remote.outputs.remote_delete == 'success' && '🎉 **Master-only rule enforced successfully!** Work branch has been cleaned up automatically.' || '⚠️ **Partial cleanup completed.** Some manual verification may be needed.' }}
+          
+          ### 📄 Resources
+          - **Detailed Report**: Available in `.kiro/reports/` directory
+          - **PR**: ${{ steps.init.outputs.pr_url }}
+          - **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EOF

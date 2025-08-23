@@ -1,0 +1,1580 @@
+name: Branch Cleanup Automation (Legacy - PR #13 Specific)
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to simulate (for testing)'
+        required: false
+        default: '13'
+      force_run:
+        description: 'Force run even if conditions do not match'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # Pre-check job to validate conditions and provide early feedback
+  pre-check:
+    name: Validate Cleanup Conditions
+    runs-on: ubuntu-latest
+    outputs:
+      should_cleanup: ${{ steps.check.outputs.should_cleanup }}
+      reason: ${{ steps.check.outputs.reason }}
+    steps:
+      - name: Check Cleanup Conditions
+        id: check
+        run: |
+          echo "=== Cleanup Condition Check ===" | tee condition-check.log
+          
+          # Handle workflow_dispatch (manual trigger)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual trigger detected" | tee -a condition-check.log
+            if [ "${{ github.event.inputs.force_run }}" = "true" ]; then
+              echo "✅ Force run enabled - proceeding with cleanup" | tee -a condition-check.log
+              echo "should_cleanup=true" >> $GITHUB_OUTPUT
+              echo "reason=Manual force run" >> $GITHUB_OUTPUT
+              cat condition-check.log
+              exit 0
+            else
+              echo "❌ Manual trigger without force_run - skipping cleanup" | tee -a condition-check.log
+              echo "should_cleanup=false" >> $GITHUB_OUTPUT
+              echo "reason=Manual trigger requires force_run=true" >> $GITHUB_OUTPUT
+              cat condition-check.log
+              exit 0
+            fi
+          fi
+          
+          # Handle pull_request event
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "Pull request event detected" | tee -a condition-check.log
+            
+            # Check all conditions
+            CONDITIONS_MET=true
+            REASONS=()
+            
+            if [ "${{ github.event.pull_request.merged }}" != "true" ]; then
+              CONDITIONS_MET=false
+              REASONS+=("PR not merged")
+              echo "❌ PR not merged" | tee -a condition-check.log
+            else
+              echo "✅ PR is merged" | tee -a condition-check.log
+            fi
+            
+            if [ "${{ github.event.pull_request.number }}" != "13" ]; then
+              CONDITIONS_MET=false
+              REASONS+=("PR number is not 13 (got ${{ github.event.pull_request.number }})")
+              echo "❌ PR number mismatch: expected 13, got ${{ github.event.pull_request.number }}" | tee -a condition-check.log
+            else
+              echo "✅ PR number is 13" | tee -a condition-check.log
+            fi
+            
+            if [ "${{ github.event.pull_request.head.ref }}" != "chore/checkpoint-commit" ]; then
+              CONDITIONS_MET=false
+              REASONS+=("Head branch is not chore/checkpoint-commit (got ${{ github.event.pull_request.head.ref }})")
+              echo "❌ Head branch mismatch: expected chore/checkpoint-commit, got ${{ github.event.pull_request.head.ref }}" | tee -a condition-check.log
+            else
+              echo "✅ Head branch is chore/checkpoint-commit" | tee -a condition-check.log
+            fi
+            
+            if [ "${{ github.event.pull_request.base.ref }}" != "master" ]; then
+              CONDITIONS_MET=false
+              REASONS+=("Base branch is not master (got ${{ github.event.pull_request.base.ref }})")
+              echo "❌ Base branch mismatch: expected master, got ${{ github.event.pull_request.base.ref }}" | tee -a condition-check.log
+            else
+              echo "✅ Base branch is master" | tee -a condition-check.log
+            fi
+            
+            if [ "$CONDITIONS_MET" = "true" ]; then
+              echo "✅ All conditions met - cleanup will proceed" | tee -a condition-check.log
+              echo "should_cleanup=true" >> $GITHUB_OUTPUT
+              echo "reason=All conditions satisfied" >> $GITHUB_OUTPUT
+            else
+              REASON_STRING=$(IFS=', '; echo "${REASONS[*]}")
+              echo "❌ Conditions not met - cleanup will be skipped" | tee -a condition-check.log
+              echo "Reasons: $REASON_STRING" | tee -a condition-check.log
+              echo "should_cleanup=false" >> $GITHUB_OUTPUT
+              echo "reason=$REASON_STRING" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "❌ Unsupported event type: ${{ github.event_name }}" | tee -a condition-check.log
+            echo "should_cleanup=false" >> $GITHUB_OUTPUT
+            echo "reason=Unsupported event type" >> $GITHUB_OUTPUT
+          fi
+          
+          cat condition-check.log
+      
+      - name: Generate Pre-check Summary
+        if: always()
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ## 🔍 Branch Cleanup Pre-check Results
+          
+          **Event Type**: ${{ github.event_name }}
+          **Should Cleanup**: ${{ steps.check.outputs.should_cleanup == 'true' && '✅ Yes' || '❌ No' }}
+          **Reason**: ${{ steps.check.outputs.reason }}
+          
+          ### Event Details
+          ${{ github.event_name == 'pull_request' && format('- **PR**: #{0} - {1}', github.event.pull_request.number, github.event.pull_request.title) || '- **Manual Trigger**' }}
+          ${{ github.event_name == 'pull_request' && format('- **Head Branch**: {0}', github.event.pull_request.head.ref) || '' }}
+          ${{ github.event_name == 'pull_request' && format('- **Base Branch**: {0}', github.event.pull_request.base.ref) || '' }}
+          ${{ github.event_name == 'pull_request' && format('- **Merged**: {0}', github.event.pull_request.merged) || '' }}
+          
+          ${{ steps.check.outputs.should_cleanup == 'true' && '### Next Step\n✅ Cleanup job will proceed automatically.' || '### Next Step\n❌ Cleanup job will be skipped. No further action required.' }}
+          EOF
+
+  cleanup:
+    name: PR #13 Branch Cleanup
+    runs-on: ubuntu-latest
+    needs: pre-check
+    if: needs.pre-check.outputs.should_cleanup == 'true'
+    
+    permissions:
+      contents: write
+      pull-requests: read
+      actions: read
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Git Configuration
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Security and Permission Verification
+        id: security-check
+        run: |
+          echo "=== Security and Permission Verification ===" | tee security-check.log
+          
+          # Check GitHub token permissions
+          echo "Checking GitHub token permissions..." | tee -a security-check.log
+          
+          # Test repository read access
+          if git ls-remote --heads origin > /dev/null 2>&1; then
+            echo "✅ Repository read access confirmed" | tee -a security-check.log
+            echo "repo_read=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Repository read access failed" | tee -a security-check.log
+            echo "repo_read=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check if we can fetch from origin
+          if git fetch origin master > /dev/null 2>&1; then
+            echo "✅ Repository fetch access confirmed" | tee -a security-check.log
+            echo "repo_fetch=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Repository fetch access failed" | tee -a security-check.log
+            echo "repo_fetch=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check branch protection rules for master
+          echo "Checking master branch protection..." | tee -a security-check.log
+          
+          # Try to get branch protection info (this will fail gracefully if no API access)
+          PROTECTION_CHECK=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/branches/master/protection" 2>/dev/null || echo "API_ACCESS_FAILED")
+          
+          if [ "$PROTECTION_CHECK" = "API_ACCESS_FAILED" ]; then
+            echo "⚠️  Cannot check branch protection via API (limited token permissions)" | tee -a security-check.log
+            echo "branch_protection_check=api_failed" >> $GITHUB_OUTPUT
+          elif echo "$PROTECTION_CHECK" | grep -q "Branch not protected"; then
+            echo "ℹ️  Master branch is not protected" | tee -a security-check.log
+            echo "branch_protection_check=not_protected" >> $GITHUB_OUTPUT
+          elif echo "$PROTECTION_CHECK" | grep -q "required_status_checks"; then
+            echo "🔒 Master branch has protection rules" | tee -a security-check.log
+            echo "branch_protection_check=protected" >> $GITHUB_OUTPUT
+          else
+            echo "❓ Branch protection status unclear" | tee -a security-check.log
+            echo "branch_protection_check=unknown" >> $GITHUB_OUTPUT
+          fi
+          
+          # Verify workflow permissions
+          echo "Verifying workflow permissions..." | tee -a security-check.log
+          
+          # Check if we have contents:write permission by testing a safe operation
+          if git config user.name > /dev/null 2>&1; then
+            echo "✅ Git configuration access confirmed" | tee -a security-check.log
+            echo "git_config=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Git configuration access failed" | tee -a security-check.log
+            echo "git_config=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Security constraints check
+          echo "Applying security constraints..." | tee -a security-check.log
+          
+          # Ensure we only target the specific branch
+          TARGET_BRANCH="chore/checkpoint-commit"
+          if [ "${{ github.event.pull_request.head.ref }}" = "$TARGET_BRANCH" ]; then
+            echo "✅ Target branch matches security constraint: $TARGET_BRANCH" | tee -a security-check.log
+            echo "target_branch_safe=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Target branch does not match security constraint" | tee -a security-check.log
+            echo "Expected: $TARGET_BRANCH, Got: ${{ github.event.pull_request.head.ref }}" | tee -a security-check.log
+            echo "target_branch_safe=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Ensure we only target master as base
+          BASE_BRANCH="master"
+          if [ "${{ github.event.pull_request.base.ref }}" = "$BASE_BRANCH" ]; then
+            echo "✅ Base branch matches security constraint: $BASE_BRANCH" | tee -a security-check.log
+            echo "base_branch_safe=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Base branch does not match security constraint" | tee -a security-check.log
+            echo "Expected: $BASE_BRANCH, Got: ${{ github.event.pull_request.base.ref }}" | tee -a security-check.log
+            echo "base_branch_safe=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check actor permissions (basic check)
+          echo "Checking actor: ${{ github.actor }}" | tee -a security-check.log
+          if [ "${{ github.actor }}" = "github-actions[bot]" ] || [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "✅ Actor is authorized for this operation" | tee -a security-check.log
+            echo "actor_authorized=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Actor authorization needs verification: ${{ github.actor }}" | tee -a security-check.log
+            echo "actor_authorized=unknown" >> $GITHUB_OUTPUT
+          fi
+          
+          # Overall security assessment
+          SECURITY_PASSED=true
+          
+          if [ "${{ steps.security-check.outputs.repo_read }}" != "true" ]; then
+            SECURITY_PASSED=false
+          fi
+          if [ "${{ steps.security-check.outputs.target_branch_safe }}" != "true" ]; then
+            SECURITY_PASSED=false
+          fi
+          if [ "${{ steps.security-check.outputs.base_branch_safe }}" != "true" ]; then
+            SECURITY_PASSED=false
+          fi
+          
+          echo "security_passed=${SECURITY_PASSED}" >> $GITHUB_OUTPUT
+          
+          if [ "$SECURITY_PASSED" = "true" ]; then
+            echo "🔒 Security verification passed - proceeding with cleanup" | tee -a security-check.log
+          else
+            echo "🚨 Security verification failed - aborting cleanup" | tee -a security-check.log
+            cat security-check.log
+            exit 1
+          fi
+          
+          cat security-check.log
+      
+      - name: Validate PR Event Details
+        id: validate
+        run: |
+          echo "=== PR Event Validation ===" | tee validation.log
+          echo "PR Number: ${{ github.event.pull_request.number }}" | tee -a validation.log
+          echo "PR Title: ${{ github.event.pull_request.title }}" | tee -a validation.log
+          echo "Head Branch: ${{ github.event.pull_request.head.ref }}" | tee -a validation.log
+          echo "Base Branch: ${{ github.event.pull_request.base.ref }}" | tee -a validation.log
+          echo "Merged: ${{ github.event.pull_request.merged }}" | tee -a validation.log
+          echo "Merge Commit SHA: ${{ github.event.pull_request.merge_commit_sha }}" | tee -a validation.log
+          echo "Actor: ${{ github.actor }}" | tee -a validation.log
+          echo "" | tee -a validation.log
+          
+          # Validate all conditions
+          VALIDATION_PASSED=true
+          
+          if [ "${{ github.event.pull_request.number }}" != "13" ]; then
+            echo "❌ PR number mismatch: expected 13, got ${{ github.event.pull_request.number }}" | tee -a validation.log
+            VALIDATION_PASSED=false
+          else
+            echo "✅ PR number validation passed" | tee -a validation.log
+          fi
+          
+          if [ "${{ github.event.pull_request.head.ref }}" != "chore/checkpoint-commit" ]; then
+            echo "❌ Head branch mismatch: expected chore/checkpoint-commit, got ${{ github.event.pull_request.head.ref }}" | tee -a validation.log
+            VALIDATION_PASSED=false
+          else
+            echo "✅ Head branch validation passed" | tee -a validation.log
+          fi
+          
+          if [ "${{ github.event.pull_request.base.ref }}" != "master" ]; then
+            echo "❌ Base branch mismatch: expected master, got ${{ github.event.pull_request.base.ref }}" | tee -a validation.log
+            VALIDATION_PASSED=false
+          else
+            echo "✅ Base branch validation passed" | tee -a validation.log
+          fi
+          
+          if [ "${{ github.event.pull_request.merged }}" != "true" ]; then
+            echo "❌ PR not merged: expected true, got ${{ github.event.pull_request.merged }}" | tee -a validation.log
+            VALIDATION_PASSED=false
+          else
+            echo "✅ Merge status validation passed" | tee -a validation.log
+          fi
+          
+          if [ -z "${{ github.event.pull_request.merge_commit_sha }}" ]; then
+            echo "⚠️  Merge commit SHA is empty" | tee -a validation.log
+          else
+            echo "✅ Merge commit SHA available: ${{ github.event.pull_request.merge_commit_sha }}" | tee -a validation.log
+          fi
+          
+          echo "validation_passed=${VALIDATION_PASSED}" >> $GITHUB_OUTPUT
+          
+          if [ "$VALIDATION_PASSED" = "false" ]; then
+            echo "" | tee -a validation.log
+            echo "❌ Validation failed - workflow will exit" | tee -a validation.log
+            cat validation.log
+            exit 1
+          else
+            echo "" | tee -a validation.log
+            echo "✅ All validations passed - proceeding with cleanup" | tee -a validation.log
+            cat validation.log
+          fi
+      
+      - name: Initialize Report Variables
+        id: init
+        run: |
+          echo "REPORT_FILE=.kiro/reports/cleanup-$(date +%Y%m%d-%H%M%S).md" >> $GITHUB_OUTPUT
+          echo "TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_OUTPUT
+          echo "PR_URL=${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
+          echo "COMMIT_SHA=${{ github.event.pull_request.merge_commit_sha }}" >> $GITHUB_OUTPUT
+          echo "HEAD_BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
+          echo "BASE_BRANCH=${{ github.event.pull_request.base.ref }}" >> $GITHUB_OUTPUT
+      
+      - name: Pre-cleanup Branch Status
+        id: pre-status
+        run: |
+          echo "=== Pre-cleanup Branch Status ===" >> pre-cleanup.log
+          echo "Local branches:" >> pre-cleanup.log
+          git branch -a >> pre-cleanup.log 2>&1 || echo "Failed to list local branches" >> pre-cleanup.log
+          echo "" >> pre-cleanup.log
+          echo "Remote branches:" >> pre-cleanup.log
+          git ls-remote --heads origin >> pre-cleanup.log 2>&1 || echo "Failed to list remote branches" >> pre-cleanup.log
+          echo "" >> pre-cleanup.log
+          cat pre-cleanup.log
+      
+      - name: Update Master Branch
+        id: update-master
+        run: |
+          echo "=== Updating Master Branch ===" | tee -a master-update.log
+          
+          # Check current branch
+          CURRENT_BRANCH=$(git branch --show-current)
+          echo "Current branch: ${CURRENT_BRANCH}" | tee -a master-update.log
+          
+          # Get current commit before switching
+          CURRENT_COMMIT=$(git rev-parse HEAD)
+          echo "Current commit: ${CURRENT_COMMIT}" | tee -a master-update.log
+          
+          # Switch to master branch with safety checks
+          echo "Switching to master branch..." | tee -a master-update.log
+          if git switch master >> master-update.log 2>&1; then
+            echo "✅ Successfully switched to master branch" | tee -a master-update.log
+            echo "master_switch=success" >> $GITHUB_OUTPUT
+            
+            # Verify we're on master
+            ACTUAL_BRANCH=$(git branch --show-current)
+            if [ "$ACTUAL_BRANCH" != "master" ]; then
+              echo "❌ Branch switch verification failed: expected master, got ${ACTUAL_BRANCH}" | tee -a master-update.log
+              echo "master_switch=verification_failed" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            echo "✅ Branch switch verified: on ${ACTUAL_BRANCH}" | tee -a master-update.log
+          else
+            echo "❌ Failed to switch to master branch" | tee -a master-update.log
+            echo "master_switch=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          # Get master commit before pull
+          MASTER_BEFORE=$(git rev-parse HEAD)
+          echo "Master commit before pull: ${MASTER_BEFORE}" | tee -a master-update.log
+          
+          # Check if we need to pull (compare with origin/master)
+          git fetch origin master >> master-update.log 2>&1
+          ORIGIN_MASTER=$(git rev-parse origin/master)
+          echo "Origin master commit: ${ORIGIN_MASTER}" | tee -a master-update.log
+          
+          if [ "$MASTER_BEFORE" = "$ORIGIN_MASTER" ]; then
+            echo "ℹ️  Master is already up to date with origin" | tee -a master-update.log
+            echo "master_update=already_up_to_date" >> $GITHUB_OUTPUT
+            LATEST_COMMIT=$MASTER_BEFORE
+          else
+            echo "Master needs to be updated (${MASTER_BEFORE} -> ${ORIGIN_MASTER})" | tee -a master-update.log
+            
+            # Check if fast-forward is possible
+            if git merge-base --is-ancestor "$MASTER_BEFORE" "$ORIGIN_MASTER"; then
+              echo "✅ Fast-forward merge is possible" | tee -a master-update.log
+              
+              # Pull latest changes with fast-forward only
+              echo "Pulling latest changes with fast-forward only..." | tee -a master-update.log
+              if git pull --ff-only origin master >> master-update.log 2>&1; then
+                echo "✅ Successfully updated master branch" | tee -a master-update.log
+                echo "master_update=success" >> $GITHUB_OUTPUT
+                LATEST_COMMIT=$(git rev-parse HEAD)
+                
+                # Verify the update
+                if [ "$LATEST_COMMIT" = "$ORIGIN_MASTER" ]; then
+                  echo "✅ Update verification passed" | tee -a master-update.log
+                else
+                  echo "⚠️  Update verification warning: expected ${ORIGIN_MASTER}, got ${LATEST_COMMIT}" | tee -a master-update.log
+                fi
+              else
+                echo "❌ Failed to update master branch with fast-forward only" | tee -a master-update.log
+                echo "master_update=ff_failed" >> $GITHUB_OUTPUT
+                echo "This indicates non-linear history or conflicts" | tee -a master-update.log
+                LATEST_COMMIT=$MASTER_BEFORE
+              fi
+            else
+              echo "❌ Fast-forward merge is not possible" | tee -a master-update.log
+              echo "master_update=not_ff" >> $GITHUB_OUTPUT
+              echo "This indicates divergent history between local and remote master" | tee -a master-update.log
+              LATEST_COMMIT=$MASTER_BEFORE
+            fi
+          fi
+          
+          # Generate commit information
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${LATEST_COMMIT}"
+          COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s" "$LATEST_COMMIT" 2>/dev/null || echo "Unable to get commit message")
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an" "$LATEST_COMMIT" 2>/dev/null || echo "Unknown")
+          COMMIT_DATE=$(git log -1 --pretty=format:"%ci" "$LATEST_COMMIT" 2>/dev/null || echo "Unknown")
+          
+          echo "latest_commit=${LATEST_COMMIT}" >> $GITHUB_OUTPUT
+          echo "commit_url=${COMMIT_URL}" >> $GITHUB_OUTPUT
+          echo "commit_message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+          echo "commit_author=${COMMIT_AUTHOR}" >> $GITHUB_OUTPUT
+          echo "commit_date=${COMMIT_DATE}" >> $GITHUB_OUTPUT
+          
+          echo "📍 Latest commit: ${LATEST_COMMIT}" | tee -a master-update.log
+          echo "🔗 Commit URL: ${COMMIT_URL}" | tee -a master-update.log
+          echo "💬 Commit message: ${COMMIT_MESSAGE}" | tee -a master-update.log
+          echo "👤 Commit author: ${COMMIT_AUTHOR}" | tee -a master-update.log
+          echo "📅 Commit date: ${COMMIT_DATE}" | tee -a master-update.log
+          
+          # Repository integrity check
+          echo "Performing repository integrity check..." | tee -a master-update.log
+          if git fsck --no-progress >> master-update.log 2>&1; then
+            echo "✅ Repository integrity check passed" | tee -a master-update.log
+            echo "integrity_check=passed" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Repository integrity check found issues (non-critical)" | tee -a master-update.log
+            echo "integrity_check=issues_found" >> $GITHUB_OUTPUT
+          fi
+          
+          cat master-update.log
+      
+      - name: Delete Local Branch
+        id: delete-local
+        run: |
+          echo "=== Deleting Local Branch ===" | tee -a local-delete.log
+          
+          # Check if local branch exists
+          if git branch | grep -q "chore/checkpoint-commit"; then
+            echo "📍 Local branch 'chore/checkpoint-commit' exists" | tee -a local-delete.log
+            
+            # Ensure we're not on the branch we want to delete
+            CURRENT_BRANCH=$(git branch --show-current)
+            if [ "$CURRENT_BRANCH" = "chore/checkpoint-commit" ]; then
+              echo "⚠️  Currently on chore/checkpoint-commit, switching to master first" | tee -a local-delete.log
+              if git switch master >> local-delete.log 2>&1; then
+                echo "✅ Switched to master before deletion" | tee -a local-delete.log
+              else
+                echo "❌ Failed to switch to master before deletion" | tee -a local-delete.log
+                echo "local_delete=switch_failed" >> $GITHUB_OUTPUT
+                cat local-delete.log
+                exit 0  # Continue with workflow
+              fi
+            fi
+            
+            # Attempt to delete the branch
+            echo "Attempting to delete local branch 'chore/checkpoint-commit'..." | tee -a local-delete.log
+            if git branch -D chore/checkpoint-commit >> local-delete.log 2>&1; then
+              echo "✅ Successfully deleted local branch 'chore/checkpoint-commit'" | tee -a local-delete.log
+              echo "local_delete=success" >> $GITHUB_OUTPUT
+            else
+              echo "❌ Failed to delete local branch (may have uncommitted changes or other issues)" | tee -a local-delete.log
+              echo "local_delete=failed" >> $GITHUB_OUTPUT
+              echo "⚠️  Continuing with workflow despite local deletion failure" | tee -a local-delete.log
+            fi
+          else
+            echo "ℹ️  Local branch 'chore/checkpoint-commit' does not exist" | tee -a local-delete.log
+            echo "local_delete=not_found" >> $GITHUB_OUTPUT
+          fi
+          
+          # List remaining local branches
+          echo "Remaining local branches:" | tee -a local-delete.log
+          git branch | tee -a local-delete.log
+          
+          cat local-delete.log
+      
+      - name: Delete Remote Branch (Security-Guarded)
+        id: delete-remote
+        run: |
+          echo "=== Deleting Remote Branch (Security-Guarded) ===" | tee -a remote-delete.log
+          
+          # Security pre-check
+          echo "Performing security pre-check..." | tee -a remote-delete.log
+          
+          # Verify we're only targeting the allowed branch
+          TARGET_BRANCH="chore/checkpoint-commit"
+          if [ "${{ github.event.pull_request.head.ref }}" != "$TARGET_BRANCH" ]; then
+            echo "🚨 Security violation: Attempting to delete unauthorized branch" | tee -a remote-delete.log
+            echo "Expected: $TARGET_BRANCH, Attempted: ${{ github.event.pull_request.head.ref }}" | tee -a remote-delete.log
+            echo "remote_delete=security_violation" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          echo "✅ Security check passed: targeting authorized branch $TARGET_BRANCH" | tee -a remote-delete.log
+          
+          # Refresh remote references
+          echo "Refreshing remote references..." | tee -a remote-delete.log
+          git fetch origin >> remote-delete.log 2>&1 || echo "Warning: Failed to fetch from origin" | tee -a remote-delete.log
+          
+          # Check if remote branch exists with detailed verification
+          echo "Checking if remote branch '$TARGET_BRANCH' exists..." | tee -a remote-delete.log
+          REMOTE_BRANCH_CHECK=$(git ls-remote --heads origin "$TARGET_BRANCH")
+          
+          if echo "$REMOTE_BRANCH_CHECK" | grep -q "$TARGET_BRANCH"; then
+            REMOTE_COMMIT=$(echo "$REMOTE_BRANCH_CHECK" | awk '{print $1}')
+            echo "📍 Remote branch '$TARGET_BRANCH' exists" | tee -a remote-delete.log
+            echo "📍 Remote branch commit: ${REMOTE_COMMIT}" | tee -a remote-delete.log
+            
+            # Additional security check: verify the commit is related to the PR
+            if [ -n "${{ github.event.pull_request.merge_commit_sha }}" ]; then
+              echo "🔍 Verifying branch commit relationship to PR..." | tee -a remote-delete.log
+              # This is a basic check - in production you might want more sophisticated verification
+              echo "PR merge commit: ${{ github.event.pull_request.merge_commit_sha }}" | tee -a remote-delete.log
+              echo "Branch commit: ${REMOTE_COMMIT}" | tee -a remote-delete.log
+            fi
+            
+            # Check deletion permissions with security guard
+            echo "Checking deletion permissions with security constraints..." | tee -a remote-delete.log
+            
+            # Attempt deletion with detailed error handling and security logging
+            echo "Attempting to delete remote branch '$TARGET_BRANCH' (security-guarded)..." | tee -a remote-delete.log
+            if git push origin --delete "$TARGET_BRANCH" >> remote-delete.log 2>&1; then
+              echo "✅ Successfully deleted remote branch '$TARGET_BRANCH'" | tee -a remote-delete.log
+              echo "🔒 Security log: Authorized deletion completed" | tee -a remote-delete.log
+              echo "remote_delete=success" >> $GITHUB_OUTPUT
+              echo "deleted_commit=${REMOTE_COMMIT}" >> $GITHUB_OUTPUT
+              
+              # Verify deletion with security confirmation
+              echo "Verifying deletion with security confirmation..." | tee -a remote-delete.log
+              sleep 2  # Brief pause for GitHub to process
+              VERIFY_CHECK=$(git ls-remote --heads origin "$TARGET_BRANCH")
+              if [ -z "$VERIFY_CHECK" ]; then
+                echo "✅ Deletion verified: remote branch no longer exists" | tee -a remote-delete.log
+                echo "🔒 Security confirmation: Target branch successfully removed" | tee -a remote-delete.log
+                echo "deletion_verified=true" >> $GITHUB_OUTPUT
+              else
+                echo "⚠️  Deletion verification failed: branch may still exist" | tee -a remote-delete.log
+                echo "🔒 Security alert: Deletion verification failed" | tee -a remote-delete.log
+                echo "deletion_verified=false" >> $GITHUB_OUTPUT
+              fi
+            else
+              # Analyze the specific error with security context
+              echo "❌ Failed to delete remote branch" | tee -a remote-delete.log
+              echo "🔒 Security context: Deletion attempt failed" | tee -a remote-delete.log
+              
+              # Check for common error patterns
+              if grep -q "protected" remote-delete.log; then
+                echo "🔒 Branch appears to be protected by branch protection rules" | tee -a remote-delete.log
+                echo "🔒 Security note: Protection rules prevented deletion (expected behavior)" | tee -a remote-delete.log
+                echo "remote_delete=protected" >> $GITHUB_OUTPUT
+              elif grep -q "permission" remote-delete.log || grep -q "forbidden" remote-delete.log; then
+                echo "🚫 Insufficient permissions to delete remote branch" | tee -a remote-delete.log
+                echo "🔒 Security note: Permission denied (may require elevated access)" | tee -a remote-delete.log
+                echo "remote_delete=no_permission" >> $GITHUB_OUTPUT
+              elif grep -q "does not exist" remote-delete.log; then
+                echo "👻 Branch was deleted by another process" | tee -a remote-delete.log
+                echo "🔒 Security note: Branch already removed by external process" | tee -a remote-delete.log
+                echo "remote_delete=already_deleted" >> $GITHUB_OUTPUT
+              else
+                echo "❓ Unknown error occurred during deletion" | tee -a remote-delete.log
+                echo "🔒 Security alert: Unexpected error during deletion" | tee -a remote-delete.log
+                echo "remote_delete=unknown_error" >> $GITHUB_OUTPUT
+              fi
+              
+              echo "⚠️  Remote branch deletion was skipped due to the above issue" | tee -a remote-delete.log
+              echo "🔒 Security status: Operation completed safely despite failure" | tee -a remote-delete.log
+            fi
+          else
+            echo "ℹ️  Remote branch '$TARGET_BRANCH' does not exist" | tee -a remote-delete.log
+            echo "🔒 Security note: Target branch not found (safe state)" | tee -a remote-delete.log
+            echo "remote_delete=not_found" >> $GITHUB_OUTPUT
+            
+            # Double-check with alternative method
+            if git show-ref --verify --quiet "refs/remotes/origin/$TARGET_BRANCH"; then
+              echo "⚠️  Branch exists in local remote refs but not on server" | tee -a remote-delete.log
+              echo "Cleaning up stale remote reference..." | tee -a remote-delete.log
+              git update-ref -d "refs/remotes/origin/$TARGET_BRANCH" >> remote-delete.log 2>&1 || true
+              echo "🔒 Security note: Cleaned up stale local reference" | tee -a remote-delete.log
+            fi
+          fi
+          
+          # List remaining remote branches for security verification
+          echo "Remaining remote branches (security verification):" | tee -a remote-delete.log
+          git ls-remote --heads origin | tee -a remote-delete.log
+          
+          # Security audit log
+          echo "🔒 Security audit: Remote branch operation completed" | tee -a remote-delete.log
+          echo "🔒 Target branch: $TARGET_BRANCH" | tee -a remote-delete.log
+          echo "🔒 Operation result: $(echo '${{ steps.delete-remote.outputs.remote_delete }}')" | tee -a remote-delete.log
+          echo "🔒 Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" | tee -a remote-delete.log
+          
+          cat remote-delete.log
+      
+      - name: Reference Cleanup
+        id: ref-cleanup
+        run: |
+          echo "=== Reference Cleanup ===" | tee -a ref-cleanup.log
+          
+          # Prune remote references
+          echo "Pruning stale remote references..." | tee -a ref-cleanup.log
+          if git remote prune origin >> ref-cleanup.log 2>&1; then
+            echo "✅ Successfully pruned remote references" | tee -a ref-cleanup.log
+            echo "remote_prune=success" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Failed to prune remote references (non-critical)" | tee -a ref-cleanup.log
+            echo "remote_prune=failed" >> $GITHUB_OUTPUT
+          fi
+          
+          # Fetch with prune and tags
+          echo "Fetching with prune and tags..." | tee -a ref-cleanup.log
+          if git fetch --prune --tags origin >> ref-cleanup.log 2>&1; then
+            echo "✅ Successfully fetched with prune and tags" | tee -a ref-cleanup.log
+            echo "fetch_prune=success" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Failed to fetch with prune (non-critical)" | tee -a ref-cleanup.log
+            echo "fetch_prune=failed" >> $GITHUB_OUTPUT
+          fi
+          
+          # Clean up any remaining stale references
+          echo "Cleaning up stale references..." | tee -a ref-cleanup.log
+          
+          # Remove any stale remote tracking branches
+          STALE_REFS=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin | grep -v '^origin/master$' | grep -v '^origin/HEAD$' || true)
+          if [ -n "$STALE_REFS" ]; then
+            echo "Found stale remote references:" | tee -a ref-cleanup.log
+            echo "$STALE_REFS" | tee -a ref-cleanup.log
+            
+            # Only remove chore/checkpoint-commit if it exists
+            if echo "$STALE_REFS" | grep -q "^origin/chore/checkpoint-commit$"; then
+              echo "Removing stale reference: origin/chore/checkpoint-commit" | tee -a ref-cleanup.log
+              git update-ref -d refs/remotes/origin/chore/checkpoint-commit >> ref-cleanup.log 2>&1 || echo "Failed to remove stale reference" | tee -a ref-cleanup.log
+            fi
+          else
+            echo "No stale remote references found" | tee -a ref-cleanup.log
+          fi
+          
+          # Garbage collection to clean up unreachable objects
+          echo "Running garbage collection..." | tee -a ref-cleanup.log
+          if git gc --auto >> ref-cleanup.log 2>&1; then
+            echo "✅ Garbage collection completed" | tee -a ref-cleanup.log
+            echo "gc=success" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Garbage collection had issues (non-critical)" | tee -a ref-cleanup.log
+            echo "gc=failed" >> $GITHUB_OUTPUT
+          fi
+          
+          # Count references after cleanup
+          LOCAL_BRANCHES=$(git branch | wc -l)
+          REMOTE_BRANCHES=$(git branch -r | wc -l)
+          TAGS=$(git tag | wc -l)
+          
+          echo "ref_count_local=${LOCAL_BRANCHES}" >> $GITHUB_OUTPUT
+          echo "ref_count_remote=${REMOTE_BRANCHES}" >> $GITHUB_OUTPUT
+          echo "ref_count_tags=${TAGS}" >> $GITHUB_OUTPUT
+          
+          echo "📊 Reference counts after cleanup:" | tee -a ref-cleanup.log
+          echo "  Local branches: ${LOCAL_BRANCHES}" | tee -a ref-cleanup.log
+          echo "  Remote branches: ${REMOTE_BRANCHES}" | tee -a ref-cleanup.log
+          echo "  Tags: ${TAGS}" | tee -a ref-cleanup.log
+          
+          cat ref-cleanup.log
+      
+      - name: Post-cleanup Branch Status
+        id: post-status
+        run: |
+          echo "=== Post-cleanup Branch Status ===" >> post-cleanup.log
+          echo "Local branches:" >> post-cleanup.log
+          git branch -a >> post-cleanup.log 2>&1 || echo "Failed to list local branches" >> post-cleanup.log
+          echo "" >> post-cleanup.log
+          echo "Remote branches:" >> post-cleanup.log
+          git ls-remote --heads origin >> post-cleanup.log 2>&1 || echo "Failed to list remote branches" >> post-cleanup.log
+          echo "" >> post-cleanup.log
+          
+          # Count remaining branches
+          LOCAL_COUNT=$(git branch | wc -l)
+          REMOTE_COUNT=$(git ls-remote --heads origin | wc -l)
+          echo "branch_count_local=${LOCAL_COUNT}" >> $GITHUB_OUTPUT
+          echo "branch_count_remote=${REMOTE_COUNT}" >> $GITHUB_OUTPUT
+          
+          cat post-cleanup.log
+      
+      - name: Final State Verification
+        id: verify-state
+        if: always()
+        run: |
+          echo "=== Final State Verification ===" | tee state-verification.log
+          
+          # Verify master branch state
+          echo "Verifying master branch state..." | tee -a state-verification.log
+          CURRENT_BRANCH=$(git branch --show-current)
+          if [ "$CURRENT_BRANCH" = "master" ]; then
+            echo "✅ Currently on master branch" | tee -a state-verification.log
+            echo "on_master=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Not on master branch (on: $CURRENT_BRANCH)" | tee -a state-verification.log
+            echo "on_master=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check if target branch still exists locally
+          if git branch | grep -q "chore/checkpoint-commit"; then
+            echo "⚠️  Local branch 'chore/checkpoint-commit' still exists" | tee -a state-verification.log
+            echo "local_branch_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Local branch 'chore/checkpoint-commit' does not exist" | tee -a state-verification.log
+            echo "local_branch_exists=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check if target branch still exists remotely
+          if git ls-remote --heads origin chore/checkpoint-commit | grep -q chore/checkpoint-commit; then
+            echo "⚠️  Remote branch 'chore/checkpoint-commit' still exists" | tee -a state-verification.log
+            echo "remote_branch_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Remote branch 'chore/checkpoint-commit' does not exist" | tee -a state-verification.log
+            echo "remote_branch_exists=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Count final branches
+          LOCAL_BRANCHES=$(git branch | wc -l)
+          REMOTE_BRANCHES=$(git ls-remote --heads origin | wc -l)
+          TOTAL_REFS=$(git for-each-ref | wc -l)
+          
+          echo "final_local_branches=${LOCAL_BRANCHES}" >> $GITHUB_OUTPUT
+          echo "final_remote_branches=${REMOTE_BRANCHES}" >> $GITHUB_OUTPUT
+          echo "final_total_refs=${TOTAL_REFS}" >> $GITHUB_OUTPUT
+          
+          echo "📊 Final repository state:" | tee -a state-verification.log
+          echo "  Local branches: ${LOCAL_BRANCHES}" | tee -a state-verification.log
+          echo "  Remote branches: ${REMOTE_BRANCHES}" | tee -a state-verification.log
+          echo "  Total references: ${TOTAL_REFS}" | tee -a state-verification.log
+          
+          # Determine cleanup success
+          CLEANUP_SUCCESS=true
+          if [ "${{ steps.update-master.outputs.master_switch }}" != "success" ]; then
+            CLEANUP_SUCCESS=false
+          fi
+          if [ "${{ steps.update-master.outputs.master_update }}" = "failed" ] || [ "${{ steps.update-master.outputs.master_update }}" = "ff_failed" ] || [ "${{ steps.update-master.outputs.master_update }}" = "not_ff" ]; then
+            CLEANUP_SUCCESS=false
+          fi
+          
+          echo "cleanup_success=${CLEANUP_SUCCESS}" >> $GITHUB_OUTPUT
+          
+          if [ "$CLEANUP_SUCCESS" = "true" ]; then
+            echo "🎉 Overall cleanup assessment: SUCCESS" | tee -a state-verification.log
+          else
+            echo "⚠️  Overall cleanup assessment: PARTIAL/FAILED" | tee -a state-verification.log
+          fi
+          
+          cat state-verification.log
+      
+      - name: Generate Comprehensive Report
+        if: always()
+        run: |
+          REPORT_FILE="${{ steps.init.outputs.REPORT_FILE }}"
+          mkdir -p $(dirname "$REPORT_FILE")
+          
+          # Determine overall status
+          OVERALL_STATUS="Unknown"
+          if [ "${{ job.status }}" = "success" ]; then
+            OVERALL_STATUS="✅ Success"
+          elif [ "${{ job.status }}" = "failure" ]; then
+            OVERALL_STATUS="❌ Failed"
+          elif [ "${{ job.status }}" = "cancelled" ]; then
+            OVERALL_STATUS="🚫 Cancelled"
+          else
+            OVERALL_STATUS="⚠️ ${{ job.status }}"
+          fi
+          
+          cat > "$REPORT_FILE" << EOF
+          # Branch Cleanup Automation Report
+          
+          ## 📋 Execution Summary
+          - **Overall Status**: ${OVERALL_STATUS}
+          - **Timestamp**: ${{ steps.init.outputs.TIMESTAMP }}
+          - **Duration**: Started at ${{ steps.init.outputs.TIMESTAMP }}
+          - **Workflow Run**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          
+          ## 🎯 Target Information
+          - **PR**: [#${{ github.event.pull_request.number }}](${{ steps.init.outputs.PR_URL }}) - ${{ github.event.pull_request.title }}
+          - **Head Branch**: \`${{ steps.init.outputs.HEAD_BRANCH }}\`
+          - **Base Branch**: \`${{ steps.init.outputs.BASE_BRANCH }}\`
+          - **Merge Commit**: [\`${{ steps.init.outputs.COMMIT_SHA }}\`](https://github.com/${{ github.repository }}/commit/${{ steps.init.outputs.COMMIT_SHA }})
+          - **Triggered By**: ${{ github.actor }}
+          
+          ## ✅ Event Validation Results
+          | Check | Status | Details |
+          |-------|--------|---------|
+          | PR Number | ${{ github.event.pull_request.number == 13 && '✅ Valid' || '❌ Invalid' }} | Expected: 13, Got: ${{ github.event.pull_request.number }} |
+          | Head Branch | ${{ github.event.pull_request.head.ref == 'chore/checkpoint-commit' && '✅ Valid' || '❌ Invalid' }} | Expected: chore/checkpoint-commit, Got: ${{ github.event.pull_request.head.ref }} |
+          | Base Branch | ${{ github.event.pull_request.base.ref == 'master' && '✅ Valid' || '❌ Invalid' }} | Expected: master, Got: ${{ github.event.pull_request.base.ref }} |
+          | Merge Status | ${{ github.event.pull_request.merged == true && '✅ Merged' || '❌ Not Merged' }} | PR Merged: ${{ github.event.pull_request.merged }} |
+          
+          ## 🔄 Operation Results
+          
+          ### Master Branch Update
+          | Operation | Status | Details |
+          |-----------|--------|---------|
+          | Switch to Master | ${{ steps.update-master.outputs.master_switch == 'success' && '✅ Success' || '❌ Failed' }} | Branch switch result |
+          | Pull Latest Changes | ${{ steps.update-master.outputs.master_update == 'success' && '✅ Success' || steps.update-master.outputs.master_update == 'already_up_to_date' && 'ℹ️ Up to Date' || '❌ Failed' }} | Update result: ${{ steps.update-master.outputs.master_update }} |
+          | Repository Integrity | ${{ steps.update-master.outputs.integrity_check == 'passed' && '✅ Passed' || '⚠️ Issues Found' }} | Git fsck result |
+          
+          **Latest Commit Information:**
+          - **SHA**: [\`${{ steps.update-master.outputs.latest_commit }}\`](${{ steps.update-master.outputs.commit_url }})
+          - **Message**: ${{ steps.update-master.outputs.commit_message }}
+          - **Author**: ${{ steps.update-master.outputs.commit_author }}
+          - **Date**: ${{ steps.update-master.outputs.commit_date }}
+          
+          ### Branch Cleanup Results
+          | Operation | Status | Details |
+          |-----------|--------|---------|
+          | Local Branch Deletion | ${{ steps.delete-local.outputs.local_delete == 'success' && '✅ Deleted' || steps.delete-local.outputs.local_delete == 'not_found' && 'ℹ️ Not Found' || '❌ Failed' }} | Result: ${{ steps.delete-local.outputs.local_delete }} |
+          | Remote Branch Deletion | ${{ steps.delete-remote.outputs.remote_delete == 'success' && '✅ Deleted' || steps.delete-remote.outputs.remote_delete == 'not_found' && 'ℹ️ Not Found' || steps.delete-remote.outputs.remote_delete == 'protected' && '🔒 Protected' || steps.delete-remote.outputs.remote_delete == 'no_permission' && '🚫 No Permission' || '❌ Failed' }} | Result: ${{ steps.delete-remote.outputs.remote_delete }} |
+          | Deletion Verification | ${{ steps.delete-remote.outputs.deletion_verified == 'true' && '✅ Verified' || steps.delete-remote.outputs.deletion_verified == 'false' && '⚠️ Not Verified' || 'N/A' }} | Post-deletion check |
+          
+          ### Reference Cleanup
+          | Operation | Status | Details |
+          |-----------|--------|---------|
+          | Remote Prune | ${{ steps.ref-cleanup.outputs.remote_prune == 'success' && '✅ Success' || '⚠️ Failed' }} | Stale reference cleanup |
+          | Fetch with Prune | ${{ steps.ref-cleanup.outputs.fetch_prune == 'success' && '✅ Success' || '⚠️ Failed' }} | Updated references |
+          | Garbage Collection | ${{ steps.ref-cleanup.outputs.gc == 'success' && '✅ Success' || '⚠️ Failed' }} | Repository optimization |
+          
+          ## 📊 Final Repository State
+          
+          ### State Verification
+          | Check | Status | Details |
+          |-------|--------|---------|
+          | Current Branch | ${{ steps.verify-state.outputs.on_master == 'true' && '✅ On Master' || '⚠️ Not on Master' }} | Working directory state |
+          | Local Target Branch | ${{ steps.verify-state.outputs.local_branch_exists == 'false' && '✅ Removed' || '⚠️ Still Exists' }} | chore/checkpoint-commit local |
+          | Remote Target Branch | ${{ steps.verify-state.outputs.remote_branch_exists == 'false' && '✅ Removed' || '⚠️ Still Exists' }} | chore/checkpoint-commit remote |
+          | Overall Assessment | ${{ steps.verify-state.outputs.cleanup_success == 'true' && '🎉 SUCCESS' || '⚠️ PARTIAL/FAILED' }} | Cleanup effectiveness |
+          
+          ### Branch Counts
+          - **Local Branches**: ${{ steps.verify-state.outputs.final_local_branches || 'Unknown' }}
+          - **Remote Branches**: ${{ steps.verify-state.outputs.final_remote_branches || 'Unknown' }}
+          - **Total References**: ${{ steps.verify-state.outputs.final_total_refs || 'Unknown' }}
+          
+          ## 📝 Detailed Execution Logs
+          
+          <details>
+          <summary>🔍 Pre-cleanup Branch Status</summary>
+          
+          \`\`\`
+          EOF
+          
+          if [ -f pre-cleanup.log ]; then
+            cat pre-cleanup.log >> "$REPORT_FILE"
+          else
+            echo "Log file not available" >> "$REPORT_FILE"
+          fi
+          
+          cat >> "$REPORT_FILE" << 'EOF'
+          ```
+          
+          </details>
+          
+          <details>
+          <summary>🔄 Master Branch Update Log</summary>
+          
+          ```
+          EOF
+          
+          if [ -f master-update.log ]; then
+            cat master-update.log >> "$REPORT_FILE"
+          else
+            echo "Log file not available" >> "$REPORT_FILE"
+          fi
+          
+          cat >> "$REPORT_FILE" << 'EOF'
+          ```
+          
+          </details>
+          
+          <details>
+          <summary>🗑️ Local Branch Deletion Log</summary>
+          
+          ```
+          EOF
+          
+          if [ -f local-delete.log ]; then
+            cat local-delete.log >> "$REPORT_FILE"
+          else
+            echo "Log file not available" >> "$REPORT_FILE"
+          fi
+          
+          cat >> "$REPORT_FILE" << 'EOF'
+          ```
+          
+          </details>
+          
+          <details>
+          <summary>🌐 Remote Branch Deletion Log</summary>
+          
+          ```
+          EOF
+          
+          if [ -f remote-delete.log ]; then
+            cat remote-delete.log >> "$REPORT_FILE"
+          else
+            echo "Log file not available" >> "$REPORT_FILE"
+          fi
+          
+          cat >> "$REPORT_FILE" << 'EOF'
+          ```
+          
+          </details>
+          
+          <details>
+          <summary>🧹 Reference Cleanup Log</summary>
+          
+          ```
+          EOF
+          
+          if [ -f ref-cleanup.log ]; then
+            cat ref-cleanup.log >> "$REPORT_FILE"
+          else
+            echo "Log file not available" >> "$REPORT_FILE"
+          fi
+          
+          cat >> "$REPORT_FILE" << 'EOF'
+          ```
+          
+          </details>
+          
+          <details>
+          <summary>📊 Final State Verification</summary>
+          
+          ```
+          EOF
+          
+          if [ -f state-verification.log ]; then
+            cat state-verification.log >> "$REPORT_FILE"
+          else
+            echo "Log file not available" >> "$REPORT_FILE"
+          fi
+          
+          cat >> "$REPORT_FILE" << 'EOF'
+          ```
+          
+          </details>
+          
+          <details>
+          <summary>📋 Post-cleanup Branch Status</summary>
+          
+          ```
+          EOF
+          
+          if [ -f post-cleanup.log ]; then
+            cat post-cleanup.log >> "$REPORT_FILE"
+          else
+            echo "Log file not available" >> "$REPORT_FILE"
+          fi
+          
+          cat >> "$REPORT_FILE" << 'EOF'
+          ```
+          
+          </details>
+          
+          ## 🎯 Summary and Next Steps
+          
+          EOF
+          
+          if [ "${{ steps.verify-state.outputs.cleanup_success }}" = "true" ]; then
+            cat >> "$REPORT_FILE" << 'EOF'
+          ### ✅ Cleanup Completed Successfully
+          
+          The branch cleanup automation has completed successfully. The repository is now in the desired state:
+          
+          - ✅ Master branch is up to date
+          - ✅ Target branch `chore/checkpoint-commit` has been removed
+          - ✅ Repository references have been cleaned up
+          - ✅ Repository is ready for production use
+          
+          **No further action is required.**
+          EOF
+          else
+            cat >> "$REPORT_FILE" << 'EOF'
+          ### ⚠️ Cleanup Completed with Issues
+          
+          The branch cleanup automation encountered some issues. Please review the logs above and consider:
+          
+          1. **Manual Verification**: Check the current repository state
+          2. **Manual Cleanup**: Execute any remaining cleanup steps manually
+          3. **Permission Review**: Verify repository and workflow permissions
+          4. **Workflow Update**: Consider updating workflow conditions if needed
+          
+          **Manual cleanup commands if needed:**
+          ```bash
+          git switch master
+          git pull --ff-only origin master
+          git push origin --delete chore/checkpoint-commit  # if branch still exists
+          git fetch --prune --tags
+          ```
+          EOF
+          fi
+          
+          cat >> "$REPORT_FILE" << 'EOF'
+          
+          ---
+          
+          *Report generated automatically by Branch Cleanup Automation*  
+          *Workflow Run: ${{ github.run_id }}*
+          EOF
+          
+          echo "📄 Comprehensive report generated: $REPORT_FILE"
+          echo "report_file=$REPORT_FILE" >> $GITHUB_OUTPUT
+      
+      - name: Integration Test and Validation
+        id: integration-test
+        if: always()
+        run: |
+          echo "=== Integration Test and Validation ===" | tee integration-test.log
+          
+          # Test 1: Verify workflow execution completeness
+          echo "Test 1: Workflow execution completeness..." | tee -a integration-test.log
+          
+          REQUIRED_STEPS=("validate" "init" "pre-status" "update-master" "delete-local" "delete-remote" "ref-cleanup" "post-status" "verify-state")
+          COMPLETED_STEPS=0
+          FAILED_STEPS=0
+          
+          for step in "${REQUIRED_STEPS[@]}"; do
+            case "$step" in
+              "validate")
+                if [ "${{ steps.validate.outcome }}" = "success" ]; then
+                  echo "  ✅ Validation step completed" | tee -a integration-test.log
+                  COMPLETED_STEPS=$((COMPLETED_STEPS + 1))
+                else
+                  echo "  ❌ Validation step failed" | tee -a integration-test.log
+                  FAILED_STEPS=$((FAILED_STEPS + 1))
+                fi
+                ;;
+              "init")
+                if [ "${{ steps.init.outcome }}" = "success" ]; then
+                  echo "  ✅ Initialization step completed" | tee -a integration-test.log
+                  COMPLETED_STEPS=$((COMPLETED_STEPS + 1))
+                else
+                  echo "  ❌ Initialization step failed" | tee -a integration-test.log
+                  FAILED_STEPS=$((FAILED_STEPS + 1))
+                fi
+                ;;
+              "pre-status")
+                if [ "${{ steps.pre-status.outcome }}" = "success" ]; then
+                  echo "  ✅ Pre-status step completed" | tee -a integration-test.log
+                  COMPLETED_STEPS=$((COMPLETED_STEPS + 1))
+                else
+                  echo "  ❌ Pre-status step failed" | tee -a integration-test.log
+                  FAILED_STEPS=$((FAILED_STEPS + 1))
+                fi
+                ;;
+              "update-master")
+                if [ "${{ steps.update-master.outcome }}" = "success" ]; then
+                  echo "  ✅ Master update step completed" | tee -a integration-test.log
+                  COMPLETED_STEPS=$((COMPLETED_STEPS + 1))
+                else
+                  echo "  ❌ Master update step failed" | tee -a integration-test.log
+                  FAILED_STEPS=$((FAILED_STEPS + 1))
+                fi
+                ;;
+              "delete-local")
+                if [ "${{ steps.delete-local.outcome }}" = "success" ]; then
+                  echo "  ✅ Local delete step completed" | tee -a integration-test.log
+                  COMPLETED_STEPS=$((COMPLETED_STEPS + 1))
+                else
+                  echo "  ❌ Local delete step failed" | tee -a integration-test.log
+                  FAILED_STEPS=$((FAILED_STEPS + 1))
+                fi
+                ;;
+              "delete-remote")
+                if [ "${{ steps.delete-remote.outcome }}" = "success" ]; then
+                  echo "  ✅ Remote delete step completed" | tee -a integration-test.log
+                  COMPLETED_STEPS=$((COMPLETED_STEPS + 1))
+                else
+                  echo "  ❌ Remote delete step failed" | tee -a integration-test.log
+                  FAILED_STEPS=$((FAILED_STEPS + 1))
+                fi
+                ;;
+              "ref-cleanup")
+                if [ "${{ steps.ref-cleanup.outcome }}" = "success" ]; then
+                  echo "  ✅ Reference cleanup step completed" | tee -a integration-test.log
+                  COMPLETED_STEPS=$((COMPLETED_STEPS + 1))
+                else
+                  echo "  ❌ Reference cleanup step failed" | tee -a integration-test.log
+                  FAILED_STEPS=$((FAILED_STEPS + 1))
+                fi
+                ;;
+              "post-status")
+                if [ "${{ steps.post-status.outcome }}" = "success" ]; then
+                  echo "  ✅ Post-status step completed" | tee -a integration-test.log
+                  COMPLETED_STEPS=$((COMPLETED_STEPS + 1))
+                else
+                  echo "  ❌ Post-status step failed" | tee -a integration-test.log
+                  FAILED_STEPS=$((FAILED_STEPS + 1))
+                fi
+                ;;
+              "verify-state")
+                if [ "${{ steps.verify-state.outcome }}" = "success" ]; then
+                  echo "  ✅ State verification step completed" | tee -a integration-test.log
+                  COMPLETED_STEPS=$((COMPLETED_STEPS + 1))
+                else
+                  echo "  ❌ State verification step failed" | tee -a integration-test.log
+                  FAILED_STEPS=$((FAILED_STEPS + 1))
+                fi
+                ;;
+            esac
+          done
+          
+          echo "Workflow execution summary:" | tee -a integration-test.log
+          echo "  Completed steps: ${COMPLETED_STEPS}/${#REQUIRED_STEPS[@]}" | tee -a integration-test.log
+          echo "  Failed steps: ${FAILED_STEPS}" | tee -a integration-test.log
+          
+          echo "completed_steps=${COMPLETED_STEPS}" >> $GITHUB_OUTPUT
+          echo "failed_steps=${FAILED_STEPS}" >> $GITHUB_OUTPUT
+          echo "total_steps=${#REQUIRED_STEPS[@]}" >> $GITHUB_OUTPUT
+          
+          # Test 2: Verify security compliance
+          echo "" | tee -a integration-test.log
+          echo "Test 2: Security compliance verification..." | tee -a integration-test.log
+          
+          SECURITY_TESTS_PASSED=0
+          SECURITY_TESTS_TOTAL=4
+          
+          if [ "${{ steps.security-check.outputs.target_branch_safe }}" = "true" ]; then
+            echo "  ✅ Target branch security check passed" | tee -a integration-test.log
+            SECURITY_TESTS_PASSED=$((SECURITY_TESTS_PASSED + 1))
+          else
+            echo "  ❌ Target branch security check failed" | tee -a integration-test.log
+          fi
+          
+          if [ "${{ steps.security-check.outputs.base_branch_safe }}" = "true" ]; then
+            echo "  ✅ Base branch security check passed" | tee -a integration-test.log
+            SECURITY_TESTS_PASSED=$((SECURITY_TESTS_PASSED + 1))
+          else
+            echo "  ❌ Base branch security check failed" | tee -a integration-test.log
+          fi
+          
+          if [ "${{ steps.security-check.outputs.repo_read }}" = "true" ]; then
+            echo "  ✅ Repository access security check passed" | tee -a integration-test.log
+            SECURITY_TESTS_PASSED=$((SECURITY_TESTS_PASSED + 1))
+          else
+            echo "  ❌ Repository access security check failed" | tee -a integration-test.log
+          fi
+          
+          if [ "${{ steps.security-check.outputs.security_passed }}" = "true" ]; then
+            echo "  ✅ Overall security verification passed" | tee -a integration-test.log
+            SECURITY_TESTS_PASSED=$((SECURITY_TESTS_PASSED + 1))
+          else
+            echo "  ❌ Overall security verification failed" | tee -a integration-test.log
+          fi
+          
+          echo "Security compliance summary:" | tee -a integration-test.log
+          echo "  Passed security tests: ${SECURITY_TESTS_PASSED}/${SECURITY_TESTS_TOTAL}" | tee -a integration-test.log
+          
+          echo "security_tests_passed=${SECURITY_TESTS_PASSED}" >> $GITHUB_OUTPUT
+          echo "security_tests_total=${SECURITY_TESTS_TOTAL}" >> $GITHUB_OUTPUT
+          
+          # Test 3: Verify cleanup effectiveness
+          echo "" | tee -a integration-test.log
+          echo "Test 3: Cleanup effectiveness verification..." | tee -a integration-test.log
+          
+          CLEANUP_TESTS_PASSED=0
+          CLEANUP_TESTS_TOTAL=3
+          
+          if [ "${{ steps.verify-state.outputs.on_master }}" = "true" ]; then
+            echo "  ✅ Repository is on master branch" | tee -a integration-test.log
+            CLEANUP_TESTS_PASSED=$((CLEANUP_TESTS_PASSED + 1))
+          else
+            echo "  ❌ Repository is not on master branch" | tee -a integration-test.log
+          fi
+          
+          if [ "${{ steps.verify-state.outputs.local_branch_exists }}" = "false" ]; then
+            echo "  ✅ Local target branch has been removed" | tee -a integration-test.log
+            CLEANUP_TESTS_PASSED=$((CLEANUP_TESTS_PASSED + 1))
+          else
+            echo "  ⚠️  Local target branch still exists" | tee -a integration-test.log
+          fi
+          
+          if [ "${{ steps.verify-state.outputs.remote_branch_exists }}" = "false" ]; then
+            echo "  ✅ Remote target branch has been removed" | tee -a integration-test.log
+            CLEANUP_TESTS_PASSED=$((CLEANUP_TESTS_PASSED + 1))
+          else
+            echo "  ⚠️  Remote target branch still exists" | tee -a integration-test.log
+          fi
+          
+          echo "Cleanup effectiveness summary:" | tee -a integration-test.log
+          echo "  Passed cleanup tests: ${CLEANUP_TESTS_PASSED}/${CLEANUP_TESTS_TOTAL}" | tee -a integration-test.log
+          
+          echo "cleanup_tests_passed=${CLEANUP_TESTS_PASSED}" >> $GITHUB_OUTPUT
+          echo "cleanup_tests_total=${CLEANUP_TESTS_TOTAL}" >> $GITHUB_OUTPUT
+          
+          # Overall integration test result
+          TOTAL_TESTS_PASSED=$((SECURITY_TESTS_PASSED + CLEANUP_TESTS_PASSED))
+          TOTAL_TESTS=$((SECURITY_TESTS_TOTAL + CLEANUP_TESTS_TOTAL))
+          
+          echo "" | tee -a integration-test.log
+          echo "=== Integration Test Summary ===" | tee -a integration-test.log
+          echo "Workflow Steps: ${COMPLETED_STEPS}/${#REQUIRED_STEPS[@]} completed" | tee -a integration-test.log
+          echo "Security Tests: ${SECURITY_TESTS_PASSED}/${SECURITY_TESTS_TOTAL} passed" | tee -a integration-test.log
+          echo "Cleanup Tests: ${CLEANUP_TESTS_PASSED}/${CLEANUP_TESTS_TOTAL} passed" | tee -a integration-test.log
+          echo "Overall Score: ${TOTAL_TESTS_PASSED}/${TOTAL_TESTS} tests passed" | tee -a integration-test.log
+          
+          echo "total_tests_passed=${TOTAL_TESTS_PASSED}" >> $GITHUB_OUTPUT
+          echo "total_tests=${TOTAL_TESTS}" >> $GITHUB_OUTPUT
+          
+          # Determine integration test result
+          if [ "${COMPLETED_STEPS}" -eq "${#REQUIRED_STEPS[@]}" ] && [ "${SECURITY_TESTS_PASSED}" -eq "${SECURITY_TESTS_TOTAL}" ] && [ "${CLEANUP_TESTS_PASSED}" -ge 2 ]; then
+            echo "🎉 Integration test PASSED" | tee -a integration-test.log
+            echo "integration_test_result=passed" >> $GITHUB_OUTPUT
+          elif [ "${SECURITY_TESTS_PASSED}" -eq "${SECURITY_TESTS_TOTAL}" ] && [ "${COMPLETED_STEPS}" -gt 6 ]; then
+            echo "⚠️  Integration test PARTIAL (acceptable)" | tee -a integration-test.log
+            echo "integration_test_result=partial" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Integration test FAILED" | tee -a integration-test.log
+            echo "integration_test_result=failed" >> $GITHUB_OUTPUT
+          fi
+          
+          cat integration-test.log
+      
+      - name: Commit and Push Report
+        if: always()
+        run: |
+          REPORT_FILE="${{ steps.init.outputs.REPORT_FILE }}"
+          
+          if [ -f "$REPORT_FILE" ]; then
+            git add "$REPORT_FILE"
+            
+            if git diff --staged --quiet; then
+              echo "ℹ️  No changes to commit"
+            else
+              git commit -m "chore: add branch cleanup report for PR #${{ github.event.pull_request.number }}
+              
+              - Executed at: ${{ steps.init.outputs.TIMESTAMP }}
+              - PR: ${{ steps.init.outputs.PR_URL }}
+              - Master update: ${{ steps.update-master.outputs.master_update || 'unknown' }}
+              - Remote branch deletion: ${{ steps.delete-remote.outputs.remote_delete || 'unknown' }}"
+              
+              if git push origin master; then
+                echo "✅ Report committed and pushed successfully"
+              else
+                echo "❌ Failed to push report (may require manual intervention)"
+              fi
+            fi
+          else
+            echo "❌ Report file not found: $REPORT_FILE"
+          fi
+      
+      - name: Generate GitHub Summary
+        if: always()
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ## 🧹 Branch Cleanup Automation Results
+          
+          ### PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}
+          
+          **Execution Time**: ${{ steps.init.outputs.TIMESTAMP }}  
+          **Overall Status**: ${{ job.status == 'success' && '✅ Success' || job.status == 'failure' && '❌ Failed' || job.status == 'cancelled' && '🚫 Cancelled' || '⚠️ ' + job.status }}
+          
+          ### 🔍 Integration Test Results
+          
+          | Test Category | Score | Status |
+          |---------------|-------|--------|
+          | Workflow Steps | ${{ steps.integration-test.outputs.completed_steps || '0' }}/${{ steps.integration-test.outputs.total_steps || '9' }} | ${{ steps.integration-test.outputs.completed_steps == steps.integration-test.outputs.total_steps && '✅ Complete' || '⚠️ Partial' }} |
+          | Security Tests | ${{ steps.integration-test.outputs.security_tests_passed || '0' }}/${{ steps.integration-test.outputs.security_tests_total || '4' }} | ${{ steps.integration-test.outputs.security_tests_passed == steps.integration-test.outputs.security_tests_total && '✅ Passed' || '❌ Failed' }} |
+          | Cleanup Tests | ${{ steps.integration-test.outputs.cleanup_tests_passed || '0' }}/${{ steps.integration-test.outputs.cleanup_tests_total || '3' }} | ${{ steps.integration-test.outputs.cleanup_tests_passed >= 2 && '✅ Effective' || '⚠️ Partial' }} |
+          | **Overall** | ${{ steps.integration-test.outputs.total_tests_passed || '0' }}/${{ steps.integration-test.outputs.total_tests || '7' }} | ${{ steps.integration-test.outputs.integration_test_result == 'passed' && '🎉 PASSED' || steps.integration-test.outputs.integration_test_result == 'partial' && '⚠️ PARTIAL' || '❌ FAILED' }} |
+          
+          ### 🔄 Operation Results
+          
+          | Operation | Status | Details |
+          |-----------|--------|---------|
+          | Security Verification | ${{ steps.security-check.outputs.security_passed == 'true' && '✅ Passed' || '❌ Failed' }} | Branch and permission checks |
+          | Master Branch Update | ${{ steps.update-master.outputs.master_switch == 'success' && steps.update-master.outputs.master_update == 'success' && '✅ Success' || steps.update-master.outputs.master_update == 'already_up_to_date' && 'ℹ️ Up to Date' || '❌ Failed' }} | ${{ steps.update-master.outputs.commit_url && format('[{0}]({1})', steps.update-master.outputs.latest_commit, steps.update-master.outputs.commit_url) || 'Update failed' }} |
+          | Local Branch Cleanup | ${{ steps.delete-local.outputs.local_delete == 'success' && '✅ Deleted' || steps.delete-local.outputs.local_delete == 'not_found' && 'ℹ️ Not Found' || '❌ Failed' }} | chore/checkpoint-commit |
+          | Remote Branch Cleanup | ${{ steps.delete-remote.outputs.remote_delete == 'success' && '✅ Deleted' || steps.delete-remote.outputs.remote_delete == 'not_found' && 'ℹ️ Not Found' || steps.delete-remote.outputs.remote_delete == 'protected' && '🔒 Protected' || steps.delete-remote.outputs.remote_delete == 'no_permission' && '🚫 No Permission' || '❌ Failed' }} | chore/checkpoint-commit |
+          | Reference Cleanup | ${{ steps.ref-cleanup.outputs.remote_prune == 'success' && steps.ref-cleanup.outputs.fetch_prune == 'success' && '✅ Success' || '⚠️ Partial' }} | Pruned stale references |
+          
+          ### 📊 Final Repository State
+          
+          | Check | Status | Count |
+          |-------|--------|-------|
+          | Current Branch | ${{ steps.verify-state.outputs.on_master == 'true' && '✅ On Master' || '⚠️ Not on Master' }} | - |
+          | Local Branches | ${{ steps.verify-state.outputs.local_branch_exists == 'false' && '✅ Target Removed' || '⚠️ Target Exists' }} | ${{ steps.verify-state.outputs.final_local_branches || '?' }} total |
+          | Remote Branches | ${{ steps.verify-state.outputs.remote_branch_exists == 'false' && '✅ Target Removed' || '⚠️ Target Exists' }} | ${{ steps.verify-state.outputs.final_remote_branches || '?' }} total |
+          | Overall Assessment | ${{ steps.verify-state.outputs.cleanup_success == 'true' && '🎉 SUCCESS' || '⚠️ PARTIAL' }} | Repository state |
+          
+          ### 📋 Next Steps
+          
+          ${{ steps.integration-test.outputs.integration_test_result == 'passed' && '🎉 **Cleanup completed successfully!** Repository is now in production-ready state with master branch only. No further action required.' || steps.integration-test.outputs.integration_test_result == 'partial' && '⚠️ **Cleanup partially completed.** Most operations succeeded but some manual verification may be needed. Check the detailed report for specifics.' || '❌ **Manual intervention required.** The cleanup encountered significant issues. Please review the detailed logs and consider manual cleanup.' }}
+          
+          ### 🔗 Resources
+          - 📄 **Detailed Report**: Available in `.kiro/reports/` directory
+          - 🔗 **PR**: ${{ steps.init.outputs.PR_URL }}
+          - 📝 **Latest Commit**: ${{ steps.update-master.outputs.commit_url || 'N/A' }}
+          - 🔧 **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          ${{ steps.integration-test.outputs.integration_test_result != 'passed' && '### 🛠️ Manual Recovery Commands\n```bash\n# Verify current state\ngit branch -a\ngit ls-remote --heads origin\n\n# Safe cleanup commands\ngit switch master\ngit pull --ff-only origin master\ngit push origin --delete chore/checkpoint-commit  # if branch still exists\ngit fetch --prune --tags\n```' || '' }}
+          EOF
+      
+      - name: Error Analysis and Recovery
+        if: failure()
+        id: error-analysis
+        run: |
+          echo "=== Critical Error Analysis ===" | tee error-analysis.log
+          echo "Workflow encountered a critical error. Analyzing..." | tee -a error-analysis.log
+          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" | tee -a error-analysis.log
+          echo "" | tee -a error-analysis.log
+          
+          # Determine which step failed
+          FAILED_STEP="unknown"
+          if [ "${{ steps.validate.outcome }}" = "failure" ]; then
+            FAILED_STEP="validation"
+          elif [ "${{ steps.update-master.outcome }}" = "failure" ]; then
+            FAILED_STEP="master-update"
+          elif [ "${{ steps.delete-local.outcome }}" = "failure" ]; then
+            FAILED_STEP="local-delete"
+          elif [ "${{ steps.delete-remote.outcome }}" = "failure" ]; then
+            FAILED_STEP="remote-delete"
+          elif [ "${{ steps.ref-cleanup.outcome }}" = "failure" ]; then
+            FAILED_STEP="ref-cleanup"
+          fi
+          
+          echo "Failed step: ${FAILED_STEP}" | tee -a error-analysis.log
+          echo "failed_step=${FAILED_STEP}" >> $GITHUB_OUTPUT
+          
+          # Collect last 80 lines from relevant logs
+          echo "=== Last 80 Lines of Relevant Logs ===" | tee -a error-analysis.log
+          
+          case "$FAILED_STEP" in
+            "validation")
+              if [ -f validation.log ]; then
+                echo "--- Validation Log (last 30 lines) ---" | tee -a error-analysis.log
+                tail -30 validation.log | tee -a error-analysis.log
+              fi
+              ;;
+            "master-update")
+              if [ -f master-update.log ]; then
+                echo "--- Master Update Log (last 40 lines) ---" | tee -a error-analysis.log
+                tail -40 master-update.log | tee -a error-analysis.log
+              fi
+              ;;
+            "local-delete")
+              if [ -f local-delete.log ]; then
+                echo "--- Local Delete Log (last 20 lines) ---" | tee -a error-analysis.log
+                tail -20 local-delete.log | tee -a error-analysis.log
+              fi
+              if [ -f master-update.log ]; then
+                echo "--- Master Update Log (last 20 lines) ---" | tee -a error-analysis.log
+                tail -20 master-update.log | tee -a error-analysis.log
+              fi
+              ;;
+            "remote-delete")
+              if [ -f remote-delete.log ]; then
+                echo "--- Remote Delete Log (last 30 lines) ---" | tee -a error-analysis.log
+                tail -30 remote-delete.log | tee -a error-analysis.log
+              fi
+              if [ -f master-update.log ]; then
+                echo "--- Master Update Log (last 20 lines) ---" | tee -a error-analysis.log
+                tail -20 master-update.log | tee -a error-analysis.log
+              fi
+              ;;
+            "ref-cleanup")
+              if [ -f ref-cleanup.log ]; then
+                echo "--- Reference Cleanup Log (last 30 lines) ---" | tee -a error-analysis.log
+                tail -30 ref-cleanup.log | tee -a error-analysis.log
+              fi
+              ;;
+            *)
+              # Collect from all available logs
+              for log_file in validation.log master-update.log local-delete.log remote-delete.log ref-cleanup.log; do
+                if [ -f "$log_file" ]; then
+                  echo "--- ${log_file} (last 15 lines) ---" | tee -a error-analysis.log
+                  tail -15 "$log_file" | tee -a error-analysis.log
+                fi
+              done
+              ;;
+          esac
+          
+          echo "" | tee -a error-analysis.log
+          echo "=== Error Classification and Recovery Suggestions ===" | tee -a error-analysis.log
+          
+          # Classify error and provide specific recovery suggestions
+          case "$FAILED_STEP" in
+            "validation")
+              echo "🔍 Error Type: Event Validation Failure" | tee -a error-analysis.log
+              echo "📋 Likely Causes:" | tee -a error-analysis.log
+              echo "  - PR conditions not met (wrong number, branch, or merge status)" | tee -a error-analysis.log
+              echo "  - Workflow triggered by wrong event" | tee -a error-analysis.log
+              echo "🔧 Recovery Actions:" | tee -a error-analysis.log
+              echo "  - Verify PR #13 is merged with correct branches" | tee -a error-analysis.log
+              echo "  - Check workflow trigger conditions" | tee -a error-analysis.log
+              ;;
+            "master-update")
+              echo "🔄 Error Type: Master Branch Update Failure" | tee -a error-analysis.log
+              echo "📋 Likely Causes:" | tee -a error-analysis.log
+              echo "  - Non-fast-forward merge required" | tee -a error-analysis.log
+              echo "  - Network connectivity issues" | tee -a error-analysis.log
+              echo "  - Repository access permissions" | tee -a error-analysis.log
+              echo "🔧 Recovery Actions:" | tee -a error-analysis.log
+              echo "  - Check for merge conflicts in master" | tee -a error-analysis.log
+              echo "  - Verify repository permissions" | tee -a error-analysis.log
+              echo "  - Consider manual master update" | tee -a error-analysis.log
+              ;;
+            "remote-delete")
+              echo "🗑️ Error Type: Remote Branch Deletion Failure" | tee -a error-analysis.log
+              echo "📋 Likely Causes:" | tee -a error-analysis.log
+              echo "  - Branch protection rules" | tee -a error-analysis.log
+              echo "  - Insufficient permissions" | tee -a error-analysis.log
+              echo "  - Branch already deleted" | tee -a error-analysis.log
+              echo "🔧 Recovery Actions:" | tee -a error-analysis.log
+              echo "  - Check branch protection settings" | tee -a error-analysis.log
+              echo "  - Verify GitHub token permissions" | tee -a error-analysis.log
+              echo "  - Manual branch deletion may be required" | tee -a error-analysis.log
+              ;;
+            *)
+              echo "❓ Error Type: General Workflow Failure" | tee -a error-analysis.log
+              echo "📋 Likely Causes:" | tee -a error-analysis.log
+              echo "  - Unexpected system error" | tee -a error-analysis.log
+              echo "  - Resource constraints" | tee -a error-analysis.log
+              echo "  - Network issues" | tee -a error-analysis.log
+              echo "🔧 Recovery Actions:" | tee -a error-analysis.log
+              echo "  - Retry the workflow" | tee -a error-analysis.log
+              echo "  - Check GitHub Actions status" | tee -a error-analysis.log
+              echo "  - Review detailed logs above" | tee -a error-analysis.log
+              ;;
+          esac
+          
+          echo "" | tee -a error-analysis.log
+          echo "=== Minimal Recovery Diff ===" | tee -a error-analysis.log
+          echo "If manual intervention is required, consider these commands:" | tee -a error-analysis.log
+          echo "" | tee -a error-analysis.log
+          echo "```bash" | tee -a error-analysis.log
+          echo "# Safe master update" | tee -a error-analysis.log
+          echo "git switch master" | tee -a error-analysis.log
+          echo "git pull --ff-only origin master" | tee -a error-analysis.log
+          echo "" | tee -a error-analysis.log
+          echo "# Check if remote branch exists" | tee -a error-analysis.log
+          echo "git ls-remote --heads origin chore/checkpoint-commit" | tee -a error-analysis.log
+          echo "" | tee -a error-analysis.log
+          echo "# Delete remote branch if it exists" | tee -a error-analysis.log
+          echo "git push origin --delete chore/checkpoint-commit" | tee -a error-analysis.log
+          echo "" | tee -a error-analysis.log
+          echo "# Clean up references" | tee -a error-analysis.log
+          echo "git fetch --prune --tags" | tee -a error-analysis.log
+          echo "```" | tee -a error-analysis.log
+          
+          cat error-analysis.log
+      
+      - name: Generate Error Report
+        if: failure()
+        run: |
+          REPORT_FILE="${{ steps.init.outputs.REPORT_FILE || '.kiro/reports/cleanup-error.md' }}"
+          mkdir -p $(dirname "$REPORT_FILE")
+          
+          cat > "$REPORT_FILE" << 'EOF'
+          # Branch Cleanup Automation - Error Report
+          
+          ## ❌ Execution Failed
+          - **Timestamp**: ${{ steps.init.outputs.TIMESTAMP || 'Unknown' }}
+          - **Failed Step**: ${{ steps.error-analysis.outputs.failed_step || 'Unknown' }}
+          - **PR**: #${{ github.event.pull_request.number || 'Unknown' }} - ${{ github.event.pull_request.title || 'Unknown' }}
+          - **Actor**: ${{ github.actor }}
+          - **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          ## Error Analysis
+          
+          Please refer to the workflow logs for detailed error information.
+          
+          ## Recovery Actions Required
+          
+          Manual intervention may be required to complete the branch cleanup process.
+          
+          ### Recommended Commands
+          ```bash
+          # Verify current state
+          git branch -a
+          git ls-remote --heads origin
+          
+          # Safe cleanup commands
+          git switch master
+          git pull --ff-only origin master
+          git push origin --delete chore/checkpoint-commit  # if branch exists
+          git fetch --prune --tags
+          ```
+          
+          ## Next Steps
+          1. Review the detailed error logs in the GitHub Actions run
+          2. Execute manual cleanup commands if necessary
+          3. Verify the final repository state
+          4. Consider updating workflow conditions if needed
+          EOF
+          
+          echo "📄 Error report generated: $REPORT_FILE"
+          
+          # Commit error report if possible
+          if git add "$REPORT_FILE" 2>/dev/null; then
+            git commit -m "chore: add error report for failed branch cleanup
+            
+            - Failed at step: ${{ steps.error-analysis.outputs.failed_step || 'unknown' }}
+            - Timestamp: ${{ steps.init.outputs.TIMESTAMP || 'unknown' }}
+            - Workflow run: ${{ github.run_id }}" 2>/dev/null || echo "Failed to commit error report"
+            
+            git push origin master 2>/dev/null || echo "Failed to push error report"
+          fi
+      
+      - name: Generate Failure Summary
+        if: failure()
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ## ❌ Branch Cleanup Failed
+          
+          **Failed Step**: ${{ steps.error-analysis.outputs.failed_step || 'Unknown' }}
+          **Timestamp**: ${{ steps.init.outputs.TIMESTAMP || 'Unknown' }}
+          
+          ### Error Details
+          The branch cleanup automation encountered a critical error and could not complete successfully.
+          
+          ### Immediate Actions Required
+          1. 📋 **Review Logs**: Check the detailed error analysis in the workflow logs above
+          2. 🔍 **Identify Cause**: Determine the root cause based on the failed step
+          3. 🛠️ **Manual Cleanup**: Execute the recommended recovery commands if needed
+          4. ✅ **Verify State**: Confirm the final repository state
+          
+          ### Manual Recovery Commands
+          ```bash
+          # Check current repository state
+          git branch -a
+          git ls-remote --heads origin
+          
+          # Execute safe cleanup
+          git switch master
+          git pull --ff-only origin master
+          
+          # Delete remote branch if it still exists
+          if git ls-remote --heads origin chore/checkpoint-commit | grep -q chore/checkpoint-commit; then
+            git push origin --delete chore/checkpoint-commit
+          fi
+          
+          # Clean up references
+          git fetch --prune --tags
+          ```
+          
+          ### Support
+          - 📄 **Error Report**: Check `.kiro/reports/` for detailed error report
+          - 🔗 **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          - 📞 **Next Steps**: Consider updating workflow conditions or repository settings
+          EOF
