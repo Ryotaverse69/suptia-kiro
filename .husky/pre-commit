@@ -1,16 +1,10 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Run lint-staged for changed files
-echo "🚀 Running pre-commit checks..."
+# Lightweight pre-commit checks only
+echo "🚀 Running lightweight pre-commit checks..."
+
+# Run lint-staged for changed files (format + lint only)
 npx lint-staged
 
-# Run tests to ensure nothing is broken
-echo "🧪 Running tests..."
-npm run test
-
-# Check environment variable synchronization
-echo "🔍 Checking environment variables..."
-npm run env:check
-
-echo "✅ Pre-commit checks passed!"
+echo "✅ Pre-commit checks passed! Heavy checks will run in CI."

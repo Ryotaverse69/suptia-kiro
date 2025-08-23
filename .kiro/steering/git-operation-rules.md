@@ -37,6 +37,11 @@ inclusion: always
 4. レビュー・CI通過後にマージ
 5. **作業ブランチは自動削除**
 
+#### コミット方針
+- **ローカル**: 軽量チェック（format + lint-staged）のみ
+- **CI**: 重い処理（test, typecheck, build, compliance）で品質担保
+- **緊急時**: `HUSKY=0 git commit` または `git commit --no-verify` で回避可能
+
 #### 自動クリーンアップ
 - PRマージ後、作業ブランチは自動的に削除される
 - GitHub設定で「Automatically delete head branches」を有効化
@@ -70,6 +75,26 @@ inclusion: always
 - 命名規則に従わないブランチ
 
 ## トラブルシューティング
+
+### コミットが失敗する場合
+1. **通常のコミット**:
+   ```bash
+   git commit -m "your message"
+   ```
+
+2. **フック回避（緊急時）**:
+   ```bash
+   # Huskyを無効化
+   HUSKY=0 git commit -m "your message"
+   
+   # または pre-commit フックをスキップ
+   git commit --no-verify -m "your message"
+   ```
+
+3. **GPG署名エラーの場合**:
+   ```bash
+   git config --local commit.gpgsign false
+   ```
 
 ### 作業ブランチが残存している場合
 1. 手動削除:

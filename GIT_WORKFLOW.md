@@ -38,11 +38,20 @@ git switch -c feat/your-feature-name
 # 開発作業
 # ...
 
-# コミット
+# コミット（軽量チェックのみ）
 git add .
 git commit -m "feat: implement your feature"
+
+# 緊急時の回避オプション
+# HUSKY=0 git commit -m "feat: implement your feature"
+# git commit --no-verify -m "feat: implement your feature"
+
 git push origin feat/your-feature-name
 ```
+
+**💡 コミット方針**:
+- **ローカル**: format + lint-staged のみ（高速）
+- **CI**: test, typecheck, build, compliance（品質担保）
 
 ### 3. PR作成・マージ
 1. GitHub でPRを作成
