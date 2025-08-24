@@ -48,39 +48,22 @@ jobs:
       - name: Verify Production Deployment
         id: verify-deployment
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           DEPLOYMENT_URL: ${{ steps.vercel-deploy.outputs.preview-url }}
         run: |
-          node -e "
-          const chalk = require('chalk');
+          echo "🔍 Verifying deployment..."
+          echo "Deployment URL: $DEPLOYMENT_URL"
           
-          async function verifyDeployment() {
-            const deploymentUrl = process.env.DEPLOYMENT_URL;
-            console.log(chalk.blue('🔍 Verifying deployment...'));
-            console.log('Deployment URL:', deploymentUrl);
-            
-            try {
-              const response = await fetch(deploymentUrl);
-              console.log('Status:', response.status);
-              
-              if (response.ok) {
-                console.log(chalk.green('✅ Deployment is accessible'));
-                return true;
-              } else {
-                console.log(chalk.red('❌ Deployment returned error status'));
-                return false;
-              }
-            } catch (error) {
-              console.log(chalk.red('❌ Deployment verification failed:', error.message));
-              return false;
-            }
-          }
-          
-          verifyDeployment().then(success => {
-            process.exit(success ? 0 : 1);
-          });
-          "
+          if [ -n "$DEPLOYMENT_URL" ]; then
+            if curl -f -s "$DEPLOYMENT_URL" > /dev/null; then
+              echo "✅ Deployment is accessible"
+            else
+              echo "❌ Deployment verification failed"
+              exit 1
+            fi
+          else
+            echo "❌ No deployment URL found"
+            exit 1
+          fi
 
       - name: Test Custom Domain
         id: test-domain
