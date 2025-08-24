@@ -1,0 +1,352 @@
+name: 🏥 Health Check & Monitoring
+
+on:
+  schedule:
+    # 毎時0分に実行（UTC）
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      check_type:
+        description: 'チェックの種類'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - 'full'
+          - 'quick'
+          - 'domain-only'
+      notify_on_success:
+        description: '成功時も通知する'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  health-check:
+    name: 🔍 ヘルスチェック実行
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: 📦 Node.js環境をセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 依存関係をインストール
+        run: |
+          npm install -g vercel@latest
+          npm install chalk
+
+      - name: 🔐 Vercelにログイン
+        run: vercel login --token ${{ secrets.VERCEL_TOKEN }}
+
+      - name: 🔗 プロジェクトをリンク
+        run: vercel link --yes --token ${{ secrets.VERCEL_TOKEN }}
+
+      - name: 🏥 基本ヘルスチェック実行
+        id: basic-check
+        run: |
+          echo "🔍 基本ヘルスチェックを開始..."
+          
+          # プロジェクト状態の確認
+          echo "PROJECT_STATUS=checking" >> $GITHUB_OUTPUT
+          
+          # デプロイメント一覧を取得
+          DEPLOYMENTS=$(vercel ls 2>&1 || echo "ERROR")
+          
+          if echo "$DEPLOYMENTS" | grep -q "Error"; then
+            echo "PROJECT_STATUS=error" >> $GITHUB_OUTPUT
+            echo "ERROR_MESSAGE=Vercel CLI error: $DEPLOYMENTS" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          # 本番デプロイメントの状態を確認
+          PROD_STATUS="unknown"
+          if echo "$DEPLOYMENTS" | grep -q "Production.*Ready"; then
+            PROD_STATUS="ready"
+          elif echo "$DEPLOYMENTS" | grep -q "Production.*Error"; then
+            PROD_STATUS="error"
+          elif echo "$DEPLOYMENTS" | grep -q "Production.*Building"; then
+            PROD_STATUS="building"
+          fi
+          
+          echo "PROD_STATUS=$PROD_STATUS" >> $GITHUB_OUTPUT
+          echo "PROJECT_STATUS=ok" >> $GITHUB_OUTPUT
+          
+          # ドメイン設定の確認
+          DOMAINS=$(vercel domains ls 2>&1 || echo "ERROR")
+          DOMAIN_COUNT=0
+          if echo "$DOMAINS" | grep -q "Domains found"; then
+            DOMAIN_COUNT=$(echo "$DOMAINS" | grep -o '[0-9]\\+ Domains found' | grep -o '[0-9]\\+' || echo "0")
+          fi
+          
+          echo "DOMAIN_COUNT=$DOMAIN_COUNT" >> $GITHUB_OUTPUT
+          
+          echo "✅ 基本ヘルスチェック完了"
+          echo "📊 本番デプロイ状態: $PROD_STATUS"
+          echo "🌐 設定済みドメイン数: $DOMAIN_COUNT"
+
+      - name: 🧪 詳細テスト実行
+        id: detailed-test
+        if: github.event.inputs.check_type != 'domain-only'
+        run: |
+          echo "🧪 詳細テストを開始..."
+          
+          # E2Eテストスクリプトを実行
+          if node scripts/e2e-deployment-test.mjs; then
+            echo "TEST_STATUS=passed" >> $GITHUB_OUTPUT
+            echo "✅ 詳細テスト成功"
+          else
+            echo "TEST_STATUS=failed" >> $GITHUB_OUTPUT
+            echo "❌ 詳細テスト失敗"
+          fi
+
+      - name: 🌐 ドメインヘルスチェック
+        id: domain-check
+        if: steps.basic-check.outputs.DOMAIN_COUNT != '0'
+        run: |
+          echo "🌐 ドメインヘルスチェックを開始..."
+          
+          DOMAINS=("suptia.com" "www.suptia.com")
+          DOMAIN_STATUS="ok"
+          FAILED_DOMAINS=""
+          
+          for domain in "${DOMAINS[@]}"; do
+            echo "🔍 $domain をチェック中..."
+            
+            # HTTP ステータスチェック
+            STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://$domain" --max-time 30 || echo "000")
+            
+            if [ "$STATUS_CODE" = "200" ]; then
+              echo "✅ $domain: HTTP $STATUS_CODE"
+            else
+              echo "❌ $domain: HTTP $STATUS_CODE"
+              DOMAIN_STATUS="error"
+              FAILED_DOMAINS="$FAILED_DOMAINS $domain"
+            fi
+          done
+          
+          echo "DOMAIN_STATUS=$DOMAIN_STATUS" >> $GITHUB_OUTPUT
+          echo "FAILED_DOMAINS=$FAILED_DOMAINS" >> $GITHUB_OUTPUT
+
+      - name: 📊 監視レポート生成
+        id: generate-report
+        run: |
+          echo "📊 監視レポートを生成中..."
+          
+          # レポートファイルを作成
+          REPORT_FILE="health-check-report-$(date +%Y%m%d-%H%M%S).md"
+          
+          cat > "$REPORT_FILE" << EOF
+          # ヘルスチェックレポート
+          
+          **実行日時**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')  
+          **トリガー**: ${{ github.event_name }}  
+          **ワークフロー**: ${{ github.workflow }}  
+          
+          ## 📊 結果サマリー
+          
+          | 項目 | 状態 | 詳細 |
+          |------|------|------|
+          | プロジェクト | ${{ steps.basic-check.outputs.PROJECT_STATUS == 'ok' && '✅ 正常' || '❌ エラー' }} | - |
+          | 本番デプロイ | ${{ steps.basic-check.outputs.PROD_STATUS == 'ready' && '✅ 正常' || steps.basic-check.outputs.PROD_STATUS == 'error' && '❌ エラー' || '⚠️ 不明' }} | ${{ steps.basic-check.outputs.PROD_STATUS }} |
+          | ドメイン設定 | ${{ steps.basic-check.outputs.DOMAIN_COUNT != '0' && '✅ 設定済み' || '❌ 未設定' }} | ${{ steps.basic-check.outputs.DOMAIN_COUNT }}個 |
+          | ドメインアクセス | ${{ steps.domain-check.outputs.DOMAIN_STATUS == 'ok' && '✅ 正常' || steps.domain-check.outputs.DOMAIN_STATUS == 'error' && '❌ エラー' || '⏭️ スキップ' }} | ${{ steps.domain-check.outputs.FAILED_DOMAINS }} |
+          | 詳細テスト | ${{ steps.detailed-test.outputs.TEST_STATUS == 'passed' && '✅ 成功' || steps.detailed-test.outputs.TEST_STATUS == 'failed' && '❌ 失敗' || '⏭️ スキップ' }} | - |
+          
+          ## 🔗 関連リンク
+          
+          - [Vercelダッシュボード](https://vercel.com/ryotaverses-projects/suptia-kiro)
+          - [GitHub Actions](https://github.com/${{ github.repository }}/actions)
+          - [トラブルシューティングガイド](https://github.com/${{ github.repository }}/blob/master/docs/vercel-troubleshooting-guide.md)
+          
+          EOF
+          
+          echo "REPORT_FILE=$REPORT_FILE" >> $GITHUB_OUTPUT
+          
+          # レポート内容を出力
+          cat "$REPORT_FILE"
+
+      - name: 📤 レポートをアーティファクトとして保存
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-check-report-${{ github.run_number }}
+          path: health-check-report-*.md
+          retention-days: 30
+
+      - name: 🚨 エラー時の自動復旧試行
+        id: auto-recovery
+        if: |
+          steps.basic-check.outputs.PROD_STATUS == 'error' ||
+          steps.domain-check.outputs.DOMAIN_STATUS == 'error' ||
+          steps.detailed-test.outputs.TEST_STATUS == 'failed'
+        run: |
+          echo "🚨 問題を検出しました。自動復旧を試行します..."
+          
+          # 自動復旧スクリプトを実行
+          if node scripts/auto-recovery.mjs; then
+            echo "RECOVERY_STATUS=success" >> $GITHUB_OUTPUT
+            echo "✅ 自動復旧が成功しました"
+          else
+            echo "RECOVERY_STATUS=failed" >> $GITHUB_OUTPUT
+            echo "❌ 自動復旧が失敗しました"
+          fi
+
+      - name: 📧 Slack通知（エラー時）
+        if: |
+          failure() ||
+          steps.basic-check.outputs.PROD_STATUS == 'error' ||
+          steps.domain-check.outputs.DOMAIN_STATUS == 'error' ||
+          steps.detailed-test.outputs.TEST_STATUS == 'failed'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#alerts'
+          text: |
+            🚨 *Vercel ヘルスチェック失敗*
+            
+            *プロジェクト*: suptia-kiro
+            *実行時刻*: ${{ steps.generate-report.outputs.timestamp }}
+            
+            *問題*:
+            ${{ steps.basic-check.outputs.PROD_STATUS == 'error' && '• 本番デプロイメントエラー' || '' }}
+            ${{ steps.domain-check.outputs.DOMAIN_STATUS == 'error' && '• ドメインアクセスエラー' || '' }}
+            ${{ steps.detailed-test.outputs.TEST_STATUS == 'failed' && '• 詳細テスト失敗' || '' }}
+            
+            *自動復旧*: ${{ steps.auto-recovery.outputs.RECOVERY_STATUS == 'success' && '✅ 成功' || steps.auto-recovery.outputs.RECOVERY_STATUS == 'failed' && '❌ 失敗' || '未実行' }}
+            
+            <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|詳細を確認>
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: 📧 Slack通知（成功時）
+        if: |
+          success() &&
+          github.event.inputs.notify_on_success == 'true' &&
+          steps.basic-check.outputs.PROJECT_STATUS == 'ok' &&
+          (steps.domain-check.outputs.DOMAIN_STATUS == 'ok' || steps.basic-check.outputs.DOMAIN_COUNT == '0') &&
+          (steps.detailed-test.outputs.TEST_STATUS == 'passed' || github.event.inputs.check_type == 'domain-only')
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#general'
+          text: |
+            ✅ *Vercel ヘルスチェック成功*
+            
+            *プロジェクト*: suptia-kiro
+            *実行時刻*: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+            
+            すべてのチェックが正常に完了しました。
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: 📝 Issue作成（重大な問題時）
+        if: |
+          steps.basic-check.outputs.PROD_STATUS == 'error' &&
+          steps.auto-recovery.outputs.RECOVERY_STATUS == 'failed'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `🚨 Vercel本番デプロイ重大エラー - ${new Date().toISOString().split('T')[0]}`;
+            const body = `
+            # Vercel本番デプロイ重大エラー
+            
+            自動復旧に失敗しました。緊急対応が必要です。
+            
+            ## 📊 エラー詳細
+            
+            - **検出時刻**: ${new Date().toISOString()}
+            - **本番デプロイ状態**: ${{ steps.basic-check.outputs.PROD_STATUS }}
+            - **自動復旧結果**: ${{ steps.auto-recovery.outputs.RECOVERY_STATUS }}
+            - **ワークフロー実行**: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            ## 🚨 緊急対応手順
+            
+            1. [Vercelダッシュボード](https://vercel.com/ryotaverses-projects/suptia-kiro)で詳細を確認
+            2. [トラブルシューティングガイド](https://github.com/${{ github.repository }}/blob/master/docs/vercel-troubleshooting-guide.md)に従って対応
+            3. 必要に応じて手動でのロールバックを実行
+            
+            ## 📋 関連情報
+            
+            - エラーメッセージ: ${{ steps.basic-check.outputs.ERROR_MESSAGE }}
+            - 失敗したドメイン: ${{ steps.domain-check.outputs.FAILED_DOMAINS }}
+            
+            ---
+            *このIssueは自動監視システムによって作成されました*
+            `;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['urgent', 'vercel', 'production', 'auto-created']
+            });
+
+  performance-check:
+    name: 🚀 パフォーマンスチェック
+    runs-on: ubuntu-latest
+    if: github.event.inputs.check_type == 'full' || github.event_name == 'schedule'
+    needs: health-check
+    
+    steps:
+      - name: 📥 リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: 📦 Node.js環境をセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🔧 依存関係をインストール
+        run: npm install chalk
+
+      - name: 🚀 パフォーマンステスト実行
+        run: |
+          echo "🚀 パフォーマンステストを開始..."
+          
+          # 基本的なパフォーマンステスト
+          DOMAINS=("suptia.com" "www.suptia.com")
+          
+          for domain in "${DOMAINS[@]}"; do
+            echo "📊 $domain のパフォーマンスを測定中..."
+            
+            # 複数回測定して平均を計算
+            TOTAL_TIME=0
+            MEASUREMENTS=0
+            
+            for i in {1..3}; do
+              TIME=$(curl -s -o /dev/null -w "%{time_total}" "https://$domain" --max-time 30 2>/dev/null || echo "0")
+              if [ "$TIME" != "0" ]; then
+                TOTAL_TIME=$(echo "$TOTAL_TIME + $TIME" | bc -l)
+                MEASUREMENTS=$((MEASUREMENTS + 1))
+              fi
+            done
+            
+            if [ $MEASUREMENTS -gt 0 ]; then
+              AVG_TIME=$(echo "scale=3; $TOTAL_TIME / $MEASUREMENTS" | bc -l)
+              echo "⏱️ $domain: 平均レスポンス時間 ${AVG_TIME}秒"
+              
+              # 3秒以上の場合は警告
+              if (( $(echo "$AVG_TIME > 3.0" | bc -l) )); then
+                echo "⚠️ $domain: レスポンス時間が遅いです (${AVG_TIME}秒)"
+              fi
+            else
+              echo "❌ $domain: パフォーマンス測定に失敗"
+            fi
+          done
+
+      - name: 📊 パフォーマンスレポート生成
+        run: |
+          echo "📊 パフォーマンスレポートを生成..."
+          # 詳細なパフォーマンス分析結果をここに追加
+          echo "✅ パフォーマンスチェック完了"

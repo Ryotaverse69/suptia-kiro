@@ -34,21 +34,50 @@ class DomainVerifier {
       const status = response.status;
       const vercelId = response.headers.get('x-vercel-id');
       const server = response.headers.get('server');
+      const vercelCache = response.headers.get('x-vercel-cache');
+      const age = response.headers.get('age');
       
       console.log(`   Status: ${status}`);
       console.log(`   Server: ${server || 'Unknown'}`);
       console.log(`   x-vercel-id: ${vercelId || 'Not found'}`);
+      console.log(`   x-vercel-cache: ${vercelCache || 'Not found'}`);
+      console.log(`   Age: ${age || 'Not found'}`);
+      
+      // Vercelヘッダーの詳細分析
+      if (vercelId) {
+        console.log(chalk.green(`   ✅ Vercel deployment detected`));
+        
+        // Vercel IDの形式チェック
+        if (vercelId.startsWith('dpl_')) {
+          console.log(`   📋 Deployment ID format: Valid`);
+        } else if (vercelId === 'DEPLOYMENT_NOT_FOUND') {
+          this.issues.push('Vercel reports DEPLOYMENT_NOT_FOUND');
+          this.recommendations.push('Ensure a production deployment exists for this domain');
+          this.recommendations.push('Check domain configuration in Vercel dashboard');
+          this.recommendations.push('Verify that the domain is correctly assigned to the production deployment');
+        } else {
+          console.log(`   ⚠️ Unexpected Vercel ID format: ${vercelId}`);
+        }
+      } else {
+        this.issues.push(`No x-vercel-id header found for ${url}`);
+        this.recommendations.push('Verify that the domain is properly configured in Vercel');
+        this.recommendations.push('Check if the domain is pointing to the correct Vercel deployment');
+      }
       
       if (status === 404) {
         this.issues.push(`${url} returns 404 Not Found`);
         
         if (vercelId === 'DEPLOYMENT_NOT_FOUND') {
-          this.issues.push('Vercel reports DEPLOYMENT_NOT_FOUND');
-          this.recommendations.push('Ensure a production deployment exists');
-          this.recommendations.push('Check domain configuration in Vercel dashboard');
+          this.recommendations.push('Run: vercel domains ls to check domain configuration');
+          this.recommendations.push('Run: vercel deployments ls --prod to check production deployments');
+          this.recommendations.push('Ensure the domain is assigned to the correct project');
+        } else {
+          this.recommendations.push('Check if the application is properly built and deployed');
+          this.recommendations.push('Verify routing configuration in your application');
         }
       } else if (status >= 400) {
         this.issues.push(`${url} returns error status ${status}`);
+        this.recommendations.push(`Investigate the cause of HTTP ${status} error`);
       } else {
         console.log(chalk.green(`✅ ${url} is accessible`));
       }
@@ -58,11 +87,24 @@ class DomainVerifier {
         status,
         vercelId,
         server,
+        vercelCache,
+        age,
         accessible: status >= 200 && status < 400
       };
     } catch (error) {
       console.log(chalk.red(`❌ Failed to check ${url}: ${error.message}`));
       this.issues.push(`Failed to access ${url}: ${error.message}`);
+      
+      // ネットワークエラーの詳細分析
+      if (error.message.includes('ENOTFOUND')) {
+        this.recommendations.push('DNS resolution failed - check DNS configuration');
+        this.recommendations.push('Verify that DNS records are properly configured');
+      } else if (error.message.includes('ECONNREFUSED')) {
+        this.recommendations.push('Connection refused - check if the service is running');
+      } else if (error.message.includes('timeout')) {
+        this.recommendations.push('Request timeout - check network connectivity and server response time');
+      }
+      
       return {
         url,
         status: null,
@@ -120,7 +162,7 @@ class DomainVerifier {
     console.log(chalk.blue('🔍 Checking DNS records...'));
     
     try {
-      // Use a simple DNS lookup via HTTP API
+      // Check A record
       const dnsApiUrl = `https://dns.google/resolve?name=${this.domain}&type=A`;
       const response = await fetch(dnsApiUrl);
       const dnsData = await response.json();
@@ -129,16 +171,107 @@ class DomainVerifier {
         console.log(chalk.green(`✅ DNS A record found for ${this.domain}`));
         dnsData.Answer.forEach(record => {
           console.log(`   ${record.name} -> ${record.data}`);
+          
+          // Check if pointing to Vercel IPs
+          const vercelIPs = ['76.76.19.61', '76.223.126.88'];
+          if (vercelIPs.includes(record.data)) {
+            console.log(chalk.green(`   ✅ Points to Vercel IP`));
+          } else {
+            console.log(chalk.yellow(`   ⚠️ Not pointing to known Vercel IP`));
+          }
         });
+        
+        // Check CNAME record for www subdomain
+        await this.checkCnameRecord();
+        
         return { hasDnsRecord: true, records: dnsData.Answer };
       } else {
         this.issues.push(`No DNS A record found for ${this.domain}`);
-        this.recommendations.push('Configure DNS A record to point to Vercel');
+        this.recommendations.push('Configure DNS A record to point to Vercel (76.76.19.61)');
+        this.recommendations.push('Or configure CNAME record to point to cname.vercel-dns.com');
         return { hasDnsRecord: false };
       }
     } catch (error) {
       console.log(chalk.yellow(`⚠️ Could not check DNS records: ${error.message}`));
       return { hasDnsRecord: null, error: error.message };
+    }
+  }
+
+  async checkCnameRecord() {
+    try {
+      const cnameApiUrl = `https://dns.google/resolve?name=${this.wwwDomain}&type=CNAME`;
+      const response = await fetch(cnameApiUrl);
+      const cnameData = await response.json();
+      
+      if (cnameData.Answer && cnameData.Answer.length > 0) {
+        console.log(chalk.green(`✅ CNAME record found for ${this.wwwDomain}`));
+        cnameData.Answer.forEach(record => {
+          console.log(`   ${record.name} -> ${record.data}`);
+          
+          if (record.data.includes('vercel')) {
+            console.log(chalk.green(`   ✅ Points to Vercel`));
+          }
+        });
+      } else {
+        console.log(chalk.yellow(`⚠️ No CNAME record found for ${this.wwwDomain}`));
+        this.recommendations.push(`Consider adding CNAME record for ${this.wwwDomain} -> cname.vercel-dns.com`);
+      }
+    } catch (error) {
+      console.log(chalk.yellow(`⚠️ Could not check CNAME record: ${error.message}`));
+    }
+  }
+
+  async checkVercelDomainConfig() {
+    console.log(chalk.blue('🔍 Checking Vercel domain configuration...'));
+    
+    const token = process.env.VERCEL_TOKEN;
+    if (!token) {
+      console.log(chalk.yellow('⚠️ VERCEL_TOKEN not found, skipping Vercel API checks'));
+      return { checked: false, reason: 'No token' };
+    }
+    
+    try {
+      // Get domains for the project
+      const projectId = process.env.VERCEL_PROJECT_ID;
+      if (!projectId) {
+        console.log(chalk.yellow('⚠️ VERCEL_PROJECT_ID not found'));
+        return { checked: false, reason: 'No project ID' };
+      }
+      
+      const domainsResponse = await fetch(`https://api.vercel.com/v9/projects/${projectId}/domains`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!domainsResponse.ok) {
+        throw new Error(`Vercel API error: ${domainsResponse.status}`);
+      }
+      
+      const domainsData = await domainsResponse.json();
+      console.log(`   Found ${domainsData.domains.length} configured domains`);
+      
+      const targetDomain = domainsData.domains.find(d => d.name === this.domain);
+      if (targetDomain) {
+        console.log(chalk.green(`✅ Domain ${this.domain} is configured in Vercel`));
+        console.log(`   Verification: ${targetDomain.verified ? '✅ Verified' : '❌ Not verified'}`);
+        console.log(`   Created: ${new Date(targetDomain.createdAt).toLocaleString()}`);
+        
+        if (!targetDomain.verified) {
+          this.issues.push(`Domain ${this.domain} is not verified in Vercel`);
+          this.recommendations.push('Verify the domain in Vercel dashboard');
+          this.recommendations.push('Check DNS configuration and wait for propagation');
+        }
+      } else {
+        this.issues.push(`Domain ${this.domain} is not configured in Vercel project`);
+        this.recommendations.push(`Add domain ${this.domain} to Vercel project`);
+        this.recommendations.push('Run: vercel domains add ' + this.domain);
+      }
+      
+      return { checked: true, domains: domainsData.domains, targetDomain };
+    } catch (error) {
+      console.log(chalk.yellow(`⚠️ Could not check Vercel domain config: ${error.message}`));
+      return { checked: false, error: error.message };
     }
   }
 
@@ -196,6 +329,9 @@ class DomainVerifier {
       // Check both domain variants
       const httpsUrl = `https://${this.domain}`;
       const wwwHttpsUrl = `https://${this.wwwDomain}`;
+      
+      // Vercel domain configuration check (first)
+      await this.checkVercelDomainConfig();
       
       // HTTP Status checks
       const domainResult = await this.checkHttpStatus(httpsUrl);

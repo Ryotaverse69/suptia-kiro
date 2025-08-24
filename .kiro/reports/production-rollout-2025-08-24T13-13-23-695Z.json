@@ -1,0 +1,223 @@
+{
+  "timestamp": "2025-08-24T13:13:23.675Z",
+  "version": {
+    "commit": "4f9cab6b65059a04120dcb22df98dc1d6e0c0919",
+    "branch": "master"
+  },
+  "phases": {
+    "pre-deployment": {
+      "name": "pre-deployment",
+      "title": "デプロイ前検証",
+      "status": "failed",
+      "startTime": "2025-08-24T13:13:19.427Z",
+      "endTime": "2025-08-24T13:13:22.531Z",
+      "tests": {
+        "checkGitStatus": {
+          "status": "warning",
+          "message": "未コミットの変更があります。コミットしてからデプロイすることを推奨します。",
+          "duration": 35,
+          "timestamp": "2025-08-24T13:13:19.462Z"
+        },
+        "verifyEnvironmentVariables": {
+          "status": "failed",
+          "message": "環境変数の確認に失敗: Unexpected token '\ud83d', \"🔍 Vercel環\"... is not valid JSON",
+          "duration": 3067,
+          "timestamp": "2025-08-24T13:13:22.530Z"
+        },
+        "validateConfiguration": {
+          "status": "failed",
+          "message": "vercel.json が見つかりません。",
+          "duration": 0,
+          "timestamp": "2025-08-24T13:13:22.530Z"
+        },
+        "runLocalTests": {
+          "status": "passed",
+          "message": "ドライランモードのため、ローカルテストをスキップしました。",
+          "duration": 0,
+          "timestamp": "2025-08-24T13:13:22.531Z"
+        }
+      },
+      "issues": [
+        {
+          "test": "verifyEnvironmentVariables",
+          "message": "環境変数の確認に失敗: Unexpected token '\ud83d', \"🔍 Vercel環\"... is not valid JSON",
+          "timestamp": "2025-08-24T13:13:22.530Z"
+        },
+        {
+          "test": "validateConfiguration",
+          "message": "vercel.json が見つかりません。",
+          "timestamp": "2025-08-24T13:13:22.531Z"
+        }
+      ],
+      "duration": 3104
+    },
+    "deployment": {
+      "name": "deployment",
+      "title": "デプロイメント実行",
+      "status": "failed",
+      "startTime": "2025-08-24T13:13:22.531Z",
+      "endTime": "2025-08-24T13:13:22.910Z",
+      "tests": {
+        "executeProductionDeploy": {
+          "status": "passed",
+          "message": "ドライランモードのため、実際のデプロイはスキップしました。",
+          "duration": 0,
+          "timestamp": "2025-08-24T13:13:22.531Z"
+        },
+        "monitorDeploymentProgress": {
+          "status": "passed",
+          "message": "ドライランモードのため、デプロイ監視をスキップしました。",
+          "duration": 0,
+          "timestamp": "2025-08-24T13:13:22.531Z"
+        },
+        "verifyDeploymentSuccess": {
+          "status": "failed",
+          "message": "デプロイメント確認に失敗: Command failed: vercel ls --json\nVercel CLI 46.0.2\nError: unknown or unexpected option: --json\n",
+          "duration": 379,
+          "timestamp": "2025-08-24T13:13:22.910Z"
+        }
+      },
+      "issues": [
+        {
+          "test": "verifyDeploymentSuccess",
+          "message": "デプロイメント確認に失敗: Command failed: vercel ls --json\nVercel CLI 46.0.2\nError: unknown or unexpected option: --json\n",
+          "timestamp": "2025-08-24T13:13:22.910Z"
+        }
+      ],
+      "duration": 379
+    },
+    "post-deployment": {
+      "name": "post-deployment",
+      "title": "デプロイ後検証",
+      "status": "failed",
+      "startTime": "2025-08-24T13:13:22.910Z",
+      "endTime": "2025-08-24T13:13:23.674Z",
+      "tests": {
+        "verifyDomainAccess": {
+          "status": "failed",
+          "message": "ドメインアクセス検証に失敗: Command failed: node scripts/verify-custom-domain.mjs --json",
+          "duration": 286,
+          "timestamp": "2025-08-24T13:13:23.196Z"
+        },
+        "checkApplicationHealth": {
+          "status": "warning",
+          "message": "一部のヘルスチェックで問題が発生: 3/3",
+          "data": {
+            "results": [
+              {
+                "url": "https://suptia.com",
+                "statusCode": 404,
+                "status": "error"
+              },
+              {
+                "url": "https://www.suptia.com",
+                "statusCode": 404,
+                "status": "error"
+              },
+              {
+                "url": "https://suptia.com/api/health",
+                "statusCode": 404,
+                "status": "error"
+              }
+            ]
+          },
+          "duration": 307,
+          "timestamp": "2025-08-24T13:13:23.503Z"
+        },
+        "validateFunctionality": {
+          "status": "failed",
+          "message": "機能テストで問題が発生: 1/2",
+          "data": {
+            "results": [
+              {
+                "name": "ホームページアクセス",
+                "url": "https://suptia.com",
+                "statusCode": 404,
+                "expected": 200,
+                "status": "failed"
+              },
+              {
+                "name": "APIエンドポイント",
+                "url": "https://suptia.com/api",
+                "statusCode": 404,
+                "expected": [
+                  200,
+                  404
+                ],
+                "status": "passed"
+              }
+            ]
+          },
+          "duration": 112,
+          "timestamp": "2025-08-24T13:13:23.615Z"
+        },
+        "performanceCheck": {
+          "status": "passed",
+          "message": "パフォーマンスチェックが正常です。",
+          "data": {
+            "results": [
+              {
+                "url": "https://suptia.com",
+                "totalTime": 0.045542,
+                "connectTime": 0.010464,
+                "startTransferTime": 0.045446,
+                "status": "good"
+              }
+            ]
+          },
+          "duration": 59,
+          "timestamp": "2025-08-24T13:13:23.674Z"
+        }
+      },
+      "issues": [
+        {
+          "test": "verifyDomainAccess",
+          "message": "ドメインアクセス検証に失敗: Command failed: node scripts/verify-custom-domain.mjs --json",
+          "timestamp": "2025-08-24T13:13:23.196Z"
+        },
+        {
+          "test": "validateFunctionality",
+          "message": "機能テストで問題が発生: 1/2",
+          "timestamp": "2025-08-24T13:13:23.615Z"
+        }
+      ],
+      "duration": 764
+    },
+    "monitoring": {
+      "name": "monitoring",
+      "title": "継続監視設定",
+      "status": "running",
+      "startTime": "2025-08-24T13:13:23.675Z",
+      "endTime": null,
+      "tests": {
+        "setupContinuousMonitoring": {
+          "status": "passed",
+          "message": "継続監視の設定が完了しています。",
+          "data": {
+            "monitoringFiles": [
+              ".github/workflows/health-check.yml",
+              "scripts/monitor-deployment.mjs"
+            ]
+          },
+          "duration": 0,
+          "timestamp": "2025-08-24T13:13:23.675Z"
+        },
+        "configureAlerts": {
+          "status": "passed",
+          "message": "アラート設定が完了しています。",
+          "data": {
+            "githubActions": true,
+            "monitoringScripts": true,
+            "errorHandling": true
+          },
+          "duration": 0,
+          "timestamp": "2025-08-24T13:13:23.675Z"
+        }
+      },
+      "issues": []
+    }
+  },
+  "metrics": {},
+  "issues": [],
+  "recommendations": []
+}

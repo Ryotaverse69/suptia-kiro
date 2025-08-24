@@ -1,0 +1,258 @@
+{
+  "timestamp": "2025-08-24T13:14:48.365Z",
+  "version": {
+    "commit": "4f9cab6b65059a04120dcb22df98dc1d6e0c0919",
+    "branch": "master"
+  },
+  "phases": {
+    "pre-deployment": {
+      "name": "pre-deployment",
+      "title": "デプロイ前検証",
+      "status": "failed",
+      "startTime": "2025-08-24T13:14:42.991Z",
+      "endTime": "2025-08-24T13:14:45.935Z",
+      "tests": {
+        "checkGitStatus": {
+          "status": "warning",
+          "message": "未コミットの変更があります。コミットしてからデプロイすることを推奨します。",
+          "duration": 33,
+          "timestamp": "2025-08-24T13:14:43.024Z"
+        },
+        "verifyEnvironmentVariables": {
+          "status": "failed",
+          "message": "環境変数に問題があります。",
+          "data": {
+            "output": "🔍 Vercel環境変数設定確認を開始します...\n\n📋 プロジェクト: prj_NWkcnXBay0NvP9FEZUuXAICo0514\n🏢 組織: team_RIwNpcvXKq5GcbPbIvWObT5I\n\n🔐 GitHub Secrets の確認...\n  ✅ VERCEL_TOKEN が設定済み\n  ✅ VERCEL_ORG_ID が設定済み\n  ✅ VERCEL_PROJECT_ID が設定済み\n\n📁 ローカル環境変数の確認...\n\n☁️  Vercel環境変数の確認...\n  📊 production: 1個の環境変数を確認\n    検出: NEXT_PUBLIC_APP_URL\n  📊 preview: 0個の環境変数を確認\n\n📊 環境変数確認結果\n\n============================================================\n\n🔐 GitHub Secrets (GitHub Actions用)\n\n🔧 VERCEL_TOKEN\n   説明: Vercel API Token for GitHub Actions deployments\n   必須: ✅ はい\n   GitHub: ✅ 設定済み\n\n🔧 VERCEL_ORG_ID\n   説明: Vercel Organization ID for GitHub Actions\n   必須: ✅ はい\n   GitHub: ✅ 設定済み\n\n🔧 VERCEL_PROJECT_ID\n   説明: Vercel Project ID for GitHub Actions\n   必須: ✅ はい\n   GitHub: ✅ 設定済み\n\n☁️  Vercel環境変数\n\n🔧 NEXT_PUBLIC_APP_URL\n   説明: Public application URL\n   必須: ✅ はい\n   タイプ: plain\n   スコープ: production\n   ローカル: ❌ 未設定\n   Vercel production: ✅ 設定済み\n\n🔧 NEXT_PUBLIC_PREVIEW_URL\n   説明: Preview environment URL\n   必須: ⚪ いいえ\n   タイプ: plain\n   スコープ: preview\n   ローカル: ❌ 未設定\n   Vercel preview: ❌ 未設定\n\n🔧 DATABASE_URL\n   説明: Database connection URL\n   必須: ⚪ いいえ\n   タイプ: secret\n   スコープ: production, preview\n   ローカル: ❌ 未設定\n   Vercel production: ❌ 未設定\n   Vercel preview: ❌ 未設定\n\n🔧 API_SECRET_KEY\n   説明: API secret key for authentication\n   必須: ⚪ いいえ\n   タイプ: secret\n   スコープ: production, preview\n   ローカル: ❌ 未設定\n   Vercel production: ❌ 未設定\n   Vercel preview: ❌ 未設定\n\n\n💡 推奨アクション\n\n============================================================\n✅ すべての必須環境変数が設定されています！\n"
+          },
+          "duration": 2910,
+          "timestamp": "2025-08-24T13:14:45.934Z"
+        },
+        "validateConfiguration": {
+          "status": "passed",
+          "message": "Vercel設定は正常です。",
+          "data": {
+            "config": {
+              "version": 2,
+              "framework": "nextjs",
+              "env": {
+                "NEXT_PUBLIC_SANITY_PROJECT_ID": "@next_public_sanity_project_id",
+                "NEXT_PUBLIC_SANITY_DATASET": "@next_public_sanity_dataset",
+                "NEXT_PUBLIC_SITE_URL": "@next_public_site_url",
+                "NEXT_PUBLIC_APP_URL": "@next_public_app_url",
+                "SANITY_API_VERSION": "@sanity_api_version",
+                "SANITY_API_TOKEN": "@sanity_api_token",
+                "SANITY_STUDIO_URL": "@sanity_studio_url"
+              },
+              "build": {
+                "env": {
+                  "NEXT_PUBLIC_SANITY_PROJECT_ID": "@next_public_sanity_project_id",
+                  "NEXT_PUBLIC_SANITY_DATASET": "@next_public_sanity_dataset",
+                  "NEXT_PUBLIC_SITE_URL": "@next_public_site_url",
+                  "NEXT_PUBLIC_APP_URL": "@next_public_app_url",
+                  "SANITY_API_VERSION": "@sanity_api_version",
+                  "SANITY_API_TOKEN": "@sanity_api_token",
+                  "SANITY_STUDIO_URL": "@sanity_studio_url"
+                }
+              },
+              "functions": {
+                "apps/web/src/app/api/**/*.ts": {
+                  "maxDuration": 30
+                }
+              },
+              "rewrites": [
+                {
+                  "source": "/(.*)",
+                  "destination": "/"
+                }
+              ]
+            }
+          },
+          "duration": 1,
+          "timestamp": "2025-08-24T13:14:45.935Z"
+        },
+        "runLocalTests": {
+          "status": "passed",
+          "message": "ドライランモードのため、ローカルテストをスキップしました。",
+          "duration": 0,
+          "timestamp": "2025-08-24T13:14:45.935Z"
+        }
+      },
+      "issues": [
+        {
+          "test": "verifyEnvironmentVariables",
+          "message": "環境変数に問題があります。",
+          "timestamp": "2025-08-24T13:14:45.934Z"
+        }
+      ],
+      "duration": 2944
+    },
+    "deployment": {
+      "name": "deployment",
+      "title": "デプロイメント実行",
+      "status": "failed",
+      "startTime": "2025-08-24T13:14:45.935Z",
+      "endTime": "2025-08-24T13:14:47.399Z",
+      "tests": {
+        "executeProductionDeploy": {
+          "status": "passed",
+          "message": "ドライランモードのため、実際のデプロイはスキップしました。",
+          "duration": 0,
+          "timestamp": "2025-08-24T13:14:45.935Z"
+        },
+        "monitorDeploymentProgress": {
+          "status": "passed",
+          "message": "ドライランモードのため、デプロイ監視をスキップしました。",
+          "duration": 0,
+          "timestamp": "2025-08-24T13:14:45.935Z"
+        },
+        "verifyDeploymentSuccess": {
+          "status": "failed",
+          "message": "本番デプロイメントが見つかりません。",
+          "duration": 1464,
+          "timestamp": "2025-08-24T13:14:47.399Z"
+        }
+      },
+      "issues": [
+        {
+          "test": "verifyDeploymentSuccess",
+          "message": "本番デプロイメントが見つかりません。",
+          "timestamp": "2025-08-24T13:14:47.399Z"
+        }
+      ],
+      "duration": 1464
+    },
+    "post-deployment": {
+      "name": "post-deployment",
+      "title": "デプロイ後検証",
+      "status": "failed",
+      "startTime": "2025-08-24T13:14:47.399Z",
+      "endTime": "2025-08-24T13:14:48.365Z",
+      "tests": {
+        "verifyDomainAccess": {
+          "status": "failed",
+          "message": "ドメインアクセス検証に失敗: Command failed: node scripts/verify-custom-domain.mjs",
+          "duration": 451,
+          "timestamp": "2025-08-24T13:14:47.850Z"
+        },
+        "checkApplicationHealth": {
+          "status": "warning",
+          "message": "一部のヘルスチェックで問題が発生: 3/3",
+          "data": {
+            "results": [
+              {
+                "url": "https://suptia.com",
+                "statusCode": 404,
+                "status": "error"
+              },
+              {
+                "url": "https://www.suptia.com",
+                "statusCode": 404,
+                "status": "error"
+              },
+              {
+                "url": "https://suptia.com/api/health",
+                "statusCode": 404,
+                "status": "error"
+              }
+            ]
+          },
+          "duration": 323,
+          "timestamp": "2025-08-24T13:14:48.173Z"
+        },
+        "validateFunctionality": {
+          "status": "failed",
+          "message": "機能テストで問題が発生: 1/2",
+          "data": {
+            "results": [
+              {
+                "name": "ホームページアクセス",
+                "url": "https://suptia.com",
+                "statusCode": 404,
+                "expected": 200,
+                "status": "failed"
+              },
+              {
+                "name": "APIエンドポイント",
+                "url": "https://suptia.com/api",
+                "statusCode": 404,
+                "expected": [
+                  200,
+                  404
+                ],
+                "status": "passed"
+              }
+            ]
+          },
+          "duration": 134,
+          "timestamp": "2025-08-24T13:14:48.308Z"
+        },
+        "performanceCheck": {
+          "status": "passed",
+          "message": "パフォーマンスチェックが正常です。",
+          "data": {
+            "results": [
+              {
+                "url": "https://suptia.com",
+                "totalTime": 0.04138,
+                "connectTime": 0.009685,
+                "startTransferTime": 0.041279,
+                "status": "good"
+              }
+            ]
+          },
+          "duration": 57,
+          "timestamp": "2025-08-24T13:14:48.365Z"
+        }
+      },
+      "issues": [
+        {
+          "test": "verifyDomainAccess",
+          "message": "ドメインアクセス検証に失敗: Command failed: node scripts/verify-custom-domain.mjs",
+          "timestamp": "2025-08-24T13:14:47.850Z"
+        },
+        {
+          "test": "validateFunctionality",
+          "message": "機能テストで問題が発生: 1/2",
+          "timestamp": "2025-08-24T13:14:48.308Z"
+        }
+      ],
+      "duration": 966
+    },
+    "monitoring": {
+      "name": "monitoring",
+      "title": "継続監視設定",
+      "status": "running",
+      "startTime": "2025-08-24T13:14:48.365Z",
+      "endTime": null,
+      "tests": {
+        "setupContinuousMonitoring": {
+          "status": "passed",
+          "message": "継続監視の設定が完了しています。",
+          "data": {
+            "monitoringFiles": [
+              ".github/workflows/health-check.yml",
+              "scripts/monitor-deployment.mjs"
+            ]
+          },
+          "duration": 0,
+          "timestamp": "2025-08-24T13:14:48.365Z"
+        },
+        "configureAlerts": {
+          "status": "passed",
+          "message": "アラート設定が完了しています。",
+          "data": {
+            "githubActions": true,
+            "monitoringScripts": true,
+            "errorHandling": true
+          },
+          "duration": 0,
+          "timestamp": "2025-08-24T13:14:48.365Z"
+        }
+      },
+      "issues": []
+    }
+  },
+  "metrics": {},
+  "issues": [],
+  "recommendations": []
+}

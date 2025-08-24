@@ -1,26 +1,19 @@
 {
   "version": 2,
-  "buildCommand": "pnpm install --frozen-lockfile && pnpm --filter @suptia/web build",
-  "installCommand": "pnpm install --frozen-lockfile",
-  "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
+  "buildCommand": "pnpm --filter @suptia/web build",
+  "outputDirectory": "apps/web/.next",
+  "installCommand": "pnpm install",
+
   "functions": {
-    "apps/web/pages/api/**/*.js": {
-      "runtime": "nodejs18.x"
+    "apps/web/src/app/api/**/*.ts": {
+      "maxDuration": 30
     }
   },
-  "env": {
-    "NEXT_PUBLIC_SANITY_PROJECT_ID": "@next_public_sanity_project_id",
-    "NEXT_PUBLIC_SANITY_DATASET": "@next_public_sanity_dataset",
-    "NEXT_PUBLIC_SITE_URL": "@next_public_site_url",
-    "SANITY_API_VERSION": "@sanity_api_version"
-  },
-  "build": {
-    "env": {
-      "NEXT_PUBLIC_SANITY_PROJECT_ID": "@next_public_sanity_project_id",
-      "NEXT_PUBLIC_SANITY_DATASET": "@next_public_sanity_dataset",
-      "NEXT_PUBLIC_SITE_URL": "@next_public_site_url",
-      "SANITY_API_VERSION": "@sanity_api_version"
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
     }
-  }
+  ]
 }

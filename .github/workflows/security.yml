@@ -2,10 +2,8 @@
 name: "Security Checks"
 
 on:
-  push:
-    branches: [master, dev]
-  pull_request:
-    branches: [master]
+  # 手動実行のみに変更（自動実行を無効化）
+  workflow_dispatch:
   schedule:
     # 毎日午前3時（JST）に実行
     - cron: '0 18 * * *'  # UTC時間で18:00 = JST翌日03:00

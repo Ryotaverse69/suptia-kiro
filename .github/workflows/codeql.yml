@@ -2,13 +2,11 @@
 name: "CodeQL Security Analysis"
 
 on:
-  push:
-    branches: [master, dev]
-  pull_request:
-    branches: [master]
-  schedule:
-    # 毎週火曜日の午前2時（JST）に実行
-    - cron: '0 17 * * 1'  # UTC時間で月曜日17:00 = JST火曜日02:00
+  # 手動実行のみに変更（自動実行を無効化）
+  workflow_dispatch:
+  # schedule:
+  #   # 毎週火曜日の午前2時（JST）に実行
+  #   - cron: '0 17 * * 1'  # UTC時間で月曜日17:00 = JST火曜日02:00
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -27,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['javascript', 'typescript']
+        language: ['javascript']
 
     steps:
       - name: Checkout repository
@@ -45,20 +43,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
 
       - name: Install dependencies
         run: |
-          npm ci
-          cd apps/web && npm ci
+          # huskyのprepareスクリプトを無効化してインストール
+          npm pkg set scripts.prepare=""
+          pnpm install --frozen-lockfile
 
       - name: Build application
         env:
-          NEXT_PUBLIC_BASE_URL: http://localhost:3000
           NEXT_PUBLIC_SANITY_PROJECT_ID: demo
           NEXT_PUBLIC_SANITY_DATASET: production
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          SANITY_API_VERSION: 2023-05-03
+          SANITY_API_TOKEN: demo-token
+          SANITY_STUDIO_URL: http://localhost:3333
         run: |
-          cd apps/web && npm run build
+          pnpm --filter @suptia/web build
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3

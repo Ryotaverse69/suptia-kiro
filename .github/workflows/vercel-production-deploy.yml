@@ -34,16 +34,37 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
-          working-directory: ./
+          working-directory: ./apps/web
 
       - name: Wait for Deployment to be Ready
         run: |
           echo "Deployment URL: ${{ steps.vercel-deploy.outputs.preview-url }}"
-          echo "Waiting 60 seconds for deployment to be ready..."
-          sleep 60
+          echo "Waiting for deployment to be ready..."
+          
+          # より長い待機時間とリトライ機能
+          MAX_ATTEMPTS=10
+          ATTEMPT=1
+          
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS - Waiting 30 seconds..."
+            sleep 30
+            
+            if [ -n "${{ steps.vercel-deploy.outputs.preview-url }}" ]; then
+              if curl -f -s "${{ steps.vercel-deploy.outputs.preview-url }}" > /dev/null 2>&1; then
+                echo "✅ Deployment is ready!"
+                break
+              fi
+            fi
+            
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+          
+          if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
+            echo "⚠️ Deployment readiness check timed out, but continuing..."
+          fi
 
       - name: Install dependencies for verification
-        run: npm install chalk
+        run: npm install chalk axios
 
       - name: Verify Production Deployment
         id: verify-deployment
@@ -54,14 +75,48 @@ jobs:
           echo "Deployment URL: $DEPLOYMENT_URL"
           
           if [ -n "$DEPLOYMENT_URL" ]; then
-            if curl -f -s "$DEPLOYMENT_URL" > /dev/null; then
-              echo "✅ Deployment is accessible"
+            # より詳細な検証
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$DEPLOYMENT_URL" || echo "000")
+            echo "HTTP Status: $HTTP_STATUS"
+            
+            if [ "$HTTP_STATUS" = "200" ]; then
+              echo "✅ Deployment is accessible with HTTP 200"
+              
+              # Vercelヘッダーの確認
+              VERCEL_ID=$(curl -s -I "$DEPLOYMENT_URL" | grep -i "x-vercel-id" | cut -d' ' -f2 | tr -d '\r\n' || echo "")
+              if [ -n "$VERCEL_ID" ]; then
+                echo "✅ Vercel deployment ID: $VERCEL_ID"
+                echo "vercel_id=$VERCEL_ID" >> $GITHUB_OUTPUT
+              fi
+              
+              echo "deployment_status=success" >> $GITHUB_OUTPUT
+          
+      - name: Advanced Deployment Monitoring
+        id: monitor-deployment
+        continue-on-error: true
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: |
+          echo "🔍 高度なデプロイ監視を実行中..."
+          
+          # 監視スクリプトの実行
+          if node scripts/monitor-deployment.mjs; then
+            echo "✅ デプロイ監視完了"
+            echo "monitoring_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ デプロイ監視で問題を検出"
+            echo "monitoring_status=warning" >> $GITHUB_OUTPUT
+          fi
             else
-              echo "❌ Deployment verification failed"
+              echo "❌ Deployment verification failed with HTTP $HTTP_STATUS"
+              echo "deployment_status=failed" >> $GITHUB_OUTPUT
               exit 1
             fi
           else
             echo "❌ No deployment URL found"
+            echo "deployment_status=failed" >> $GITHUB_OUTPUT
             exit 1
           fi
 
@@ -71,23 +126,54 @@ jobs:
         run: |
           echo "🔍 Testing custom domain..."
           
-          # Wait a bit more for domain propagation
-          sleep 30
+          # より長い待機時間でドメイン伝播を待つ
+          echo "Waiting for domain propagation..."
+          sleep 60
           
-          # Test suptia.com
-          if curl -f -s -I https://suptia.com > /dev/null 2>&1; then
-            echo "✅ suptia.com is accessible"
+          # suptia.com のテスト（複数回リトライ）
+          DOMAIN_ATTEMPTS=5
+          DOMAIN_SUCCESS=false
+          
+          for i in $(seq 1 $DOMAIN_ATTEMPTS); do
+            echo "Testing suptia.com (attempt $i/$DOMAIN_ATTEMPTS)..."
+            
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://suptia.com || echo "000")
+            echo "suptia.com HTTP Status: $HTTP_STATUS"
+            
+            if [ "$HTTP_STATUS" = "200" ]; then
+              echo "✅ suptia.com is accessible"
+              
+              # Vercelヘッダーの確認
+              VERCEL_ID=$(curl -s -I https://suptia.com | grep -i "x-vercel-id" | cut -d' ' -f2 | tr -d '\r\n' || echo "")
+              if [ -n "$VERCEL_ID" ]; then
+                echo "✅ suptia.com Vercel ID: $VERCEL_ID"
+              fi
+              
+              DOMAIN_SUCCESS=true
+              break
+            else
+              echo "⚠️ suptia.com returned HTTP $HTTP_STATUS"
+              if [ $i -lt $DOMAIN_ATTEMPTS ]; then
+                echo "Waiting 30 seconds before retry..."
+                sleep 30
+              fi
+            fi
+          done
+          
+          if [ "$DOMAIN_SUCCESS" = "true" ]; then
             echo "domain_status=success" >> $GITHUB_OUTPUT
           else
-            echo "⚠️ suptia.com is not yet accessible"
             echo "domain_status=pending" >> $GITHUB_OUTPUT
           fi
           
-          # Test www.suptia.com
-          if curl -f -s -I https://www.suptia.com > /dev/null 2>&1; then
+          # www.suptia.com のテスト
+          WWW_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://www.suptia.com || echo "000")
+          echo "www.suptia.com HTTP Status: $WWW_STATUS"
+          
+          if [ "$WWW_STATUS" = "200" ] || [ "$WWW_STATUS" = "301" ] || [ "$WWW_STATUS" = "302" ]; then
             echo "✅ www.suptia.com is accessible"
           else
-            echo "⚠️ www.suptia.com is not yet accessible"
+            echo "⚠️ www.suptia.com returned HTTP $WWW_STATUS"
           fi
 
       - name: Create Success Comment
@@ -96,29 +182,71 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEPLOYMENT_URL: ${{ steps.vercel-deploy.outputs.preview-url }}
           DOMAIN_STATUS: ${{ steps.test-domain.outputs.domain_status }}
+          VERCEL_ID: ${{ steps.verify-deployment.outputs.vercel_id }}
         run: |
           # 最新のPRにコメントを追加（もしあれば）
           LATEST_PR=$(gh pr list --state merged --limit 1 --json number --jq '.[0].number' || echo "")
           
+          DOMAIN_EMOJI="${{ steps.test-domain.outputs.domain_status == 'success' && '✅' || '⚠️' }}"
+          DOMAIN_TEXT="${{ steps.test-domain.outputs.domain_status == 'success' && 'Ready' || 'Propagating' }}"
+          
+          COMMENT_BODY="🚀 **Production Deployment Successful**
+
+**Deployment Details:**
+- 🔗 Deployment URL: $DEPLOYMENT_URL
+- 🆔 Vercel ID: \`${VERCEL_ID:-'N/A'}\`
+- 📝 Commit: \`${{ github.sha }}\`
+- 🌐 Domain Status: $DOMAIN_EMOJI $DOMAIN_TEXT
+- ⏰ Deployed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+**Production URLs:**
+- 🌍 [suptia.com](https://suptia.com)
+- 🌍 [www.suptia.com](https://www.suptia.com)
+
+The production environment has been successfully updated!"
+          
           if [ -n "$LATEST_PR" ]; then
-            COMMENT_BODY="🚀 **Production Deployment Successful**
-
-Deployment URL: $DEPLOYMENT_URL
-Commit: \`${{ github.sha }}\`
-Domain Status: ${{ steps.test-domain.outputs.domain_status == 'success' && '✅ Ready' || '⚠️ Propagating' }}
-
-The production environment has been successfully updated.
-"
-            
             gh pr comment $LATEST_PR --body "$COMMENT_BODY" || echo "Could not add comment to PR"
+          else
+            echo "No recent PR found, skipping comment"
+          fi
+          
+          # Deployment summary
+          echo "## 🚀 Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Successful" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment URL**: $DEPLOYMENT_URL" >> $GITHUB_STEP_SUMMARY
+          echo "- **Domain Status**: $DOMAIN_EMOJI $DOMAIN_TEXT" >> $GITHUB_STEP_SUMMARY
+          echo "- **Vercel ID**: \`${VERCEL_ID:-'N/A'}\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Auto Recovery Attempt
+        if: failure()
+        id: auto-recovery
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: |
+          echo "🔄 自動復旧を試行中..."
+          
+          # 自動復旧スクリプトの実行
+          if node scripts/auto-recovery.mjs; then
+            echo "✅ 自動復旧が成功しました"
+            echo "recovery_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "❌ 自動復旧に失敗しました"
+            echo "recovery_status=failed" >> $GITHUB_OUTPUT
           fi
 
       - name: Notify Deployment Failure
-        if: failure()
+        if: failure() && steps.auto-recovery.outputs.recovery_status != 'success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "❌ Production deployment failed"
+          echo "❌ Production deployment failed and auto-recovery unsuccessful"
           
           # Create an issue for deployment failure
           gh issue create \
@@ -130,15 +258,32 @@ The production environment has been successfully updated.
 - Run ID: ${{ github.run_id }}
 - Commit: \`${{ github.sha }}\`
 - Branch: \`${{ github.ref_name }}\`
+- Auto Recovery: ${{ steps.auto-recovery.outputs.recovery_status || 'Not attempted' }}
 
 **Action Required:**
 1. Check workflow logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-2. Verify Vercel project settings
-3. Check environment variables
-4. Retry deployment if needed
+2. Run diagnostics: \`node scripts/diagnose-vercel-project.mjs\`
+3. Verify environment variables: \`node scripts/verify-env-variables.mjs\`
+4. Check domain configuration: \`node scripts/verify-custom-domain.mjs\`
+5. Manual deployment: \`vercel --prod\`
+
+**Troubleshooting Commands:**
+\`\`\`bash
+# 診断実行
+node scripts/diagnose-vercel-project.mjs
+
+# 環境変数確認
+node scripts/verify-env-variables.mjs
+
+# ドメイン確認
+node scripts/verify-custom-domain.mjs
+
+# 手動デプロイ
+vercel --prod
+\`\`\`
 
 **Logs:** Available in workflow artifacts" \
-            --label "deployment,production,urgent" \
+            --label "deployment,production,urgent,auto-recovery-failed" \
             --assignee "${{ github.actor }}" || echo "Could not create issue"
 
       - name: Upload Deployment Logs

@@ -1,0 +1,626 @@
+{
+  "timestamp": "2025-08-24T13:17:09.096Z",
+  "project": {
+    "name": "Vercel Production Deploy Fix",
+    "version": "1.0.0",
+    "status": "completed_with_issues"
+  },
+  "implementation": {
+    "completed": [
+      "1. Vercel設定の診断と修正",
+      "1.1 Vercel プロジェクト設定診断スクリプト作成",
+      "1.2 vercel.json設定の最適化",
+      "1.3 Vercel環境変数の設定確認と修正",
+      "2.1 Vercel Production Deploy ワークフロー実装",
+      "2.2 デプロイ監視とヘルスチェック機能実装",
+      "2.3 エラーハンドリングと自動復旧機能実装",
+      "4.1 定期監視ワークフローの実装",
+      "4.2 トラブルシューティングガイドの作成",
+      "5.1 エンドツーエンドテストの実装"
+    ],
+    "inProgress": [
+      "5.2 本番環境での検証とロールアウト"
+    ],
+    "blocked": [],
+    "notStarted": [
+      "2. GitHub Actions Vercel連携ワークフロー作成",
+      "3. カスタムドメイン設定の修正と検証",
+      "3.1 ドメイン設定診断スクリプト作成",
+      "3.2 カスタムドメイン検証機能実装",
+      "4. 監視システムと再発防止機能の構築",
+      "5. 統合テストと検証"
+    ]
+  },
+  "metrics": {
+    "current": {
+      "score": 49.10714285714286,
+      "grade": "F",
+      "recommendations": [
+        {
+          "category": "performance",
+          "issue": "可用性が大幅に目標を下回っています",
+          "priority": "high"
+        },
+        {
+          "category": "quality",
+          "issue": "ビルド成功率が大幅に低下しています",
+          "priority": "high"
+        },
+        {
+          "category": "quality",
+          "issue": "コード品質ツールの設定が不完全です",
+          "priority": "high"
+        }
+      ]
+    },
+    "targets": {
+      "deployment": {
+        "successRate": 95,
+        "averageDeployTime": 300,
+        "failureRecoveryTime": 600
+      },
+      "performance": {
+        "responseTime": 2000,
+        "availability": 99.9,
+        "errorRate": 1
+      },
+      "reliability": {
+        "uptime": 99.5,
+        "mtbf": 168,
+        "mttr": 30
+      }
+    },
+    "gaps": [
+      {
+        "category": "performance",
+        "score": 62.5,
+        "issues": [
+          "可用性が大幅に目標を下回っています"
+        ]
+      },
+      {
+        "category": "quality",
+        "score": 35.714285714285715,
+        "issues": [
+          "ビルド成功率が大幅に低下しています",
+          "コード品質ツールの設定が不完全です"
+        ]
+      }
+    ]
+  },
+  "infrastructure": {
+    "scripts": [
+      {
+        "name": "acceptance-test.mjs",
+        "size": 16268,
+        "created": "2025-08-24T10:32:34.890Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "analyze-ci-metrics.mjs",
+        "size": 14186,
+        "created": "2025-08-24T10:32:34.890Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "auto-recovery.mjs",
+        "size": 14863,
+        "created": "2025-08-24T12:50:52.258Z",
+        "purpose": "自動復旧"
+      },
+      {
+        "name": "check-dod.mjs",
+        "size": 12846,
+        "created": "2025-08-24T10:32:34.890Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "check-env-sync.mjs",
+        "size": 10494,
+        "created": "2025-08-24T10:32:34.891Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "check-headers.mjs",
+        "size": 3208,
+        "created": "2025-08-24T10:32:34.891Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "check-yaml.mjs",
+        "size": 935,
+        "created": "2025-08-24T10:32:34.891Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "collect-ci-metrics.mjs",
+        "size": 9271,
+        "created": "2025-08-24T10:32:34.891Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "deployment-metrics.mjs",
+        "size": 12130,
+        "created": "2025-08-24T10:32:34.891Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "diagnose-ci-failures.mjs",
+        "size": 12710,
+        "created": "2025-08-24T10:32:34.891Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "diagnose-git-issues.mjs",
+        "size": 11162,
+        "created": "2025-08-24T10:32:34.892Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "diagnose-vercel-preview.mjs",
+        "size": 12389,
+        "created": "2025-08-24T10:32:34.892Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "diagnose-vercel-project.mjs",
+        "size": 10421,
+        "created": "2025-08-24T11:52:54.005Z",
+        "purpose": "Vercelプロジェクト診断"
+      },
+      {
+        "name": "e2e-deployment-test.mjs",
+        "size": 28443,
+        "created": "2025-08-24T13:00:11.451Z",
+        "purpose": "E2Eデプロイメントテスト"
+      },
+      {
+        "name": "ensure-vercel-preview.mjs",
+        "size": 11080,
+        "created": "2025-08-24T10:32:34.892Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "final-integration-report.mjs",
+        "size": 24443,
+        "created": "2025-08-24T13:06:38.644Z",
+        "purpose": "最終統合レポート"
+      },
+      {
+        "name": "generate-acceptance-report.mjs",
+        "size": 7092,
+        "created": "2025-08-24T10:32:34.892Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "get-preview-url.mjs",
+        "size": 4468,
+        "created": "2025-08-24T10:32:34.892Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "measure-success-metrics.mjs",
+        "size": 30191,
+        "created": "2025-08-24T13:11:12.810Z",
+        "purpose": "成功メトリクス測定"
+      },
+      {
+        "name": "metrics-dashboard.mjs",
+        "size": 11290,
+        "created": "2025-08-24T10:32:34.892Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "metrics-summary.mjs",
+        "size": 4241,
+        "created": "2025-08-24T10:32:34.892Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "monitor-deployment.mjs",
+        "size": 7829,
+        "created": "2025-08-24T12:34:38.077Z",
+        "purpose": "デプロイメント監視"
+      },
+      {
+        "name": "monitor-production-deployment.mjs",
+        "size": 7814,
+        "created": "2025-08-24T10:32:34.892Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "notify-deployment.mjs",
+        "size": 8117,
+        "created": "2025-08-24T10:32:34.892Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "performance-monitor.mjs",
+        "size": 11129,
+        "created": "2025-08-24T10:32:34.892Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "performance-optimizer.mjs",
+        "size": 14116,
+        "created": "2025-08-24T10:32:34.893Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "pre-commit-check.mjs",
+        "size": 9062,
+        "created": "2025-08-24T10:32:34.893Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "production-rollout-verification.mjs",
+        "size": 28386,
+        "created": "2025-08-24T13:09:20.787Z",
+        "purpose": "本番ロールアウト検証"
+      },
+      {
+        "name": "rollback-production.mjs",
+        "size": 9324,
+        "created": "2025-08-24T10:32:34.893Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "run-acceptance-tests.mjs",
+        "size": 4234,
+        "created": "2025-08-24T10:32:34.893Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "security-audit.mjs",
+        "size": 13838,
+        "created": "2025-08-24T10:32:34.893Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "show-commit-metrics.mjs",
+        "size": 4531,
+        "created": "2025-08-24T10:32:34.893Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "test-integration-e2e.mjs",
+        "size": 16875,
+        "created": "2025-08-24T10:32:34.893Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "test-preview-workflow.mjs",
+        "size": 14432,
+        "created": "2025-08-24T10:32:34.893Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "test-production-deployment.mjs",
+        "size": 13159,
+        "created": "2025-08-24T10:32:34.894Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "test-vercel-preview-workflow.mjs",
+        "size": 11666,
+        "created": "2025-08-24T10:32:34.894Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "validate-jsonld.mjs",
+        "size": 5896,
+        "created": "2025-08-24T10:32:34.894Z",
+        "purpose": "汎用スクリプト"
+      },
+      {
+        "name": "verify-custom-domain.mjs",
+        "size": 13773,
+        "created": "2025-08-24T12:03:06.054Z",
+        "purpose": "カスタムドメイン検証"
+      },
+      {
+        "name": "verify-env-variables.mjs",
+        "size": 11455,
+        "created": "2025-08-24T12:27:49.643Z",
+        "purpose": "環境変数確認"
+      },
+      {
+        "name": "verify-preview-env.mjs",
+        "size": 11051,
+        "created": "2025-08-24T10:32:34.894Z",
+        "purpose": "汎用スクリプト"
+      }
+    ],
+    "workflows": [
+      {
+        "name": "ci-optimized.yml",
+        "triggers": [
+          "push",
+          "branches [master, dev]",
+          "pull_request",
+          "branches [master]"
+        ],
+        "jobs": []
+      },
+      {
+        "name": "ci-performance-optimized.yml",
+        "triggers": [
+          "push",
+          "branches [master, dev]",
+          "pull_request",
+          "branches [master]"
+        ],
+        "jobs": []
+      },
+      {
+        "name": "ci.yml",
+        "triggers": [
+          "push",
+          "branches [master, dev]",
+          "pull_request",
+          "branches [master]"
+        ],
+        "jobs": []
+      },
+      {
+        "name": "codeql.yml",
+        "triggers": [
+          "push",
+          "branches [master, dev]",
+          "pull_request",
+          "branches [master]",
+          "schedule",
+          "- cron '0 17 * * 1'  # UTC時間で月曜日17:00 = JST火曜日02:00"
+        ],
+        "jobs": []
+      },
+      {
+        "name": "health-check.yml",
+        "triggers": [
+          "schedule",
+          "- cron '0 * * * *'",
+          "workflow_dispatch",
+          "inputs",
+          "check_type",
+          "description 'チェックの種類'",
+          "required false",
+          "default 'full'",
+          "type choice",
+          "options",
+          "notify_on_success",
+          "description '成功時も通知する'",
+          "default false",
+          "type boolean"
+        ],
+        "jobs": []
+      },
+      {
+        "name": "security.yml",
+        "triggers": [
+          "push",
+          "branches [master, dev]",
+          "pull_request",
+          "branches [master]",
+          "schedule",
+          "- cron '0 18 * * *'  # UTC時間で18:00 = JST翌日03:00"
+        ],
+        "jobs": []
+      },
+      {
+        "name": "simple-ci.yml",
+        "triggers": [
+          "push",
+          "branches [master, dev]",
+          "pull_request",
+          "branches [master]"
+        ],
+        "jobs": []
+      },
+      {
+        "name": "vercel-diagnostics.yml",
+        "triggers": [
+          "workflow_dispatch",
+          "push",
+          "branches [master]",
+          "paths"
+        ],
+        "jobs": []
+      },
+      {
+        "name": "vercel-preview.yml",
+        "triggers": [
+          "push",
+          "branches [dev]",
+          "pull_request",
+          "branches [master]",
+          "types [opened, synchronize, reopened]"
+        ],
+        "jobs": []
+      },
+      {
+        "name": "vercel-production-deploy.yml",
+        "triggers": [
+          "push",
+          "branches [master]",
+          "workflow_dispatch"
+        ],
+        "jobs": []
+      }
+    ],
+    "documentation": [
+      {
+        "name": "DEVELOPMENT_WORKFLOW.md",
+        "size": 10977
+      },
+      {
+        "name": "GIT_WORKFLOW.md",
+        "size": 2239
+      },
+      {
+        "name": "METRICS.md",
+        "size": 6727
+      },
+      {
+        "name": "ONBOARDING.md",
+        "size": 8976
+      },
+      {
+        "name": "PERFORMANCE_OPTIMIZATION.md",
+        "size": 7197
+      },
+      {
+        "name": "QUICK_REFERENCE.md",
+        "size": 4570
+      },
+      {
+        "name": "SECURITY.md",
+        "size": 3352
+      },
+      {
+        "name": "SECURITY_SETUP.md",
+        "size": 7871
+      },
+      {
+        "name": "SEO.md",
+        "size": 4084
+      },
+      {
+        "name": "TESTING_GUIDE.md",
+        "size": 5755
+      },
+      {
+        "name": "TROUBLESHOOTING.md",
+        "size": 19795
+      },
+      {
+        "name": "VERCEL_ENV_SYNC.md",
+        "size": 4502
+      },
+      {
+        "name": "VERCEL_PREVIEW_SETUP.md",
+        "size": 7441
+      },
+      {
+        "name": "vercel-troubleshooting-guide.md",
+        "size": 8899
+      }
+    ]
+  },
+  "issues": {
+    "critical": [
+      {
+        "title": "総合スコアが非常に低い",
+        "description": "現在のスコア: 49.1/100",
+        "impact": "プロダクションデプロイメントが機能していない"
+      }
+    ],
+    "high": [
+      {
+        "title": "環境変数設定に問題がある",
+        "description": "必要な環境変数が不足または不正",
+        "impact": "アプリケーションの動作に影響"
+      }
+    ],
+    "medium": [],
+    "low": []
+  },
+  "recommendations": {
+    "immediate": [
+      {
+        "priority": "critical",
+        "action": "デプロイメントエラーの根本原因調査",
+        "description": "ビルドログを確認し、エラーの原因を特定する",
+        "estimatedTime": "2-4時間"
+      },
+      {
+        "priority": "critical",
+        "action": "Vercelプロジェクト設定の見直し",
+        "description": "Root Directory、Build Command、環境変数を再設定",
+        "estimatedTime": "1-2時間"
+      }
+    ],
+    "shortTerm": [
+      {
+        "priority": "high",
+        "action": "monorepo設定の最適化",
+        "description": "apps/webディレクトリを正しく認識するよう設定を調整",
+        "estimatedTime": "3-5時間"
+      },
+      {
+        "priority": "high",
+        "action": "カスタムドメイン設定の完了",
+        "description": "suptia.comドメインの設定とDNS設定を完了",
+        "estimatedTime": "2-3時間"
+      }
+    ],
+    "longTerm": [
+      {
+        "priority": "medium",
+        "action": "継続的監視システムの強化",
+        "description": "より詳細なメトリクス収集とアラート機能の実装",
+        "estimatedTime": "1-2週間"
+      },
+      {
+        "priority": "medium",
+        "action": "テスト自動化の拡充",
+        "description": "E2Eテストとパフォーマンステストの追加",
+        "estimatedTime": "1-2週間"
+      }
+    ]
+  },
+  "nextSteps": [
+    {
+      "step": 1,
+      "title": "デプロイメントエラーの解決",
+      "description": "Vercelダッシュボードでビルドログを確認し、エラーの根本原因を特定",
+      "priority": "critical",
+      "owner": "developer",
+      "estimatedTime": "2-4時間",
+      "dependencies": []
+    },
+    {
+      "step": 2,
+      "title": "Vercelプロジェクト設定の修正",
+      "description": "Root Directory、Build Command、Output Directoryを正しく設定",
+      "priority": "critical",
+      "owner": "developer",
+      "estimatedTime": "1-2時間",
+      "dependencies": [
+        "step1"
+      ]
+    },
+    {
+      "step": 3,
+      "title": "成功する本番デプロイメントの実行",
+      "description": "設定修正後、実際に成功するデプロイメントを作成",
+      "priority": "critical",
+      "owner": "developer",
+      "estimatedTime": "30分-1時間",
+      "dependencies": [
+        "step2"
+      ]
+    },
+    {
+      "step": 4,
+      "title": "カスタムドメインの設定",
+      "description": "suptia.comドメインをプロジェクトに追加し、DNS設定を完了",
+      "priority": "high",
+      "owner": "developer",
+      "estimatedTime": "1-2時間",
+      "dependencies": [
+        "step3"
+      ]
+    },
+    {
+      "step": 5,
+      "title": "全体的な動作確認",
+      "description": "本番環境での全機能テストと監視システムの動作確認",
+      "priority": "high",
+      "owner": "developer",
+      "estimatedTime": "2-3時間",
+      "dependencies": [
+        "step4"
+      ]
+    }
+  ]
+}

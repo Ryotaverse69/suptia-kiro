@@ -58,7 +58,7 @@
     "preview:diagnose": "node scripts/diagnose-vercel-preview.mjs",
     "preview:get": "node scripts/get-preview-url.mjs",
     "preview:test": "node scripts/test-vercel-preview-workflow.mjs",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "devDependencies": {
     "husky": "^9.0.0",

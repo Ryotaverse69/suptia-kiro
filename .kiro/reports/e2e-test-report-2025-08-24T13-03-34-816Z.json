@@ -1,0 +1,122 @@
+{
+  "timestamp": "2025-08-24T13:03:28.556Z",
+  "tests": [
+    {
+      "name": "プロジェクト設定確認",
+      "status": "passed",
+      "duration": 771,
+      "message": "プロジェクト設定は正常です",
+      "details": {
+        "プロジェクトID": "prj_NWkcnXBay0NvP9FEZUuXAICo0514",
+        "組織ID": "team_RIwNpcvXKq5GcbPbIvWObT5I",
+        "認証ユーザー": "ryotaverse69"
+      }
+    },
+    {
+      "name": "環境変数確認",
+      "status": "passed",
+      "duration": 1008,
+      "message": "すべての必要な環境変数が設定されています",
+      "details": {
+        "設定済み変数数": 5,
+        "不足変数数": 0,
+        "設定済み変数": "NEXT_PUBLIC_SANITY_PROJECT_ID, NEXT_PUBLIC_SANITY_DATASET, NEXT_PUBLIC_SITE_URL, SANITY_API_VERSION, SANITY_API_TOKEN",
+        "不足変数": ""
+      }
+    },
+    {
+      "name": "ビルド設定確認",
+      "status": "passed",
+      "duration": 1,
+      "message": "ビルド設定は正常です",
+      "details": {
+        "vercel.json": "不存在",
+        "package.json name": "suptia-kiro",
+        "package.json scripts": "dev, build, start, lint, format, format:check, test, test:watch, typecheck, type-check, env:check, env:check:ci, preview:verify, preview:url, preview:workflow, deploy:monitor, deploy:rollback, deploy:notify, deploy:test, test:integration, test:e2e, test:workflow, sitemap, precommit, commit:metrics, ci:metrics, ci:metrics:collect, deploy:metrics, metrics:all, metrics:dashboard, metrics:summary, diagnose:git, diagnose:ci, diagnose:all, fix:auto, perf:optimize, perf:report, perf:cleanup, ci:optimize, security:audit, security:check, security:deps, security:secrets, security:all, acceptance:test, acceptance:run, acceptance:report, acceptance:full, preview:ensure, preview:diagnose, preview:get, preview:test, prepare",
+        "apps/web/package.json name": "@suptia/web",
+        "apps/web/package.json scripts": "type-check, dev, build, start, test, test:watch, lint, format, format:check, typecheck, lint:fix, test:fix, headers, jsonld, dod:check, preview:verify, preview:url, perf:optimize, perf:report, perf:cleanup"
+      }
+    },
+    {
+      "name": "Git連携確認",
+      "status": "passed",
+      "duration": 32,
+      "message": "Git連携は正常です",
+      "details": {
+        "リモートURL": "git@github.com:Ryotaverse69/suptia-kiro.git",
+        "現在のブランチ": "master",
+        "最新コミット": "4f9cab6 fix: Vercel Production Deploy ワークフローの構文修正",
+        "未コミット変更": "有り"
+      }
+    },
+    {
+      "name": "デプロイメント実行",
+      "status": "failed",
+      "duration": 1124,
+      "message": "デプロイメントが見つかりません",
+      "details": {
+        "deployments": 0
+      }
+    },
+    {
+      "name": "ドメイン設定確認",
+      "status": "failed",
+      "duration": 1051,
+      "message": "カスタムドメインが設定されていません",
+      "details": {
+        "設定済みドメイン数": "0"
+      }
+    },
+    {
+      "name": "ヘルスチェック",
+      "status": "skipped",
+      "duration": 1114,
+      "message": "準備完了状態の本番デプロイメントが存在しないためスキップしました",
+      "details": {}
+    },
+    {
+      "name": "パフォーマンス確認",
+      "status": "skipped",
+      "duration": 1155,
+      "message": "本番デプロイメントが利用できないためスキップしました",
+      "details": {}
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "passed": 4,
+    "failed": 2,
+    "skipped": 2
+  },
+  "issues": [
+    {
+      "type": "configuration",
+      "severity": "medium",
+      "message": "vercel.jsonファイルが存在しません"
+    },
+    {
+      "type": "domain",
+      "severity": "high",
+      "message": "カスタムドメインが設定されていません"
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "high",
+      "action": "早急な対応が推奨",
+      "description": "重要な問題が検出されました。できるだけ早く対応してください。",
+      "items": [
+        "カスタムドメインが設定されていません"
+      ]
+    },
+    {
+      "priority": "medium",
+      "action": "部分的な改善が推奨",
+      "description": "いくつかの問題が検出されました。改善を検討してください。",
+      "items": [
+        "失敗したテストの詳細確認",
+        "設定の最適化"
+      ]
+    }
+  ]
+}
