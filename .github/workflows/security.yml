@@ -1,0 +1,413 @@
+# セキュリティ専用ワークフロー - 包括的なセキュリティチェック
+name: "Security Checks"
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+    branches: [master]
+  schedule:
+    # 毎日午前3時（JST）に実行
+    - cron: '0 18 * * *'  # UTC時間で18:00 = JST翌日03:00
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  secret-scanning:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 全履歴を取得してシークレットスキャン
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install security scanning tools
+        run: |
+          npm install -g @secretlint/cli @secretlint/secretlint-rule-preset-recommend
+          npm install -g gitleaks
+
+      - name: Run Secretlint
+        run: |
+          # Secretlint設定ファイルを作成
+          cat > .secretlintrc.json << 'EOF'
+          {
+            "rules": [
+              {
+                "id": "@secretlint/secretlint-rule-preset-recommend"
+              }
+            ]
+          }
+          EOF
+          
+          # Secretlintを実行
+          secretlint "**/*" --format json --output secretlint-results.json || true
+          
+          # 結果を確認
+          if [ -f "secretlint-results.json" ]; then
+            SECRETS_COUNT=$(jq '.length' secretlint-results.json 2>/dev/null || echo "0")
+            echo "Potential secrets found: $SECRETS_COUNT"
+            
+            if [ "$SECRETS_COUNT" -gt "0" ]; then
+              echo "::error::Potential secrets detected in repository"
+              jq -r '.[] | "File: \(.filePath), Line: \(.range.start.line), Rule: \(.ruleId)"' secretlint-results.json
+              exit 1
+            fi
+          fi
+
+      - name: Check for tracked environment files
+        run: |
+          # .envファイルがGitで追跡されていないかチェック
+          TRACKED_ENV_FILES=$(git ls-files | grep -E '(^|/)\.env(\.|$)' || true)
+          if [ -n "$TRACKED_ENV_FILES" ]; then
+            echo "::error::Environment files are being tracked in Git:"
+            echo "$TRACKED_ENV_FILES"
+            exit 1
+          fi
+          echo "✅ No environment files are tracked in Git"
+
+      - name: Verify .gitignore patterns
+        run: |
+          # .gitignoreに必要なパターンが含まれているかチェック
+          REQUIRED_PATTERNS=(".env" ".env.local" "*.log" "node_modules/")
+          MISSING_PATTERNS=()
+          
+          for pattern in "${REQUIRED_PATTERNS[@]}"; do
+            if ! grep -q "^$pattern" .gitignore; then
+              MISSING_PATTERNS+=("$pattern")
+            fi
+          done
+          
+          if [ ${#MISSING_PATTERNS[@]} -gt 0 ]; then
+            echo "::warning::Missing .gitignore patterns:"
+            printf '%s\n' "${MISSING_PATTERNS[@]}"
+          else
+            echo "✅ All required .gitignore patterns are present"
+          fi
+
+      - name: Upload secret scanning results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: secret-scanning-results
+          path: |
+            secretlint-results.json
+          retention-days: 30
+
+  dependency-security:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          cd apps/web && pnpm install --frozen-lockfile
+
+      - name: Run npm audit
+        run: |
+          echo "# 🔍 依存関係セキュリティ監査レポート" > audit-report.md
+          echo "" >> audit-report.md
+          echo "**実行日時**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> audit-report.md
+          echo "**コミット**: \`${{ github.sha }}\`" >> audit-report.md
+          echo "" >> audit-report.md
+          
+          # ルートレベルの監査
+          echo "## ルートプロジェクト" >> audit-report.md
+          pnpm audit --json > root-audit.json 2>/dev/null || true
+          
+          if [ -f "root-audit.json" ]; then
+            CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' root-audit.json)
+            HIGH=$(jq '.metadata.vulnerabilities.high // 0' root-audit.json)
+            MODERATE=$(jq '.metadata.vulnerabilities.moderate // 0' root-audit.json)
+            LOW=$(jq '.metadata.vulnerabilities.low // 0' root-audit.json)
+            
+            echo "- 🔴 Critical: $CRITICAL" >> audit-report.md
+            echo "- 🟡 High: $HIGH" >> audit-report.md
+            echo "- 🟠 Moderate: $MODERATE" >> audit-report.md
+            echo "- 🔵 Low: $LOW" >> audit-report.md
+            echo "" >> audit-report.md
+            
+            if [ "$CRITICAL" -gt "0" ] || [ "$HIGH" -gt "0" ]; then
+              echo "::error::Critical or High severity vulnerabilities found in root dependencies"
+              AUDIT_FAILED=true
+            fi
+          fi
+          
+          # Webアプリの監査
+          echo "## Webアプリケーション" >> audit-report.md
+          cd apps/web
+          pnpm audit --json > web-audit.json 2>/dev/null || true
+          
+          if [ -f "web-audit.json" ]; then
+            CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' web-audit.json)
+            HIGH=$(jq '.metadata.vulnerabilities.high // 0' web-audit.json)
+            MODERATE=$(jq '.metadata.vulnerabilities.moderate // 0' web-audit.json)
+            LOW=$(jq '.metadata.vulnerabilities.low // 0' web-audit.json)
+            
+            echo "- 🔴 Critical: $CRITICAL" >> ../audit-report.md
+            echo "- 🟡 High: $HIGH" >> ../audit-report.md
+            echo "- 🟠 Moderate: $MODERATE" >> ../audit-report.md
+            echo "- 🔵 Low: $LOW" >> ../audit-report.md
+            echo "" >> ../audit-report.md
+            
+            if [ "$CRITICAL" -gt "0" ] || [ "$HIGH" -gt "0" ]; then
+              echo "::error::Critical or High severity vulnerabilities found in web app dependencies"
+              AUDIT_FAILED=true
+            fi
+          fi
+          
+          cd ..
+          
+          # 監査結果のサマリー
+          if [ "$AUDIT_FAILED" = "true" ]; then
+            echo "## ⚠️ アクション必要" >> audit-report.md
+            echo "Critical または High レベルの脆弱性が検出されました。" >> audit-report.md
+            echo "依存関係の更新を検討してください。" >> audit-report.md
+            exit 1
+          else
+            echo "## ✅ セキュリティ状態良好" >> audit-report.md
+            echo "重大な脆弱性は検出されませんでした。" >> audit-report.md
+          fi
+
+      - name: Check for outdated packages
+        run: |
+          echo "" >> audit-report.md
+          echo "## 📦 パッケージ更新状況" >> audit-report.md
+          echo "" >> audit-report.md
+          
+          # 古いパッケージをチェック
+          pnpm outdated --format json > outdated.json 2>/dev/null || echo "[]" > outdated.json
+          
+          OUTDATED_COUNT=$(jq 'length' outdated.json)
+          echo "更新可能なパッケージ数: $OUTDATED_COUNT" >> audit-report.md
+          
+          if [ "$OUTDATED_COUNT" -gt "0" ]; then
+            echo "" >> audit-report.md
+            echo "### 更新推奨パッケージ" >> audit-report.md
+            jq -r '.[] | "- \(.name): \(.current) → \(.latest)"' outdated.json >> audit-report.md
+          fi
+
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-results
+          path: |
+            audit-report.md
+            root-audit.json
+            apps/web/web-audit.json
+            outdated.json
+          retention-days: 30
+
+      - name: Comment audit results on PR
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f "audit-report.md" ]; then
+            gh pr comment ${{ github.event.pull_request.number }} --body-file audit-report.md
+          fi
+
+  license-compliance:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          cd apps/web && pnpm install --frozen-lockfile
+
+      - name: Install license checker
+        run: npm install -g license-checker
+
+      - name: Check licenses
+        run: |
+          echo "# 📄 ライセンス コンプライアンス レポート" > license-report.md
+          echo "" >> license-report.md
+          echo "**実行日時**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> license-report.md
+          echo "" >> license-report.md
+          
+          # 許可されたライセンスのリスト
+          ALLOWED_LICENSES="MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;Unlicense;CC0-1.0"
+          
+          # ライセンスチェック実行
+          license-checker --onlyAllow "$ALLOWED_LICENSES" --json > licenses.json 2>/dev/null || true
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ **すべての依存関係が許可されたライセンスを使用しています**" >> license-report.md
+            
+            # ライセンス統計
+            echo "" >> license-report.md
+            echo "## ライセンス統計" >> license-report.md
+            jq -r 'to_entries | group_by(.value.licenses) | .[] | "\(.length) packages: \(.[0].value.licenses)"' licenses.json | sort -nr >> license-report.md
+          else
+            echo "⚠️ **許可されていないライセンスが検出されました**" >> license-report.md
+            echo "::warning::Unauthorized licenses detected"
+          fi
+
+      - name: Upload license report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-compliance-report
+          path: |
+            license-report.md
+            licenses.json
+          retention-days: 30
+
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [secret-scanning, dependency-security, license-compliance]
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all security results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*-results"
+          merge-multiple: true
+
+      - name: Generate comprehensive security report
+        run: |
+          echo "# 🛡️ 包括的セキュリティレポート" > security-report.md
+          echo "" >> security-report.md
+          echo "**生成日時**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> security-report.md
+          echo "**コミット**: \`${{ github.sha }}\`" >> security-report.md
+          echo "**ブランチ**: \`${{ github.ref_name }}\`" >> security-report.md
+          echo "" >> security-report.md
+          
+          # ジョブ結果の確認
+          SECRET_STATUS="${{ needs.secret-scanning.result }}"
+          DEPENDENCY_STATUS="${{ needs.dependency-security.result }}"
+          LICENSE_STATUS="${{ needs.license-compliance.result }}"
+          
+          echo "## 📊 セキュリティチェック結果" >> security-report.md
+          echo "" >> security-report.md
+          
+          # ステータスアイコンの設定
+          case "$SECRET_STATUS" in
+            "success") SECRET_ICON="✅" ;;
+            "failure") SECRET_ICON="❌" ;;
+            *) SECRET_ICON="⚠️" ;;
+          esac
+          
+          case "$DEPENDENCY_STATUS" in
+            "success") DEPENDENCY_ICON="✅" ;;
+            "failure") DEPENDENCY_ICON="❌" ;;
+            *) DEPENDENCY_ICON="⚠️" ;;
+          esac
+          
+          case "$LICENSE_STATUS" in
+            "success") LICENSE_ICON="✅" ;;
+            "failure") LICENSE_ICON="❌" ;;
+            *) LICENSE_ICON="⚠️" ;;
+          esac
+          
+          echo "| チェック項目 | ステータス | 結果 |" >> security-report.md
+          echo "|-------------|-----------|------|" >> security-report.md
+          echo "| シークレットスキャン | $SECRET_ICON | $SECRET_STATUS |" >> security-report.md
+          echo "| 依存関係セキュリティ | $DEPENDENCY_ICON | $DEPENDENCY_STATUS |" >> security-report.md
+          echo "| ライセンスコンプライアンス | $LICENSE_ICON | $LICENSE_STATUS |" >> security-report.md
+          echo "" >> security-report.md
+          
+          # 総合評価
+          if [ "$SECRET_STATUS" = "success" ] && [ "$DEPENDENCY_STATUS" = "success" ] && [ "$LICENSE_STATUS" = "success" ]; then
+            echo "## 🎉 総合評価: 良好" >> security-report.md
+            echo "すべてのセキュリティチェックが正常に完了しました。" >> security-report.md
+          else
+            echo "## ⚠️ 総合評価: 要注意" >> security-report.md
+            echo "一部のセキュリティチェックで問題が検出されました。詳細を確認してください。" >> security-report.md
+          fi
+          
+          echo "" >> security-report.md
+          echo "## 📋 推奨アクション" >> security-report.md
+          echo "" >> security-report.md
+          echo "1. 失敗したチェックの詳細を確認" >> security-report.md
+          echo "2. 検出された問題の修正" >> security-report.md
+          echo "3. 依存関係の定期的な更新" >> security-report.md
+          echo "4. セキュリティベストプラクティスの遵守" >> security-report.md
+
+      - name: Upload comprehensive security report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comprehensive-security-report
+          path: security-report.md
+          retention-days: 90
+
+      - name: Create security issue on failure
+        if: failure() && github.ref == 'refs/heads/master'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_TITLE="🚨 セキュリティチェック失敗 - $(date '+%Y-%m-%d')"
+          ISSUE_BODY="$(cat <<EOF
+**セキュリティチェックで問題が検出されました**
+
+**詳細:**
+- コミット: \`${{ github.sha }}\`
+- ワークフロー: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+- 実行日時: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+**チェック結果:**
+- シークレットスキャン: ${{ needs.secret-scanning.result }}
+- 依存関係セキュリティ: ${{ needs.dependency-security.result }}
+- ライセンスコンプライアンス: ${{ needs.license-compliance.result }}
+
+**対応が必要な項目:**
+$(if [ "${{ needs.secret-scanning.result }}" != "success" ]; then echo "- シークレットスキャンの問題を確認"; fi)
+$(if [ "${{ needs.dependency-security.result }}" != "success" ]; then echo "- 依存関係の脆弱性を修正"; fi)
+$(if [ "${{ needs.license-compliance.result }}" != "success" ]; then echo "- ライセンス問題を解決"; fi)
+
+**次のステップ:**
+1. ワークフローログを確認
+2. 検出された問題を修正
+3. 修正後に再度テストを実行
+4. 問題が解決されたらこのIssueをクローズ
+EOF
+)"
+          
+          gh issue create \
+            --title "$ISSUE_TITLE" \
+            --body "$ISSUE_BODY" \
+            --label "security,urgent,bug" \
+            --assignee "${{ github.actor }}"

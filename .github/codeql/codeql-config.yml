@@ -1,0 +1,40 @@
+# CodeQL設定ファイル
+name: "Suptia CodeQL Configuration"
+
+# 無効にするクエリ（必要に応じて調整）
+disable-default-queries: false
+
+# 追加のクエリパック
+queries:
+  - uses: security-extended
+  - uses: security-and-quality
+
+# パス設定
+paths:
+  # 分析対象のパス
+  - "apps/web/src"
+  - "packages/schemas"
+  - "scripts"
+
+# 除外するパス
+paths-ignore:
+  - "node_modules"
+  - "apps/web/.next"
+  - "apps/web/out"
+  - "dist"
+  - "build"
+  - "coverage"
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/__tests__/**"
+  - "**/test/**"
+  - "**/tests/**"
+
+# カスタムクエリ（必要に応じて追加）
+# query-filters:
+#   - exclude:
+#       id: js/unused-local-variable
+#   - include:
+#       tags: security

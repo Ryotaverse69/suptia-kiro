@@ -1,0 +1,772 @@
+name: CI/CD Pipeline (Legacy)
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+
+defaults:
+  run:
+    working-directory: apps/web
+
+jobs:
+  # 依存関係のセットアップとキャッシュを一元化
+  setup:
+    name: setup-dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.key }}
+      node-modules-key: ${{ steps.node-modules-key.outputs.key }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Generate cache keys
+        id: cache-key
+        run: |
+          echo "key=pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
+
+      - name: Generate node_modules cache key
+        id: node-modules-key
+        run: |
+          echo "key=node-modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ steps.cache-key.outputs.key }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ steps.node-modules-key.outputs.key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+  secrets-scan:
+    name: secrets-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 全履歴を取得してシークレットスキャン
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Fail if any .env or .env.local files are tracked
+        run: |
+          set -e
+          tracked=$(git ls-files | rg -n '(^|/)\.env(\..*)?$|(^|/)\.env\.local' || true)
+          if [ -n "$tracked" ]; then
+            echo "Found tracked env files:" && echo "$tracked"
+            exit 1
+          fi
+          echo "No tracked env files detected."
+
+      - name: Run comprehensive security audit
+        run: |
+          # セキュリティ監査スクリプトを実行
+          node scripts/security-audit.mjs || true
+          
+          # 結果をチェック
+          if [ -f "security-audit-report.json" ]; then
+            FAILED_CHECKS=$(jq '.summary.failed' security-audit-report.json)
+            if [ "$FAILED_CHECKS" -gt "0" ]; then
+              echo "::error::Security audit failed with $FAILED_CHECKS critical issues"
+              exit 1
+            fi
+          fi
+
+      - name: Upload security audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-results
+          path: security-audit-report.json
+          retention-days: 30
+
+  # 並列実行可能な品質チェックジョブ
+  quality-checks:
+    name: quality-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix:
+        check: [format, lint, typecheck]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ needs.setup.outputs.cache-key }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Run quality check
+        run: |
+          case "${{ matrix.check }}" in
+            format)
+              pnpm run format:check
+              ;;
+            lint)
+              pnpm run lint
+              ;;
+            typecheck)
+              NEXT_PUBLIC_BASE_URL=http://localhost:3000 \
+              NEXT_PUBLIC_SANITY_PROJECT_ID=demo \
+              NEXT_PUBLIC_SANITY_DATASET=production \
+              pnpm run typecheck
+              ;;
+          esac
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    needs: setup
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ needs.setup.outputs.cache-key }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Run tests
+        run: pnpm run test
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    needs: setup
+    env:
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+      NEXT_PUBLIC_SANITY_DATASET: production
+    outputs:
+      build-cache-key: ${{ steps.build-cache.outputs.cache-primary-key }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ needs.setup.outputs.cache-key }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Cache Next.js build
+        id: build-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/.next/cache
+            apps/web/.next/static
+            apps/web/.next/standalone
+          key: nextjs-build-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            nextjs-build-${{ runner.os }}-
+
+      - name: Build application
+        run: pnpm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            apps/web/.next
+            apps/web/package.json
+          retention-days: 1
+
+  # ビルド成果物を必要とするジョブ
+  runtime-checks:
+    name: runtime-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [setup, build]
+    strategy:
+      fail-fast: false
+      matrix:
+        check: [headers, jsonld]
+    env:
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+      NEXT_PUBLIC_SANITY_DATASET: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: apps/web
+
+      - name: Start application
+        run: |
+          pnpm start &
+          APP_PID=$!
+          echo "APP_PID=$APP_PID" >> $GITHUB_ENV
+
+      - name: Wait for application
+        run: npx wait-on http://localhost:3000 --timeout 30000
+
+      - name: Run runtime check
+        run: |
+          case "${{ matrix.check }}" in
+            headers)
+              node scripts/check-headers.mjs
+              ;;
+            jsonld)
+              node scripts/validate-jsonld.mjs
+              ;;
+          esac
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -n "$APP_PID" ]; then
+            kill $APP_PID || true
+          fi
+
+  env-sync:
+    name: env-sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      # Set demo values for CI validation
+      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+      NEXT_PUBLIC_SANITY_DATASET: production
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      SANITY_API_TOKEN: demo-token
+      SANITY_API_VERSION: 2023-05-03
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Check environment variable synchronization
+        run: npm run env:check:ci
+
+      - name: Verify Preview Environment (if token available)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: prj_NWkcnXBay0NvP9FEZUuXAICo0514
+        run: npm run preview:verify
+        continue-on-error: true
+
+  audit:
+    name: audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: setup
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Run security audit
+        run: pnpm audit --audit-level moderate || true
+
+  lighthouse:
+    name: lighthouse (non-blocking)
+    runs-on: ubuntu-latest
+    needs: [setup, build]
+    continue-on-error: true
+    timeout-minutes: 8
+    env:
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+      NEXT_PUBLIC_SANITY_DATASET: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: apps/web
+
+      - name: Start application
+        run: pnpm start &
+
+      - name: Wait for application
+        run: npx wait-on http://localhost:3000 --timeout 30000
+
+      - name: Run Lighthouse
+        run: npx lighthouse http://localhost:3000 --output=json --output-path=./lighthouse-results.json || echo "Lighthouse check completed"
+
+  pr-dod-check:
+    name: pr-dod-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Run Definition of Done Check
+        run: node scripts/check-dod.mjs
+
+  preview-deployment:
+    name: preview-deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    outputs:
+      preview_url: ${{ steps.get-preview.outputs.preview_url }}
+      deployment_id: ${{ steps.get-preview.outputs.deployment_id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Get Vercel Preview URL
+        id: get-preview
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: prj_NWkcnXBay0NvP9FEZUuXAICo0514
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: node scripts/get-preview-url.mjs
+
+      - name: Comment Preview URL on Recent PRs
+        if: steps.get-preview.outputs.preview_url
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIEW_URL: ${{ steps.get-preview.outputs.preview_url }}
+          DEPLOYMENT_ID: ${{ steps.get-preview.outputs.deployment_id }}
+        run: |
+          # 最近のオープンなPRを取得してPreview URLをコメント
+          gh pr list --state open --limit 5 --json number,headRefName | \
+          jq -r '.[] | select(.headRefName == "dev") | .number' | \
+          while read pr_number; do
+            if [ -n "$pr_number" ]; then
+              echo "Adding preview URL comment to PR #$pr_number"
+              gh pr comment $pr_number --body "$(cat <<EOF
+🚀 **Preview Environment Updated**
+
+Preview URL: $PREVIEW_URL
+Deployment ID: \`$DEPLOYMENT_ID\`
+Commit: \`${{ github.sha }}\`
+
+The preview environment has been automatically updated with the latest changes from the \`dev\` branch.
+EOF
+)"
+            fi
+          done
+
+  pr-preview-comment:
+    name: pr-preview-comment
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Wait and Get Preview URL
+        id: get-preview
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: prj_NWkcnXBay0NvP9FEZUuXAICo0514
+          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_REF_NAME: ${{ github.head_ref }}
+        run: |
+          # PR作成時は少し待ってからPreview URLを取得
+          sleep 30
+          node scripts/get-preview-url.mjs
+
+      - name: Comment Preview URL on PR
+        if: steps.get-preview.outputs.preview_url
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIEW_URL: ${{ steps.get-preview.outputs.preview_url }}
+          DEPLOYMENT_ID: ${{ steps.get-preview.outputs.deployment_id }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "$(cat <<EOF
+🔍 **Preview Environment Ready**
+
+Preview URL: $PREVIEW_URL
+Deployment ID: \`$DEPLOYMENT_ID\`
+
+You can now review the changes in the preview environment before merging to production.
+EOF
+)"
+
+  production-deployment:
+    name: production-deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    needs: [quality-checks, test, build, runtime-checks, env-sync, audit]
+    outputs:
+      deployment_url: ${{ steps.monitor-deploy.outputs.deployment_url }}
+      deployment_id: ${{ steps.monitor-deploy.outputs.deployment_id }}
+      success: ${{ steps.monitor-deploy.outputs.success }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Monitor Production Deployment
+        id: monitor-deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: prj_NWkcnXBay0NvP9FEZUuXAICo0514
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: node scripts/monitor-production-deployment.mjs
+
+      - name: Collect Deployment Metrics
+        if: always()
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: prj_NWkcnXBay0NvP9FEZUuXAICo0514
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: node scripts/deployment-metrics.mjs --report
+
+      - name: Update Deployment Status
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPLOYMENT_URL: ${{ steps.monitor-deploy.outputs.deployment_url }}
+          SUCCESS: ${{ steps.monitor-deploy.outputs.success }}
+        run: |
+          if [ "$SUCCESS" = "true" ]; then
+            echo "✅ Production deployment successful"
+            gh api repos/:owner/:repo/deployments --method POST --field ref="${{ github.sha }}" --field environment="production" --field auto_merge=false --field required_contexts='[]' --field production_environment=true
+          else
+            echo "❌ Production deployment failed"
+          fi
+
+  rollback-on-failure:
+    name: rollback-on-failure
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    if: always() && needs.production-deployment.result == 'failure' && github.ref == 'refs/heads/master'
+    needs: [production-deployment]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Execute Rollback
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: prj_NWkcnXBay0NvP9FEZUuXAICo0514
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_SHA: ${{ github.sha }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          AUTO_ROLLBACK: 'true'
+        run: node scripts/rollback-production.mjs
+
+      - name: Create Rollback Issue
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_BODY="$(cat <<EOF
+**Automatic rollback was executed due to production deployment failure.**
+
+**Details:**
+- Failed commit: \`${{ github.sha }}\`
+- Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+- Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+**Next Steps:**
+1. Investigate the deployment failure
+2. Fix any issues in the code
+3. Test thoroughly before redeploying
+4. Consider if any hotfixes are needed
+
+**Rollback Status:** Check the rollback job logs for details.
+EOF
+)"
+          gh issue create \
+            --title "🔄 Production Rollback Executed - $(date '+%Y-%m-%d %H:%M')" \
+            --body "$ISSUE_BODY" \
+            --label "deployment,rollback,urgent" \
+            --assignee "${{ github.actor }}"
+
+  integration-e2e-tests:
+    name: integration-e2e-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    if: github.event_name == 'pull_request' || (github.ref == 'refs/heads/master' && github.event_name == 'push')
+    needs: [quality-checks, test, build, runtime-checks, env-sync]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Run Integration & E2E Tests
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: prj_NWkcnXBay0NvP9FEZUuXAICo0514
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/test-integration-e2e.mjs
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-e2e-test-results
+          path: test-results-integration-e2e.json
+          retention-days: 30
+
+  collect-ci-metrics:
+    name: collect-ci-metrics
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    if: always()
+    needs: [quality-checks, test, build, runtime-checks, env-sync, audit, integration-e2e-tests, production-deployment, rollback-on-failure]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Collect CI/CD Metrics
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_JOB: ${{ github.job }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: node scripts/collect-ci-metrics.mjs
+
+      - name: Analyze CI/CD Metrics
+        run: node scripts/analyze-ci-metrics.mjs --limit 20
+
+      - name: Generate Metrics Report
+        if: github.ref == 'refs/heads/master'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # メトリクスレポートをJSONで生成
+          node scripts/analyze-ci-metrics.mjs --json ci-metrics-report.json --quiet
+          
+          # レポートが生成された場合、GitHubにコメントとして投稿
+          if [ -f "ci-metrics-report.json" ]; then
+            REPORT_SUMMARY=$(node -e "
+              const report = JSON.parse(require('fs').readFileSync('ci-metrics-report.json', 'utf8'));
+              const successRate = report.workflow_success_rate?.rate || 0;
+              const deployRate = report.deployment_success_rate?.rate || 0;
+              const avgJobTime = Object.values(report.job_duration_stats || {})
+                .reduce((sum, job) => sum + job.avg, 0) / Object.keys(report.job_duration_stats || {}).length || 0;
+              
+              console.log(\`📊 **CI/CD メトリクス サマリー**
+              
+🚀 **ワークフロー成功率**: \${successRate.toFixed(1)}%
+🎯 **デプロイ成功率**: \${deployRate.toFixed(1)}%
+⏱️ **平均ジョブ実行時間**: \${Math.round(avgJobTime/1000)}秒
+📅 **分析期間**: \${report.period.count}回の実行
+
+\${successRate < 90 ? '⚠️ ワークフロー成功率が低下しています' : ''}
+\${deployRate < 95 ? '⚠️ デプロイ成功率が低下しています' : ''}
+\${avgJobTime > 300000 ? '⚠️ ジョブ実行時間が長すぎます' : ''}
+
+詳細なメトリクスは \`npm run commit:metrics\` で確認できます。\`);
+            ")
+            
+            # 最新のコミットにコメントを追加
+            gh api repos/:owner/:repo/commits/${{ github.sha }}/comments \
+              --method POST \
+              --field body="$REPORT_SUMMARY" || echo "Failed to post metrics comment"
+          fi

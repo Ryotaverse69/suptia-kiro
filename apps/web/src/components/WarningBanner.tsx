@@ -56,7 +56,7 @@ export function WarningBanner({
         </div>
         <div className="ml-3 flex-1">
           <h3 className="text-sm font-medium text-yellow-800">
-            表現に関する注意
+            表現に関する注意 (Dev環境テスト)
           </h3>
           <div className="mt-2 text-sm text-yellow-700">
             <p className="mb-2">

@@ -12,7 +12,17 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "format:check": "prettier . --check",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint:fix": "next lint --fix",
+    "test:fix": "vitest run --reporter=verbose",
+    "headers": "cd ../.. && node scripts/check-headers.mjs",
+    "jsonld": "cd ../.. && node scripts/validate-jsonld.mjs",
+    "dod:check": "cd ../.. && node scripts/check-dod.mjs",
+    "preview:verify": "node ../../scripts/verify-preview-env.mjs",
+    "preview:url": "node ../../scripts/get-preview-url.mjs",
+    "perf:optimize": "node ../../scripts/performance-optimizer.mjs",
+    "perf:report": "node ../../scripts/performance-optimizer.mjs --report",
+    "perf:cleanup": "node ../../scripts/performance-optimizer.mjs --cleanup"
   },
   "dependencies": {
     "next": "14.2.5",

@@ -1,0 +1,223 @@
+{
+  "timestamp": "2025-08-23T11:32:49.117Z",
+  "summary": {
+    "total": 30,
+    "passed": 29,
+    "failed": 0,
+    "skipped": 1,
+    "duration": 0,
+    "success": true
+  },
+  "tests": [
+    {
+      "name": "Git repository",
+      "status": "pass",
+      "details": "Valid git repository",
+      "error": null,
+      "timestamp": 1755948768955
+    },
+    {
+      "name": "Required branches",
+      "status": "pass",
+      "details": "master and dev branches exist",
+      "error": null,
+      "timestamp": 1755948768974
+    },
+    {
+      "name": "GitHub Actions workflow",
+      "status": "pass",
+      "details": "CI workflow exists",
+      "error": null,
+      "timestamp": 1755948768974
+    },
+    {
+      "name": "Vercel configuration",
+      "status": "pass",
+      "details": "vercel.json exists",
+      "error": null,
+      "timestamp": 1755948768975
+    },
+    {
+      "name": "Script: scripts/get-preview-url.mjs",
+      "status": "pass",
+      "details": "Script exists",
+      "error": null,
+      "timestamp": 1755948768975
+    },
+    {
+      "name": "Script: scripts/verify-preview-env.mjs",
+      "status": "pass",
+      "details": "Script exists",
+      "error": null,
+      "timestamp": 1755948768975
+    },
+    {
+      "name": "Script: scripts/monitor-production-deployment.mjs",
+      "status": "pass",
+      "details": "Script exists",
+      "error": null,
+      "timestamp": 1755948768975
+    },
+    {
+      "name": "Script: scripts/notify-deployment.mjs",
+      "status": "pass",
+      "details": "Script exists",
+      "error": null,
+      "timestamp": 1755948768975
+    },
+    {
+      "name": "Preview workflow configuration",
+      "status": "pass",
+      "details": "All preview workflow checks passed",
+      "error": null,
+      "timestamp": 1755948769006
+    },
+    {
+      "name": "Current branch check",
+      "status": "pass",
+      "details": "Currently on dev branch",
+      "error": null,
+      "timestamp": 1755948769014
+    },
+    {
+      "name": "Preview URL generation",
+      "status": "skip",
+      "details": "VERCEL_TOKEN not available",
+      "error": null,
+      "timestamp": 1755948769014
+    },
+    {
+      "name": "Preview environment verification",
+      "status": "pass",
+      "details": "Preview environment is properly configured",
+      "error": null,
+      "timestamp": 1755948769043
+    },
+    {
+      "name": "Production deployment test",
+      "status": "pass",
+      "details": "Production deployment test completed",
+      "error": null,
+      "timestamp": 1755948769101
+    },
+    {
+      "name": "CI check: format:check",
+      "status": "pass",
+      "details": "Check is configured in CI",
+      "error": null,
+      "timestamp": 1755948769101
+    },
+    {
+      "name": "CI check: lint",
+      "status": "pass",
+      "details": "Check is configured in CI",
+      "error": null,
+      "timestamp": 1755948769101
+    },
+    {
+      "name": "CI check: test",
+      "status": "pass",
+      "details": "Check is configured in CI",
+      "error": null,
+      "timestamp": 1755948769101
+    },
+    {
+      "name": "CI check: typecheck",
+      "status": "pass",
+      "details": "Check is configured in CI",
+      "error": null,
+      "timestamp": 1755948769101
+    },
+    {
+      "name": "CI check: build",
+      "status": "pass",
+      "details": "Check is configured in CI",
+      "error": null,
+      "timestamp": 1755948769101
+    },
+    {
+      "name": "CI check: headers",
+      "status": "pass",
+      "details": "Check is configured in CI",
+      "error": null,
+      "timestamp": 1755948769101
+    },
+    {
+      "name": "CI check: jsonld",
+      "status": "pass",
+      "details": "Check is configured in CI",
+      "error": null,
+      "timestamp": 1755948769101
+    },
+    {
+      "name": "PR DoD check",
+      "status": "pass",
+      "details": "PR Definition of Done check is configured",
+      "error": null,
+      "timestamp": 1755948769101
+    },
+    {
+      "name": "Auto-merge configuration",
+      "status": "pass",
+      "details": "Auto-merge is configured",
+      "error": null,
+      "timestamp": 1755948769101
+    },
+    {
+      "name": "Production deployment trigger",
+      "status": "pass",
+      "details": "Production deployment is configured",
+      "error": null,
+      "timestamp": 1755948769101
+    },
+    {
+      "name": "E2E Step: Developer commits to dev branch",
+      "status": "pass",
+      "details": "Step is properly configured",
+      "error": null,
+      "timestamp": 1755948769116
+    },
+    {
+      "name": "E2E Step: Automatic Preview deployment",
+      "status": "pass",
+      "details": "Step is properly configured",
+      "error": null,
+      "timestamp": 1755948769116
+    },
+    {
+      "name": "E2E Step: PR creation from dev to master",
+      "status": "pass",
+      "details": "Step is properly configured",
+      "error": null,
+      "timestamp": 1755948769116
+    },
+    {
+      "name": "E2E Step: CI/CD quality checks execution",
+      "status": "pass",
+      "details": "Step is properly configured",
+      "error": null,
+      "timestamp": 1755948769116
+    },
+    {
+      "name": "E2E Step: Automatic merge on success",
+      "status": "pass",
+      "details": "Step is properly configured",
+      "error": null,
+      "timestamp": 1755948769116
+    },
+    {
+      "name": "E2E Step: Production deployment on master merge",
+      "status": "pass",
+      "details": "Step is properly configured",
+      "error": null,
+      "timestamp": 1755948769116
+    },
+    {
+      "name": "End-to-end workflow integrity",
+      "status": "pass",
+      "details": "All workflow steps are properly configured",
+      "error": null,
+      "timestamp": 1755948769116
+    }
+  ]
+}

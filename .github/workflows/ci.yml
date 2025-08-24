@@ -1,10 +1,14 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [master]
+    branches: [master, dev]
   pull_request:
     branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   NODE_VERSION: '20'
@@ -14,26 +18,14 @@ defaults:
     working-directory: apps/web
 
 jobs:
-  secrets-scan:
-    name: secrets-scan
+  # 依存関係のセットアップ
+  setup:
+    name: setup-dependencies
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Fail if any .env or .env.local files are tracked
-        run: |
-          set -e
-          tracked=$(git ls-files | rg -n '(^|/)\.env(\..*)?$|(^|/)\.env\.local$' || true)
-          if [ -n "$tracked" ]; then
-            echo "Found tracked env files:" && echo "$tracked"
-            exit 1
-          fi
-          echo "No tracked env files detected."
-
-  format:
-    name: format:check
-    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.key }}
+      node-modules-key: ${{ steps.node-modules-key.outputs.key }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,15 +38,75 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      - name: Generate cache keys
+        id: cache-key
+        run: |
+          echo "key=pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
+
+      - name: Generate node_modules cache key
+        id: node-modules-key
+        run: |
+          echo "key=node-modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ steps.cache-key.outputs.key }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ steps.node-modules-key.outputs.key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
       - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Check formatting
+  # 品質チェック（並列実行）
+  format:
+    name: format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: setup
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Run format check
         run: pnpm run format:check
 
   lint:
     name: lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: setup
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -67,15 +119,24 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
 
-      - name: Run linter
+      - name: Run lint
         run: pnpm run lint
 
   test:
     name: test
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: setup
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -88,8 +149,15 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
 
       - name: Run tests
         run: pnpm run test
@@ -97,6 +165,8 @@ jobs:
   typecheck:
     name: typecheck
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: setup
     env:
       NEXT_PUBLIC_BASE_URL: http://localhost:3000
       NEXT_PUBLIC_SANITY_PROJECT_ID: demo
@@ -113,15 +183,24 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
 
-      - name: Type check
+      - name: Run typecheck
         run: pnpm run typecheck
 
   build:
     name: build
     runs-on: ubuntu-latest
+    timeout-minutes: 12
+    needs: setup
     env:
       NEXT_PUBLIC_BASE_URL: http://localhost:3000
       NEXT_PUBLIC_SANITY_PROJECT_ID: demo
@@ -138,16 +217,34 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
 
       - name: Build application
         run: pnpm run build
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            apps/web/.next
+            apps/web/package.json
+          retention-days: 1
+
+  # ランタイムチェック（ビルド成果物が必要）
   headers:
     name: headers
     runs-on: ubuntu-latest
-    needs: build
+    timeout-minutes: 10
+    needs: [setup, build]
     env:
       NEXT_PUBLIC_BASE_URL: http://localhost:3000
       NEXT_PUBLIC_SANITY_PROJECT_ID: demo
@@ -164,25 +261,46 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
 
-      - name: Build application
-        run: pnpm run build
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: apps/web
 
       - name: Start application
-        run: pnpm start &
+        run: |
+          pnpm start &
+          APP_PID=$!
+          echo "APP_PID=$APP_PID" >> $GITHUB_ENV
 
       - name: Wait for application
-        run: npx wait-on http://localhost:3000
+        run: npx wait-on http://localhost:3000 --timeout 30000
 
-      - name: Check headers
-        run: node scripts/check-headers.mjs || echo "Headers check skipped - script not found"
+      - name: Run headers check
+        run: node scripts/check-headers.mjs
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -n "$APP_PID" ]; then
+            kill $APP_PID || true
+          fi
 
   jsonld:
     name: jsonld
     runs-on: ubuntu-latest
-    needs: build
+    timeout-minutes: 10
+    needs: [setup, build]
     env:
       NEXT_PUBLIC_BASE_URL: http://localhost:3000
       NEXT_PUBLIC_SANITY_PROJECT_ID: demo
@@ -199,24 +317,71 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
 
-      - name: Build application
-        run: pnpm run build
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: apps/web
 
       - name: Start application
-        run: pnpm start &
+        run: |
+          pnpm start &
+          APP_PID=$!
+          echo "APP_PID=$APP_PID" >> $GITHUB_ENV
 
       - name: Wait for application
-        run: npx wait-on http://localhost:3000
+        run: npx wait-on http://localhost:3000 --timeout 30000
 
-      - name: Validate JSON-LD
-        run: node scripts/validate-jsonld.mjs || echo "JSON-LD validation skipped - script not found"
+      - name: Run JSON-LD validation
+        run: node scripts/validate-jsonld.mjs
 
-  audit:
-    name: audit
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -n "$APP_PID" ]; then
+            kill $APP_PID || true
+          fi
+
+  # PR専用チェック
+  pr-dod-check:
+    name: pr-dod-check
     runs-on: ubuntu-latest
+    timeout-minutes: 8
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Run Definition of Done Check
+        run: node scripts/check-dod.mjs
+
+  # dev ブランチプッシュ時のPreview URL取得
+  preview-deployment:
+    name: preview-deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    needs: [format, lint, test, typecheck, build]
+    outputs:
+      preview_url: ${{ steps.get-preview.outputs.preview_url }}
+      deployment_id: ${{ steps.get-preview.outputs.deployment_id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -226,24 +391,48 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Enable Corepack
-        run: corepack enable
+      - name: Wait for Vercel Deployment
+        id: get-preview
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: node scripts/get-preview-url.mjs
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Comment Preview URL on Recent PRs
+        if: steps.get-preview.outputs.preview_url
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIEW_URL: ${{ steps.get-preview.outputs.preview_url }}
+          DEPLOYMENT_ID: ${{ steps.get-preview.outputs.deployment_id }}
+        run: |
+          # 最近のオープンなPRを取得してPreview URLをコメント
+          gh pr list --state open --limit 5 --json number,headRefName | \
+          jq -r '.[] | select(.headRefName == "dev") | .number' | \
+          while read pr_number; do
+            if [ -n "$pr_number" ]; then
+              echo "Adding preview URL comment to PR #$pr_number"
+              gh pr comment $pr_number --body "$(cat <<EOF
+🚀 **Preview Environment Updated**
 
-      - name: Run security audit
-        run: pnpm audit --audit-level moderate || true
+Preview URL: $PREVIEW_URL
+Deployment ID: \`$DEPLOYMENT_ID\`
+Commit: \`${{ github.sha }}\`
 
-  lighthouse:
-    name: lighthouse (non-blocking)
+The preview environment has been automatically updated with the latest changes from the \`dev\` branch.
+EOF
+)"
+            fi
+          done
+
+  # PR作成時のPreview URL取得
+  pr-preview-comment:
+    name: pr-preview-comment
     runs-on: ubuntu-latest
-    needs: build
-    continue-on-error: true
-    env:
-      NEXT_PUBLIC_BASE_URL: http://localhost:3000
-      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
-      NEXT_PUBLIC_SANITY_DATASET: production
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize')
+    needs: [format, lint, test, typecheck, build]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -253,20 +442,32 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Enable Corepack
-        run: corepack enable
+      - name: Wait and Get Preview URL
+        id: get-preview
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_REF_NAME: ${{ github.head_ref }}
+        run: |
+          # PR作成/更新時は少し待ってからPreview URLを取得
+          sleep 30
+          node scripts/get-preview-url.mjs
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Comment Preview URL on PR
+        if: steps.get-preview.outputs.preview_url
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIEW_URL: ${{ steps.get-preview.outputs.preview_url }}
+          DEPLOYMENT_ID: ${{ steps.get-preview.outputs.deployment_id }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "$(cat <<EOF
+🔍 **Preview Environment Ready**
 
-      - name: Build application
-        run: pnpm run build
+Preview URL: $PREVIEW_URL
+Deployment ID: \`$DEPLOYMENT_ID\`
+Commit: \`${{ github.event.pull_request.head.sha }}\`
 
-      - name: Start application
-        run: pnpm start &
-
-      - name: Wait for application
-        run: npx wait-on http://localhost:3000
-
-      - name: Run Lighthouse
-        run: npx lighthouse http://localhost:3000 --output=json --output-path=./lighthouse-results.json || echo "Lighthouse check completed"
+You can now review the changes in the preview environment before merging to production.
+EOF
+)"

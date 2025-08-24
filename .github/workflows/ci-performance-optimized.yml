@@ -1,0 +1,505 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+  # パフォーマンス最適化設定
+  CI_CACHE_VERSION: 'v2'
+  PARALLEL_JOBS: 4
+
+defaults:
+  run:
+    working-directory: apps/web
+
+jobs:
+  # 高速セットアップジョブ - 依存関係とキャッシュを一元管理
+  setup:
+    name: setup-and-cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    outputs:
+      cache-key: ${{ steps.cache-keys.outputs.cache-key }}
+      node-modules-key: ${{ steps.cache-keys.outputs.node-modules-key }}
+      build-cache-key: ${{ steps.cache-keys.outputs.build-cache-key }}
+      cache-hit: ${{ steps.cache-node-modules.outputs.cache-hit }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js with caching
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'apps/web/package-lock.json'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Generate optimized cache keys
+        id: cache-keys
+        run: |
+          # より効率的なキャッシュキー生成
+          LOCKFILE_HASH=$(sha256sum pnpm-lock.yaml | cut -d' ' -f1)
+          PACKAGE_HASH=$(sha256sum package.json | cut -d' ' -f1)
+          NODE_VERSION_HASH=$(echo "${{ env.NODE_VERSION }}" | sha256sum | cut -d' ' -f1 | head -c 8)
+          
+          CACHE_KEY="pnpm-${{ env.CI_CACHE_VERSION }}-${{ runner.os }}-${NODE_VERSION_HASH}-${LOCKFILE_HASH}"
+          NODE_MODULES_KEY="node-modules-${{ env.CI_CACHE_VERSION }}-${{ runner.os }}-${LOCKFILE_HASH}-${PACKAGE_HASH}"
+          BUILD_CACHE_KEY="nextjs-build-${{ env.CI_CACHE_VERSION }}-${{ runner.os }}-${{ github.sha }}"
+          
+          echo "cache-key=${CACHE_KEY}" >> $GITHUB_OUTPUT
+          echo "node-modules-key=${NODE_MODULES_KEY}" >> $GITHUB_OUTPUT
+          echo "build-cache-key=${BUILD_CACHE_KEY}" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store (optimized)
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ steps.cache-keys.outputs.cache-key }}
+          restore-keys: |
+            pnpm-${{ env.CI_CACHE_VERSION }}-${{ runner.os }}-
+            pnpm-v1-${{ runner.os }}-
+
+      - name: Cache node_modules (optimized)
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ steps.cache-keys.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ env.CI_CACHE_VERSION }}-${{ runner.os }}-
+            node-modules-v1-${{ runner.os }}-
+
+      - name: Install dependencies (if cache miss)
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: |
+          echo "📦 Installing dependencies..."
+          pnpm install --frozen-lockfile --prefer-offline --ignore-scripts
+          echo "✅ Dependencies installed"
+
+      - name: Warm up TypeScript cache
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: |
+          echo "🔥 Warming up TypeScript cache..."
+          pnpm run typecheck --noEmit || true
+
+  # 軽量セキュリティスキャン（並列実行）
+  security-scan:
+    name: security-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fast secrets scan
+        run: |
+          # 高速な秘密情報スキャン
+          if git ls-files | grep -E '\.(env|key|pem|p12|pfx)(\.|$)' | head -1; then
+            echo "❌ Potential secret files detected"
+            exit 1
+          fi
+          echo "✅ No obvious secret files found"
+
+  # 最適化された品質チェック（最大並列実行）
+  quality-checks:
+    name: quality-${{ matrix.check }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    needs: setup
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        check: [format, lint, typecheck]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (cached)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/pnpm/store
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+          restore-keys: |
+            node-modules-${{ env.CI_CACHE_VERSION }}-${{ runner.os }}-
+
+      - name: Run optimized quality check
+        run: |
+          echo "🔍 Running ${{ matrix.check }} check..."
+          case "${{ matrix.check }}" in
+            format)
+              pnpm run format:check
+              ;;
+            lint)
+              # ESLintキャッシュを有効化
+              pnpm run lint --cache --cache-location .eslintcache
+              ;;
+            typecheck)
+              # 環境変数を最小限に設定してTypeScriptチェック
+              NEXT_PUBLIC_BASE_URL=http://localhost:3000 \
+              NEXT_PUBLIC_SANITY_PROJECT_ID=demo \
+              NEXT_PUBLIC_SANITY_DATASET=production \
+              pnpm run typecheck --incremental
+              ;;
+          esac
+
+  # 最適化されたテストジョブ
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    needs: setup
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (cached)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/pnpm/store
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+
+      - name: Run tests with optimization
+        run: |
+          echo "🧪 Running optimized tests..."
+          # Vitestの並列実行とキャッシュを最適化
+          pnpm run test --reporter=basic --run --coverage=false
+
+  # 最適化されたビルドジョブ
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: setup
+    env:
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+      NEXT_PUBLIC_SANITY_DATASET: production
+      # Next.js最適化設定
+      NEXT_TELEMETRY_DISABLED: 1
+    outputs:
+      build-success: ${{ steps.build.outcome == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (cached)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore dependency caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/pnpm/store
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/.next/cache
+          key: ${{ needs.setup.outputs.build-cache-key }}
+          restore-keys: |
+            nextjs-build-${{ env.CI_CACHE_VERSION }}-${{ runner.os }}-
+
+      - name: Optimized build
+        id: build
+        run: |
+          echo "🏗️ Building with optimizations..."
+          # Next.jsビルド最適化
+          export NEXT_BUILD_WORKERS=4
+          pnpm run build
+
+      - name: Cache build artifacts
+        if: steps.build.outcome == 'success'
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/.next
+            apps/web/package.json
+          key: build-artifacts-${{ github.sha }}
+
+      - name: Upload build artifacts (compressed)
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ github.sha }}
+          path: |
+            apps/web/.next
+            apps/web/package.json
+          retention-days: 1
+          compression-level: 9
+
+  # 最適化されたランタイムチェック
+  runtime-checks:
+    name: runtime-${{ matrix.check }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    needs: [setup, build]
+    if: needs.build.outputs.build-success == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        check: [headers, jsonld]
+    env:
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+      NEXT_PUBLIC_SANITY_DATASET: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (cached)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore dependency cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/node_modules
+            node_modules
+          key: ${{ needs.setup.outputs.node-modules-key }}
+
+      - name: Restore build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/.next
+            apps/web/package.json
+          key: build-artifacts-${{ github.sha }}
+
+      - name: Start application (background)
+        run: |
+          echo "🚀 Starting application in background..."
+          pnpm start &
+          echo $! > app.pid
+
+      - name: Wait for application (optimized)
+        run: |
+          echo "⏳ Waiting for application to be ready..."
+          timeout 30 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 1; done'
+
+      - name: Run runtime check
+        run: |
+          echo "🔍 Running ${{ matrix.check }} check..."
+          case "${{ matrix.check }}" in
+            headers)
+              timeout 30 node scripts/check-headers.mjs
+              ;;
+            jsonld)
+              timeout 30 node scripts/validate-jsonld.mjs
+              ;;
+          esac
+
+      - name: Cleanup
+        if: always()
+        run: |
+          if [ -f app.pid ]; then
+            kill $(cat app.pid) 2>/dev/null || true
+            rm app.pid
+          fi
+
+  # 環境変数同期チェック（軽量化）
+  env-sync:
+    name: env-sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+      NEXT_PUBLIC_SANITY_DATASET: production
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      SANITY_API_TOKEN: demo-token
+      SANITY_API_VERSION: 2023-05-03
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (minimal)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Quick environment check
+        run: npm run env:check:ci
+
+  # PR Definition of Done チェック（条件付き）
+  pr-dod-check:
+    name: pr-dod-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js (minimal)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Run optimized DoD check
+        run: timeout 300 node scripts/check-dod.mjs
+
+  # 統合テスト（条件付き実行）
+  integration-tests:
+    name: integration-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request' || (github.ref == 'refs/heads/master' && github.event_name == 'push')
+    needs: [quality-checks, test, build, runtime-checks, env-sync]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (minimal)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Run integration tests
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: prj_NWkcnXBay0NvP9FEZUuXAICo0514
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: timeout 600 node scripts/test-integration-e2e.mjs
+
+  # 本番デプロイ（最適化済み）
+  production-deployment:
+    name: production-deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    needs: [quality-checks, test, build, runtime-checks, env-sync]
+    outputs:
+      deployment_url: ${{ steps.monitor-deploy.outputs.deployment_url }}
+      success: ${{ steps.monitor-deploy.outputs.success }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (minimal)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Monitor production deployment
+        id: monitor-deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: prj_NWkcnXBay0NvP9FEZUuXAICo0514
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: timeout 720 node scripts/monitor-production-deployment.mjs
+
+  # パフォーマンスメトリクス収集（最終ジョブ）
+  collect-metrics:
+    name: collect-metrics
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: always()
+    needs: [setup, quality-checks, test, build, runtime-checks, env-sync, integration-tests, production-deployment]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (minimal)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Run performance optimizer
+        run: |
+          echo "📊 Running performance optimization analysis..."
+          node scripts/performance-optimizer.mjs --report
+
+      - name: Collect CI metrics
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: |
+          echo "📈 Collecting CI/CD metrics..."
+          timeout 300 node scripts/collect-ci-metrics.mjs
+
+      - name: Generate performance summary
+        if: github.ref == 'refs/heads/master'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "📋 Generating performance summary..."
+          node scripts/analyze-ci-metrics.mjs --json ci-metrics.json --quiet
+          
+          if [ -f "ci-metrics.json" ]; then
+            SUMMARY=$(node -e "
+              const report = JSON.parse(require('fs').readFileSync('ci-metrics.json', 'utf8'));
+              const successRate = report.workflow_success_rate?.rate || 0;
+              const avgDuration = report.workflow_duration_stats?.avg || 0;
+              
+              console.log(\`⚡ **CI/CD パフォーマンス最適化結果**
+              
+🎯 **ワークフロー成功率**: \${successRate.toFixed(1)}%
+⏱️ **平均実行時間**: \${Math.round(avgDuration/1000/60)}分
+🚀 **最適化**: キャッシュ戦略、並列実行、タイムアウト設定
+
+\${successRate >= 95 ? '✅ 高い成功率を維持' : '⚠️ 成功率の改善が必要'}
+\${avgDuration <= 600000 ? '✅ 実行時間が最適化されています' : '⚠️ 実行時間の最適化が必要'}\`);
+            ")
+            
+            gh api repos/:owner/:repo/commits/${{ github.sha }}/comments \
+              --method POST \
+              --field body="$SUMMARY" || echo "Failed to post summary"
+          fi

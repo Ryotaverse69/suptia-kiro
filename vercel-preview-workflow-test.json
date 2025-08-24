@@ -1,0 +1,46 @@
+{
+  "timestamp": "2025-08-23T12:28:53.962Z",
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "warnings": 1,
+    "total": 7
+  },
+  "details": [
+    {
+      "name": "1. 必要ファイル存在確認",
+      "status": "PASSED",
+      "message": "全ての必要ファイルが存在します"
+    },
+    {
+      "name": "2. vercel.json設定確認",
+      "status": "PASSED",
+      "message": "vercel.json の設定が正しいです"
+    },
+    {
+      "name": "3. GitHub Actions ワークフロー確認",
+      "status": "PASSED",
+      "message": "GitHub Actions ワークフローが正しく設定されています"
+    },
+    {
+      "name": "4. スクリプト構文確認",
+      "status": "PASSED",
+      "message": "全スクリプトの構文が正しいです"
+    },
+    {
+      "name": "5. package.json スクリプト確認",
+      "status": "PASSED",
+      "message": "Preview関連スクリプトが正しく設定されています"
+    },
+    {
+      "name": "6. Git設定確認",
+      "status": "PASSED",
+      "message": "Git設定OK (現在: dev, リモート: GitHub)"
+    },
+    {
+      "name": "7. 環境変数設定確認",
+      "status": "WARNING",
+      "message": "VERCEL_TOKEN が設定されていません（GitHub Secretsで設定が必要）, VERCEL_PROJECT_ID が設定されていません（GitHub Secretsで設定が必要）"
+    }
+  ]
+}

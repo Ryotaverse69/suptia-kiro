@@ -32,7 +32,8 @@
         "list_workflow_runs",
         "get_job_logs",
         "list_workflow_jobs",
-        "get_workflow_run"
+        "get_workflow_run",
+        "get_me"
       ]
     }
   }

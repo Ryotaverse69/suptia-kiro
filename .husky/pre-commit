@@ -1,16 +1,5 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Run lint-staged for changed files
-echo "🚀 Running pre-commit checks..."
-npx lint-staged
-
-# Run tests to ensure nothing is broken
-echo "🧪 Running tests..."
-npm run test
-
-# Check environment variable synchronization
-echo "🔍 Checking environment variables..."
-npm run env:check
-
-echo "✅ Pre-commit checks passed!"
+# 最適化されたpre-commitチェックを実行
+node scripts/pre-commit-check.mjs

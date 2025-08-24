@@ -1,0 +1,46 @@
+{
+  "timestamp": "2025-08-23T12:02:12.030Z",
+  "summary": {
+    "total_checks": 6,
+    "passed": 5,
+    "failed": 0,
+    "warnings": 1
+  },
+  "checks": {
+    "env_files_tracked": {
+      "status": "passed",
+      "details": {},
+      "timestamp": "2025-08-23T12:02:12.049Z"
+    },
+    "gitignore_patterns": {
+      "status": "passed",
+      "details": {},
+      "timestamp": "2025-08-23T12:02:12.049Z"
+    },
+    "dependency_vulnerabilities": {
+      "status": "passed",
+      "details": {},
+      "timestamp": "2025-08-23T12:02:12.177Z"
+    },
+    "license_compliance": {
+      "status": "warning",
+      "details": {
+        "message": "license-checker not available"
+      },
+      "timestamp": "2025-08-23T12:02:13.906Z"
+    },
+    "security_headers": {
+      "status": "passed",
+      "details": {},
+      "timestamp": "2025-08-23T12:02:13.906Z"
+    },
+    "github_security": {
+      "status": "passed",
+      "details": {
+        "security_workflow": true,
+        "dependabot": true
+      },
+      "timestamp": "2025-08-23T12:02:13.911Z"
+    }
+  }
+}

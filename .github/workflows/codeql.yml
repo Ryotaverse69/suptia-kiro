@@ -1,0 +1,178 @@
+# CodeQL分析 - コードの品質とセキュリティ分析
+name: "CodeQL Security Analysis"
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+    branches: [master]
+  schedule:
+    # 毎週火曜日の午前2時（JST）に実行
+    - cron: '0 17 * * 1'  # UTC時間で月曜日17:00 = JST火曜日02:00
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript', 'typescript']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # カスタムクエリを使用する場合
+          # queries: security-extended,security-and-quality
+          config-file: ./.github/codeql/codeql-config.yml
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd apps/web && npm ci
+
+      - name: Build application
+        env:
+          NEXT_PUBLIC_BASE_URL: http://localhost:3000
+          NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+          NEXT_PUBLIC_SANITY_DATASET: production
+        run: |
+          cd apps/web && npm run build
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+          upload: true
+          # 結果をSARIF形式で出力
+          output: codeql-results-${{ matrix.language }}.sarif
+
+      - name: Upload CodeQL results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-results-${{ matrix.language }}
+          path: codeql-results-${{ matrix.language }}.sarif
+          retention-days: 30
+
+      - name: Check for critical vulnerabilities
+        if: always()
+        run: |
+          # SARIF結果から重要な脆弱性をチェック
+          if [ -f "codeql-results-${{ matrix.language }}.sarif" ]; then
+            CRITICAL_COUNT=$(jq '.runs[0].results | map(select(.level == "error")) | length' codeql-results-${{ matrix.language }}.sarif 2>/dev/null || echo "0")
+            HIGH_COUNT=$(jq '.runs[0].results | map(select(.level == "warning")) | length' codeql-results-${{ matrix.language }}.sarif 2>/dev/null || echo "0")
+            
+            echo "Critical vulnerabilities found: $CRITICAL_COUNT"
+            echo "High severity issues found: $HIGH_COUNT"
+            
+            if [ "$CRITICAL_COUNT" -gt "0" ]; then
+              echo "::error::Critical security vulnerabilities detected in ${{ matrix.language }} code"
+              exit 1
+            fi
+            
+            if [ "$HIGH_COUNT" -gt "10" ]; then
+              echo "::warning::High number of security issues detected in ${{ matrix.language }} code"
+            fi
+          fi
+
+  security-summary:
+    name: Security Analysis Summary
+    runs-on: ubuntu-latest
+    needs: analyze
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all CodeQL results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: codeql-results-*
+          merge-multiple: true
+
+      - name: Generate security summary
+        run: |
+          echo "# 🔒 セキュリティ分析サマリー" > security-summary.md
+          echo "" >> security-summary.md
+          echo "**分析日時**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> security-summary.md
+          echo "**コミット**: \`${{ github.sha }}\`" >> security-summary.md
+          echo "" >> security-summary.md
+          
+          TOTAL_CRITICAL=0
+          TOTAL_HIGH=0
+          TOTAL_MEDIUM=0
+          
+          for file in codeql-results-*.sarif; do
+            if [ -f "$file" ]; then
+              LANG=$(echo "$file" | sed 's/codeql-results-//g' | sed 's/.sarif//g')
+              CRITICAL=$(jq '.runs[0].results | map(select(.level == "error")) | length' "$file" 2>/dev/null || echo "0")
+              HIGH=$(jq '.runs[0].results | map(select(.level == "warning")) | length' "$file" 2>/dev/null || echo "0")
+              MEDIUM=$(jq '.runs[0].results | map(select(.level == "note")) | length' "$file" 2>/dev/null || echo "0")
+              
+              echo "## $LANG" >> security-summary.md
+              echo "- 🔴 Critical: $CRITICAL" >> security-summary.md
+              echo "- 🟡 High: $HIGH" >> security-summary.md
+              echo "- 🔵 Medium: $MEDIUM" >> security-summary.md
+              echo "" >> security-summary.md
+              
+              TOTAL_CRITICAL=$((TOTAL_CRITICAL + CRITICAL))
+              TOTAL_HIGH=$((TOTAL_HIGH + HIGH))
+              TOTAL_MEDIUM=$((TOTAL_MEDIUM + MEDIUM))
+            fi
+          done
+          
+          echo "## 📊 総計" >> security-summary.md
+          echo "- 🔴 Critical: $TOTAL_CRITICAL" >> security-summary.md
+          echo "- 🟡 High: $TOTAL_HIGH" >> security-summary.md
+          echo "- 🔵 Medium: $TOTAL_MEDIUM" >> security-summary.md
+          echo "" >> security-summary.md
+          
+          if [ "$TOTAL_CRITICAL" -gt "0" ]; then
+            echo "⚠️ **重要**: Critical レベルの脆弱性が検出されました。即座に対応が必要です。" >> security-summary.md
+          elif [ "$TOTAL_HIGH" -gt "5" ]; then
+            echo "⚠️ **注意**: High レベルの問題が多数検出されました。確認をお勧めします。" >> security-summary.md
+          else
+            echo "✅ **良好**: 重大なセキュリティ問題は検出されませんでした。" >> security-summary.md
+          fi
+          
+          cat security-summary.md
+
+      - name: Comment security summary on PR
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f "security-summary.md" ]; then
+            gh pr comment ${{ github.event.pull_request.number }} --body-file security-summary.md
+          fi
+
+      - name: Upload security summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-analysis-summary
+          path: security-summary.md
+          retention-days: 90

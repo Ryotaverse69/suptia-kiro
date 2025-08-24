@@ -1,0 +1,104 @@
+# GitHub Actions Cache Configuration
+# CI/CDパフォーマンス最適化のためのキャッシュ戦略設定
+
+cache_strategy:
+  version: "v2"
+  
+  # 依存関係キャッシュ
+  dependencies:
+    key_pattern: "deps-{cache_version}-{os}-{node_version}-{lockfile_hash}"
+    paths:
+      - "~/.local/share/pnpm/store"
+      - "apps/web/node_modules"
+      - "node_modules"
+    restore_keys:
+      - "deps-{cache_version}-{os}-{node_version}-"
+      - "deps-{cache_version}-{os}-"
+      - "deps-v1-{os}-"
+    ttl_days: 7
+    
+  # ビルドキャッシュ
+  build:
+    key_pattern: "build-{cache_version}-{os}-{git_sha}"
+    paths:
+      - "apps/web/.next/cache"
+      - "apps/web/.next/static"
+    restore_keys:
+      - "build-{cache_version}-{os}-"
+      - "build-v1-{os}-"
+    ttl_days: 3
+    
+  # TypeScriptキャッシュ
+  typescript:
+    key_pattern: "ts-{cache_version}-{os}-{tsconfig_hash}"
+    paths:
+      - "apps/web/.tsbuildinfo"
+      - "apps/web/tsconfig.tsbuildinfo"
+    restore_keys:
+      - "ts-{cache_version}-{os}-"
+    ttl_days: 1
+    
+  # ESLintキャッシュ
+  eslint:
+    key_pattern: "eslint-{cache_version}-{os}-{eslint_config_hash}"
+    paths:
+      - "apps/web/.eslintcache"
+    restore_keys:
+      - "eslint-{cache_version}-{os}-"
+    ttl_days: 1
+
+# 並列実行設定
+parallelization:
+  max_parallel_jobs: 4
+  job_timeout_minutes:
+    setup: 6
+    quality_checks: 8
+    test: 8
+    build: 10
+    runtime_checks: 6
+    integration: 10
+    deployment: 12
+    
+# パフォーマンス最適化設定
+optimization:
+  # Node.js最適化
+  node:
+    max_old_space_size: 4096
+    enable_source_maps: false
+    
+  # Next.js最適化
+  nextjs:
+    telemetry_disabled: true
+    build_workers: 4
+    experimental_build_mode: "compile"
+    
+  # pnpm最適化
+  pnpm:
+    prefer_offline: true
+    ignore_scripts: true
+    frozen_lockfile: true
+    
+  # テスト最適化
+  test:
+    parallel: true
+    coverage: false
+    reporter: "basic"
+    
+# 監視とアラート
+monitoring:
+  performance_thresholds:
+    workflow_duration_max_minutes: 15
+    job_duration_max_minutes: 10
+    cache_hit_rate_min_percent: 80
+    success_rate_min_percent: 95
+    
+  alerts:
+    slow_jobs:
+      enabled: true
+      threshold_minutes: 8
+    cache_misses:
+      enabled: true
+      threshold_percent: 20
+    failure_rate:
+      enabled: true
+      threshold_percent: 5

@@ -1,0 +1,111 @@
+{
+  "timestamp": "2025-08-23T12:08:05.051Z",
+  "summary": {
+    "passed": 20,
+    "failed": 0,
+    "total": 20
+  },
+  "details": [
+    {
+      "name": "1.1 master/dev ブランチ存在確認",
+      "status": "PASSED",
+      "message": "master と dev ブランチが正しく設定されています"
+    },
+    {
+      "name": "1.2 デフォルトブランチ確認",
+      "status": "PASSED",
+      "message": "デフォルトブランチ: master"
+    },
+    {
+      "name": "2.1 GitHub Actions ワークフロー確認",
+      "status": "PASSED",
+      "message": "CI/CD パイプラインが正しく設定されています"
+    },
+    {
+      "name": "2.2 npm スクリプト確認",
+      "status": "PASSED",
+      "message": "npm スクリプトが正しく設定されています"
+    },
+    {
+      "name": "3.1 ブランチ保護設定確認",
+      "status": "PASSED",
+      "message": "ブランチ保護に必要なワークフローが設定されています"
+    },
+    {
+      "name": "3.2 セキュリティ設定確認",
+      "status": "PASSED",
+      "message": "セキュリティ設定ファイル: SECURITY.md, docs/SECURITY.md, scripts/security-audit.mjs"
+    },
+    {
+      "name": "4.x format チェック実行",
+      "status": "PASSED",
+      "message": "format チェックが正常に実行されました"
+    },
+    {
+      "name": "4.x lint チェック実行",
+      "status": "PASSED",
+      "message": "lint チェックが正常に実行されました"
+    },
+    {
+      "name": "4.x typecheck チェック実行",
+      "status": "PASSED",
+      "message": "typecheck チェックが正常に実行されました"
+    },
+    {
+      "name": "4.x build チェック実行",
+      "status": "PASSED",
+      "message": "build チェックが正常に実行されました"
+    },
+    {
+      "name": "4.3 テスト実行",
+      "status": "PASSED",
+      "message": "テストが正常に実行されました"
+    },
+    {
+      "name": "5.1 Vercel 設定確認",
+      "status": "PASSED",
+      "message": "Vercel 設定が正しく構成されています"
+    },
+    {
+      "name": "5.2 環境変数設定確認",
+      "status": "PASSED",
+      "message": "環境変数設定が正しく構成されています"
+    },
+    {
+      "name": "6.1 ブランチクリーンアップ設定確認",
+      "status": "PASSED",
+      "message": "ブランチクリーンアップ設定が構成されています"
+    },
+    {
+      "name": "7.1 開発フロー文書確認",
+      "status": "PASSED",
+      "message": "開発文書: docs/DEVELOPMENT_WORKFLOW.md, docs/ONBOARDING.md, README.md"
+    },
+    {
+      "name": "7.2 pre-commit フック確認",
+      "status": "PASSED",
+      "message": "pre-commit フックが正しく設定されています"
+    },
+    {
+      "name": "8.1 メトリクス収集確認",
+      "status": "PASSED",
+      "message": "メトリクス収集スクリプト: scripts/collect-ci-metrics.mjs, scripts/metrics-summary.mjs, scripts/deployment-metrics.mjs"
+    },
+    {
+      "name": "8.2 品質チェックツール確認",
+      "status": "PASSED",
+      "message": "品質チェックツール: scripts/check-dod.mjs, scripts/security-audit.mjs, scripts/performance-monitor.mjs"
+    },
+    {
+      "name": "E2E-1 開発フロー統合テスト",
+      "status": "PASSED",
+      "message": "開発フロー統合テスト完了 (現在のブランチ: dev)"
+    },
+    {
+      "name": "E2E-2 CI/CD パイプライン模擬実行",
+      "status": "PASSED",
+      "message": "CI/CD パイプライン模擬実行が正常に完了しました"
+    }
+  ],
+  "errors": []
+}

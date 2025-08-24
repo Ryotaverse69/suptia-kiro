@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-08-23T12:21:43.400Z",
+  "status": "issues_found",
+  "issues": [
+    "VERCEL_TOKEN 環境変数が設定されていません",
+    "VERCEL_PROJECT_ID 環境変数が設定されていません"
+  ],
+  "recommendations": [
+    "GitHub SecretsでVERCEL_TOKENが正しく設定されているか確認してください",
+    "Vercel Project IDが正しいか確認してください",
+    "GitHub Secrets に VERCEL_TOKEN を設定してください"
+  ],
+  "summary": {
+    "issuesCount": 2,
+    "recommendationsCount": 3
+  }
+}
