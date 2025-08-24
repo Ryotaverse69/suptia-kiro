@@ -2,7 +2,7 @@
 
 ## 概要
 
-Suptiaプロジェクトでは、**master/dev 2ブランチ体制**による効率的で安全な開発フローを採用しています。このガイドでは、新しい開発者が迅速にプロジェクトに参加し、生産性を最大化できるよう、ステップバイステップで開発フローを説明します。
+Suptiaプロジェクトでは、**個人開発に最適化したmaster/dev 2ブランチ体制**による効率的で安全な開発フローを採用しています。シンプルな運用により、迅速な開発と安定したデプロイメントを実現します。
 
 ## ブランチ構成
 
@@ -27,10 +27,10 @@ gitGraph
 
 ### ブランチの役割
 
-| ブランチ | 用途       | デプロイ先 | 直接Push |
-| -------- | ---------- | ---------- | -------- |
-| `master` | 本番環境用 | Production | ❌ 禁止  |
-| `dev`    | 開発環境用 | Preview    | ✅ 許可  |
+| ブランチ | 用途       | デプロイ先 | 直接Push | 保護ルール |
+| -------- | ---------- | ---------- | -------- | ---------- |
+| `master` | 本番環境用 | Production | ❌ 禁止  | build/test必須 |
+| `dev`    | 開発環境用 | Preview    | ✅ 許可  | なし |
 
 ## 開発フロー全体図
 
@@ -102,8 +102,8 @@ sequenceDiagram
     Vercel-->>Dev: 5. Preview URL通知
     Dev->>Vercel: 6. 動作確認
     Dev->>GitHub: 7. PR作成 (dev → master)
-    GitHub->>GitHub: 8. CI/CDチェック
-    GitHub->>Git: 9. 自動マージ (チェック通過時)
+    GitHub->>GitHub: 8. CI/CDチェック (build/test)
+    GitHub->>Git: 9. 自動マージ (必須チェック通過時)
     Git->>Vercel: 10. 本番デプロイ
 ```
 
@@ -155,42 +155,49 @@ npm run get-preview-url
    - タイトル: 簡潔で分かりやすく
    - 説明: 変更内容と影響範囲を記載
 
-2. **自動チェックの実行**
-   - format:check
-   - lint
-   - test
-   - typecheck
-   - build
-   - headers
-   - jsonld
-   - pr-dod-check
+2. **必須チェックの実行**
+   - **build** - アプリケーションのビルド成功 ✅ 必須
+   - **test** - 単体テストの実行成功 ✅ 必須
 
-3. **レビューと承認**
-   - 最低1名の承認が必要
-   - 新しいコミットがあると承認がリセット
+3. **任意チェックの実行**
+   - format:check - コードフォーマット確認
+   - lint - ESLint静的解析
+   - typecheck - TypeScript型チェック
+   - headers - セキュリティヘッダー確認
+   - jsonld - 構造化データ検証
+   - pr-dod-check - Definition of Done確認
 
 4. **自動マージ**
-   - 全チェック通過 + 承認 → 自動マージ
+   - **必須チェック通過 → 自動マージ** (承認不要)
    - masterブランチ → 本番環境に自動デプロイ
 
 ### 5. 品質チェックの詳細
 
-#### 実行されるチェック項目
+#### 必須チェック項目（マージブロック対象）
 
-| チェック     | 内容                     | 実行タイミング |
-| ------------ | ------------------------ | -------------- |
-| format:check | コードフォーマット       | 全push         |
-| lint         | ESLintによる静的解析     | 全push         |
-| test         | 単体テスト実行           | 全push         |
-| typecheck    | TypeScript型チェック     | 全push         |
-| build        | ビルド成功確認           | 全push         |
-| headers      | セキュリティヘッダー確認 | 全push         |
-| jsonld       | 構造化データ検証         | 全push         |
-| pr-dod-check | Definition of Done確認   | PR作成時のみ   |
+| チェック | 内容 | 実行タイミング | 必須レベル |
+| -------- | ---- | -------------- | ---------- |
+| **build** | アプリケーションのビルド成功 | 全push | ✅ 必須 |
+| **test** | 単体テスト実行 | 全push | ✅ 必須 |
+
+#### 任意チェック項目（情報提供目的）
+
+| チェック     | 内容                     | 実行タイミング | 必須レベル |
+| ------------ | ------------------------ | -------------- | ---------- |
+| format:check | コードフォーマット       | 全push         | ⚠️ 任意 |
+| lint         | ESLintによる静的解析     | 全push         | ⚠️ 任意 |
+| typecheck    | TypeScript型チェック     | 全push         | ⚠️ 任意 |
+| headers      | セキュリティヘッダー確認 | 全push         | ⚠️ 任意 |
+| jsonld       | 構造化データ検証         | 全push         | ⚠️ 任意 |
+| pr-dod-check | Definition of Done確認   | PR作成時のみ   | ⚠️ 任意 |
 
 #### ローカルでのチェック実行
 
 ```bash
+# 必須チェックのみ実行（推奨）
+npm run test
+npm run build
+
 # 全チェックを一括実行
 npm run precommit
 
@@ -208,24 +215,40 @@ npm run jsonld
 
 ### よくある問題と解決方法
 
-#### 1. CI/CDチェックが失敗する
+#### 1. 必須チェック（build/test）が失敗する
 
-**症状**: PRでチェックが赤くなる
+**症状**: PRで必須チェックが赤くなり、マージがブロックされる
 
 **解決方法**:
 
 ```bash
-# ローカルで該当チェックを実行
-npm run lint  # 例：lintエラーの場合
-
-# 自動修正を試す
-npm run lint:fix
-npm run format
+# 必須チェックをローカルで実行
+npm run test   # テストエラーの場合
+npm run build  # ビルドエラーの場合
 
 # 修正後、再度push
 git add .
+git commit -m "fix: test/build errors"
+git push origin dev
+```
+
+#### 2. 任意チェック（lint/format等）が失敗する
+
+**症状**: PRで任意チェックが赤くなるが、マージは可能
+
+**解決方法**:
+
+```bash
+# 自動修正を試す（任意）
+npm run lint:fix
+npm run format
+
+# 修正する場合
+git add .
 git commit -m "fix: lint/format errors"
 git push origin dev
+
+# または、そのままマージも可能（任意チェックのため）
 ```
 
 #### 2. Preview環境が更新されない
@@ -298,13 +321,13 @@ git commit -m "WIP"
 ### ブランチの使い方
 
 ```bash
-# ✅ 推奨: devブランチで直接作業
+# ✅ 推奨: devブランチで直接作業（個人開発最適化）
 git switch dev
 # 作業...
 git push origin dev
 
 # ❌ 非推奨: 不要なfeatureブランチ作成
-git switch -c feature/new-feature  # 避ける
+git switch -c feature/new-feature  # 個人開発では不要
 ```
 
 ### テストの実行
@@ -313,8 +336,11 @@ git switch -c feature/new-feature  # 避ける
 # 開発中は watch モードで
 npm run test:watch
 
-# CI/CDと同じ条件でテスト
+# 必須チェックと同じ条件でテスト
 npm run test
+
+# ビルドチェック
+npm run build
 
 # カバレッジ確認
 npm run test:coverage
@@ -375,6 +401,21 @@ npm run env:check
 2. **Slack**: `#development` チャンネル
 3. **ドキュメント**: このガイドや他の技術文書
 
+## 新しい運用の特徴
+
+### 個人開発に最適化された変更点
+
+1. **PR承認不要** - 個人開発のため承認プロセスを省略
+2. **必須チェック最小化** - build/testのみ必須、他は任意
+3. **squash merge強制** - コミット履歴をクリーンに保つ
+4. **迅速なデプロイ** - 必要最小限のチェックで高速化
+
+### 品質保証の考え方
+
+- **必須**: build/test（動作保証の最低限）
+- **任意**: lint/format等（品質向上のため実行するが、マージはブロックしない）
+- **ローカル**: 開発者の判断で品質チェックを実行
+
 ---
 
-**重要**: このフローは開発効率と品質のバランスを取るよう設計されています。不明な点があれば、遠慮なく質問してください！
+**重要**: この運用は個人開発に最適化されています。チーム開発に移行する場合は、承認プロセスや追加チェックの導入を検討してください。
