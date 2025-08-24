@@ -1,0 +1,169 @@
+name: Vercel Production Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-production-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  deploy:
+    name: Deploy to Vercel Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Deploy to Vercel Production
+        uses: amondnet/vercel-action@v25
+        id: vercel-deploy
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./
+
+      - name: Wait for Deployment to be Ready
+        run: |
+          echo "Deployment URL: ${{ steps.vercel-deploy.outputs.preview-url }}"
+          echo "Waiting 60 seconds for deployment to be ready..."
+          sleep 60
+
+      - name: Install dependencies for verification
+        run: npm install chalk
+
+      - name: Verify Production Deployment
+        id: verify-deployment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          DEPLOYMENT_URL: ${{ steps.vercel-deploy.outputs.preview-url }}
+        run: |
+          node -e "
+          const chalk = require('chalk');
+          
+          async function verifyDeployment() {
+            const deploymentUrl = process.env.DEPLOYMENT_URL;
+            console.log(chalk.blue('🔍 Verifying deployment...'));
+            console.log('Deployment URL:', deploymentUrl);
+            
+            try {
+              const response = await fetch(deploymentUrl);
+              console.log('Status:', response.status);
+              
+              if (response.ok) {
+                console.log(chalk.green('✅ Deployment is accessible'));
+                return true;
+              } else {
+                console.log(chalk.red('❌ Deployment returned error status'));
+                return false;
+              }
+            } catch (error) {
+              console.log(chalk.red('❌ Deployment verification failed:', error.message));
+              return false;
+            }
+          }
+          
+          verifyDeployment().then(success => {
+            process.exit(success ? 0 : 1);
+          });
+          "
+
+      - name: Test Custom Domain
+        id: test-domain
+        continue-on-error: true
+        run: |
+          echo "🔍 Testing custom domain..."
+          
+          # Wait a bit more for domain propagation
+          sleep 30
+          
+          # Test suptia.com
+          if curl -f -s -I https://suptia.com > /dev/null 2>&1; then
+            echo "✅ suptia.com is accessible"
+            echo "domain_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ suptia.com is not yet accessible"
+            echo "domain_status=pending" >> $GITHUB_OUTPUT
+          fi
+          
+          # Test www.suptia.com
+          if curl -f -s -I https://www.suptia.com > /dev/null 2>&1; then
+            echo "✅ www.suptia.com is accessible"
+          else
+            echo "⚠️ www.suptia.com is not yet accessible"
+          fi
+
+      - name: Create Success Comment
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPLOYMENT_URL: ${{ steps.vercel-deploy.outputs.preview-url }}
+          DOMAIN_STATUS: ${{ steps.test-domain.outputs.domain_status }}
+        run: |
+          # 最新のPRにコメントを追加（もしあれば）
+          LATEST_PR=$(gh pr list --state merged --limit 1 --json number --jq '.[0].number' || echo "")
+          
+          if [ -n "$LATEST_PR" ]; then
+            COMMENT_BODY="🚀 **Production Deployment Successful**
+
+Deployment URL: $DEPLOYMENT_URL
+Commit: \`${{ github.sha }}\`
+Domain Status: ${{ steps.test-domain.outputs.domain_status == 'success' && '✅ Ready' || '⚠️ Propagating' }}
+
+The production environment has been successfully updated.
+"
+            
+            gh pr comment $LATEST_PR --body "$COMMENT_BODY" || echo "Could not add comment to PR"
+          fi
+
+      - name: Notify Deployment Failure
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "❌ Production deployment failed"
+          
+          # Create an issue for deployment failure
+          gh issue create \
+            --title "🚨 Production Deployment Failed - $(date '+%Y-%m-%d %H:%M')" \
+            --body "**Production deployment failed**
+
+**Details:**
+- Workflow: ${{ github.workflow }}
+- Run ID: ${{ github.run_id }}
+- Commit: \`${{ github.sha }}\`
+- Branch: \`${{ github.ref_name }}\`
+
+**Action Required:**
+1. Check workflow logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+2. Verify Vercel project settings
+3. Check environment variables
+4. Retry deployment if needed
+
+**Logs:** Available in workflow artifacts" \
+            --label "deployment,production,urgent" \
+            --assignee "${{ github.actor }}" || echo "Could not create issue"
+
+      - name: Upload Deployment Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-production-deployment-logs
+          path: |
+            vercel-*.log
+            deployment-*.json
+          retention-days: 30
