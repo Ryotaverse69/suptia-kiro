@@ -1,0 +1,264 @@
+[
+  {
+    "timestamp": "2025-08-25T12:08:12.235Z",
+    "build": {
+      "buildSuccess": false,
+      "buildTime": "failed",
+      "timestamp": "2025-08-25T12:08:07.534Z"
+    },
+    "test": {
+      "testSuccess": true,
+      "coverage": {
+        "lines": 0,
+        "functions": 63,
+        "branches": 70,
+        "statements": 32
+      },
+      "timestamp": "2025-08-25T12:08:09.341Z"
+    },
+    "quality": {
+      "qualityScore": "2/3",
+      "qualityPercentage": 67,
+      "checks": [
+        {
+          "name": "lint",
+          "status": "pass"
+        },
+        {
+          "name": "format",
+          "status": "pass"
+        },
+        {
+          "name": "typecheck",
+          "status": "fail",
+          "error": "Command failed: pnpm run type-check\n WARN  The \"workspaces\" field in package.json is not supported by pnpm. Create a \"pnpm-workspace.yaml\" file instead.\n"
+        }
+      ],
+      "timestamp": "2025-08-25T12:08:12.234Z"
+    }
+  },
+  {
+    "timestamp": "2025-08-25T12:09:02.967Z",
+    "build": {
+      "buildSuccess": true,
+      "buildTime": "success",
+      "timestamp": "2025-08-25T12:08:58.162Z"
+    },
+    "test": {
+      "testSuccess": true,
+      "coverage": {
+        "lines": 0,
+        "functions": 63,
+        "branches": 70,
+        "statements": 32
+      },
+      "timestamp": "2025-08-25T12:08:59.946Z"
+    },
+    "quality": {
+      "qualityScore": "3/3",
+      "qualityPercentage": 100,
+      "checks": [
+        {
+          "name": "lint",
+          "status": "pass"
+        },
+        {
+          "name": "format",
+          "status": "pass"
+        },
+        {
+          "name": "typecheck",
+          "status": "pass"
+        }
+      ],
+      "timestamp": "2025-08-25T12:09:02.966Z"
+    }
+  },
+  {
+    "timestamp": "2025-08-25T12:09:46.223Z",
+    "build": {
+      "buildSuccess": true,
+      "buildTime": "success",
+      "timestamp": "2025-08-25T12:09:39.369Z"
+    },
+    "test": {
+      "testSuccess": true,
+      "coverage": {
+        "lines": 32,
+        "functions": 63,
+        "branches": 70,
+        "statements": 32
+      },
+      "timestamp": "2025-08-25T12:09:41.947Z"
+    },
+    "quality": {
+      "qualityScore": "3/3",
+      "qualityPercentage": 100,
+      "checks": [
+        {
+          "name": "lint",
+          "status": "pass"
+        },
+        {
+          "name": "format",
+          "status": "pass"
+        },
+        {
+          "name": "typecheck",
+          "status": "pass"
+        }
+      ],
+      "timestamp": "2025-08-25T12:09:46.222Z"
+    }
+  },
+  {
+    "timestamp": "2025-08-25T12:13:49.386Z",
+    "build": {
+      "buildSuccess": true,
+      "buildTime": "success",
+      "timestamp": "2025-08-25T12:13:44.971Z"
+    },
+    "test": {
+      "testSuccess": true,
+      "coverage": {
+        "lines": 32,
+        "functions": 63,
+        "branches": 70,
+        "statements": 32
+      },
+      "timestamp": "2025-08-25T12:13:46.770Z"
+    },
+    "quality": {
+      "qualityScore": "3/3",
+      "qualityPercentage": 100,
+      "checks": [
+        {
+          "name": "lint",
+          "status": "pass"
+        },
+        {
+          "name": "format",
+          "status": "pass"
+        },
+        {
+          "name": "typecheck",
+          "status": "pass"
+        }
+      ],
+      "timestamp": "2025-08-25T12:13:49.384Z"
+    }
+  },
+  {
+    "timestamp": "2025-08-25T12:17:51.052Z",
+    "build": {
+      "buildSuccess": true,
+      "buildTime": "success",
+      "timestamp": "2025-08-25T12:17:46.010Z"
+    },
+    "test": {
+      "testSuccess": true,
+      "coverage": {
+        "lines": 44,
+        "functions": 68,
+        "branches": 74,
+        "statements": 44
+      },
+      "timestamp": "2025-08-25T12:17:48.208Z"
+    },
+    "quality": {
+      "qualityScore": "2/3",
+      "qualityPercentage": 67,
+      "checks": [
+        {
+          "name": "lint",
+          "status": "pass"
+        },
+        {
+          "name": "format",
+          "status": "fail",
+          "error": "Command failed: pnpm run format:check\n[warn] src/app/__tests__/layout.test.tsx\n[warn] src/components/__tests__/WarningBanner.test.tsx\n[warn] src/lib/__tests__/validate.test.ts\n[warn] Code style issues found in 3 files. Run Prettier with --write to fix.\n"
+        },
+        {
+          "name": "typecheck",
+          "status": "pass"
+        }
+      ],
+      "timestamp": "2025-08-25T12:17:51.050Z"
+    }
+  },
+  {
+    "timestamp": "2025-08-25T12:18:16.447Z",
+    "build": {
+      "buildSuccess": true,
+      "buildTime": "success",
+      "timestamp": "2025-08-25T12:18:11.565Z"
+    },
+    "test": {
+      "testSuccess": true,
+      "coverage": {
+        "lines": 44,
+        "functions": 68,
+        "branches": 74,
+        "statements": 44
+      },
+      "timestamp": "2025-08-25T12:18:13.755Z"
+    },
+    "quality": {
+      "qualityScore": "3/3",
+      "qualityPercentage": 100,
+      "checks": [
+        {
+          "name": "lint",
+          "status": "pass"
+        },
+        {
+          "name": "format",
+          "status": "pass"
+        },
+        {
+          "name": "typecheck",
+          "status": "pass"
+        }
+      ],
+      "timestamp": "2025-08-25T12:18:16.447Z"
+    }
+  },
+  {
+    "timestamp": "2025-08-25T12:31:27.505Z",
+    "build": {
+      "buildSuccess": true,
+      "buildTime": "success",
+      "timestamp": "2025-08-25T12:31:21.650Z"
+    },
+    "test": {
+      "testSuccess": true,
+      "coverage": {
+        "lines": 53,
+        "functions": 73,
+        "branches": 77,
+        "statements": 53
+      },
+      "timestamp": "2025-08-25T12:31:24.671Z"
+    },
+    "quality": {
+      "qualityScore": "2/3",
+      "qualityPercentage": 67,
+      "checks": [
+        {
+          "name": "lint",
+          "status": "pass"
+        },
+        {
+          "name": "format",
+          "status": "fail",
+          "error": "Command failed: pnpm run format:check\n[warn] src/lib/__tests__/compliance.test.ts\n[warn] src/lib/__tests__/rate-limit.test.ts\n[warn] src/lib/__tests__/runtimeConfig.test.ts\n[warn] Code style issues found in 3 files. Run Prettier with --write to fix.\n"
+        },
+        {
+          "name": "typecheck",
+          "status": "pass"
+        }
+      ],
+      "timestamp": "2025-08-25T12:31:27.504Z"
+    }
+  }
+]

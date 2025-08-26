@@ -142,9 +142,13 @@ inclusion: always
 
 ## 設定変更履歴
 
-- 2025-01-26: Vercel MCP連携最適化
+- 2025-01-26: Vercel運用完全自動化
   - analytics: 削除（パッケージ存在しないため）
-  - vercel-mcp: 新規追加（読み取り系自動承認、書き込み系手動承認）
+  - vercel-mcp: 無効化（代替としてVercel CLI使用）
+  - Vercel CLI自動化スクリプト追加
+    - `scripts/vercel-operations.mjs`: 基本操作
+    - `scripts/vercel-dashboard.mjs`: 高度な監視・分析
+    - `.github/workflows/vercel-monitoring.yml`: 自動監視
   - api.vercel.com: ドメイン許可リストに追加
 
 - 2025-01-25: 個人開発最適化設定に変更
@@ -157,3 +161,36 @@ inclusion: always
 - [セキュリティガイドライン](.kiro/steering/security.md)
 - [Git運用ルール](.kiro/steering/git-operation-rules.md)
 - [MCP設定ファイル](.kiro/settings/mcp.json)
+## V
+ercel運用自動化
+
+### 利用可能なコマンド
+
+#### 基本操作
+```bash
+npm run vercel:health        # ヘルスチェック
+npm run vercel:deployments  # デプロイメント一覧
+npm run vercel:domains       # ドメイン一覧
+npm run vercel:env           # 環境変数一覧
+npm run vercel:status        # 全体監視
+```
+
+#### 高度な分析
+```bash
+npm run vercel:dashboard     # 包括的ダッシュボード
+npm run vercel:security      # セキュリティ分析
+npm run vercel:watch         # 継続監視モード
+```
+
+### 自動監視
+
+- **GitHub Actions**: 毎日午前9時に自動実行
+- **レポート生成**: `.kiro/reports/` に保存
+- **問題検出時**: 自動でIssue作成
+
+### 推奨運用フロー
+
+1. **日次確認**: `npm run vercel:dashboard`
+2. **デプロイ前**: `npm run vercel:health`
+3. **問題発生時**: `npm run vercel:security`
+4. **継続監視**: `npm run vercel:watch`

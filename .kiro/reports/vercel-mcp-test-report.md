@@ -185,6 +185,7 @@
 1. **Vercel MCP Server の実装**
    - `mcp-vercel-api@latest` パッケージの作成または既存パッケージの特定
    - Vercel REST API との連携実装
+   - **注意**: fetchサーバーは使用不可（robots.txt制限のため）
 
 2. **エラーハンドリングの強化**
    - 認証エラー (401) の適切な処理

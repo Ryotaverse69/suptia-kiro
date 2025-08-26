@@ -1,0 +1,113 @@
+{
+  "timestamp": "2025-08-24T13:52:42.094Z",
+  "period": "7d",
+  "metrics": {
+    "timestamp": "2025-08-24T13:52:42.094Z",
+    "deployment": {
+      "successRate": null,
+      "averageDeployTime": null,
+      "failureRecoveryTime": null,
+      "lastDeployments": []
+    },
+    "performance": {
+      "responseTime": 491,
+      "availability": 100,
+      "errorRate": null,
+      "throughput": null
+    },
+    "reliability": {
+      "uptime": null,
+      "mtbf": null,
+      "mttr": null,
+      "slaCompliance": null
+    },
+    "quality": {
+      "buildSuccess": 15,
+      "testCoverage": null,
+      "codeQuality": "2/4",
+      "securityScore": null
+    }
+  },
+  "evaluation": {
+    "deployment": {
+      "category": "deployment",
+      "score": null,
+      "issues": [],
+      "metrics": {
+        "successRate": null,
+        "averageDeployTime": null,
+        "failureRecoveryTime": null,
+        "lastDeployments": []
+      }
+    },
+    "performance": {
+      "category": "performance",
+      "score": 100,
+      "issues": [],
+      "metrics": {
+        "responseTime": 491,
+        "availability": 100,
+        "errorRate": null,
+        "throughput": null
+      }
+    },
+    "reliability": {
+      "category": "reliability",
+      "score": null,
+      "issues": [],
+      "metrics": {
+        "uptime": null,
+        "mtbf": null,
+        "mttr": null,
+        "slaCompliance": null
+      }
+    },
+    "quality": {
+      "category": "quality",
+      "score": 35.714285714285715,
+      "issues": [
+        "ビルド成功率が大幅に低下しています",
+        "コード品質ツールの設定が不完全です"
+      ],
+      "metrics": {
+        "buildSuccess": 15,
+        "testCoverage": null,
+        "codeQuality": "2/4",
+        "securityScore": null
+      }
+    },
+    "overall": {
+      "score": 67.85714285714286,
+      "grade": "D",
+      "recommendations": [
+        {
+          "category": "quality",
+          "issue": "ビルド成功率が大幅に低下しています",
+          "priority": "high"
+        },
+        {
+          "category": "quality",
+          "issue": "コード品質ツールの設定が不完全です",
+          "priority": "high"
+        }
+      ]
+    }
+  },
+  "targets": {
+    "deployment": {
+      "successRate": 95,
+      "averageDeployTime": 300,
+      "failureRecoveryTime": 600
+    },
+    "performance": {
+      "responseTime": 2000,
+      "availability": 99.9,
+      "errorRate": 1
+    },
+    "reliability": {
+      "uptime": 99.5,
+      "mtbf": 168,
+      "mttr": 30
+    }
+  }
+}

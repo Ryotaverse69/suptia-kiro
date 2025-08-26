@@ -1,0 +1,258 @@
+{
+  "timestamp": "2025-08-26T14:58:21.994Z",
+  "project": "suptia-kiro",
+  "deployments": [
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-ppzi2iyrg-ryotaverses-projects.vercel.app",
+      "position": 1,
+      "isLatest": true,
+      "status": "active"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-9rd8bvy5d-ryotaverses-projects.vercel.app",
+      "position": 2,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-8f2xl76aw-ryotaverses-projects.vercel.app",
+      "position": 3,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-4wn8jlz4j-ryotaverses-projects.vercel.app",
+      "position": 4,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-8p73oq5ju-ryotaverses-projects.vercel.app",
+      "position": 5,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-gyvm6h7u8-ryotaverses-projects.vercel.app",
+      "position": 6,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-n4hu0frnc-ryotaverses-projects.vercel.app",
+      "position": 7,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-31054vtc4-ryotaverses-projects.vercel.app",
+      "position": 8,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-khgxo0pyv-ryotaverses-projects.vercel.app",
+      "position": 9,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-l5apn7x73-ryotaverses-projects.vercel.app",
+      "position": 10,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-rfv3rw9bx-ryotaverses-projects.vercel.app",
+      "position": 11,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-603zgbhja-ryotaverses-projects.vercel.app",
+      "position": 12,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-lumwih4o4-ryotaverses-projects.vercel.app",
+      "position": 13,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-ez4l2no37-ryotaverses-projects.vercel.app",
+      "position": 14,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-l8eg4kdw6-ryotaverses-projects.vercel.app",
+      "position": 15,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-o3wmb6cso-ryotaverses-projects.vercel.app",
+      "position": 16,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-gvucabtdx-ryotaverses-projects.vercel.app",
+      "position": 17,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-pxqsfdqwd-ryotaverses-projects.vercel.app",
+      "position": 18,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-6wy6ih68c-ryotaverses-projects.vercel.app",
+      "position": 19,
+      "isLatest": false,
+      "status": "inactive"
+    },
+    {
+      "id": "projects",
+      "url": "https://suptia-kiro-xsxz14d3c-ryotaverses-projects.vercel.app",
+      "position": 20,
+      "isLatest": false,
+      "status": "inactive"
+    }
+  ],
+  "envVars": [
+    {
+      "name": "NEXT_PUBLIC_APP_URL",
+      "value": "Encrypted",
+      "environments": "Production",
+      "created": "2d"
+    },
+    {
+      "name": "SANITY_STUDIO_URL",
+      "value": "Encrypted",
+      "environments": "Production",
+      "created": "2d"
+    },
+    {
+      "name": "SANITY_API_VERSION",
+      "value": "Encrypted",
+      "environments": "Preview",
+      "created": "2d"
+    },
+    {
+      "name": "SANITY_API_TOKEN",
+      "value": "Encrypted",
+      "environments": "Preview",
+      "created": "2d"
+    },
+    {
+      "name": "NEXT_PUBLIC_SITE_URL",
+      "value": "Encrypted",
+      "environments": "Preview",
+      "created": "(dev)"
+    },
+    {
+      "name": "NEXT_PUBLIC_SANITY_DATASET",
+      "value": "Encrypted",
+      "environments": "Production",
+      "created": "4d"
+    },
+    {
+      "name": "NEXT_PUBLIC_SANITY_PROJECT_ID",
+      "value": "Encrypted",
+      "environments": "Production",
+      "created": "4d"
+    },
+    {
+      "name": "NEXT_PUBLIC_SANITY_DATASET",
+      "value": "Encrypted",
+      "environments": "Preview",
+      "created": "4d"
+    },
+    {
+      "name": "NEXT_PUBLIC_SANITY_PROJECT_ID",
+      "value": "Encrypted",
+      "environments": "Preview",
+      "created": "4d"
+    },
+    {
+      "name": "SANITY_API_TOKEN",
+      "value": "Encrypted",
+      "environments": "Production",
+      "created": "5d"
+    },
+    {
+      "name": "SANITY_API_VERSION",
+      "value": "Encrypted",
+      "environments": "Production",
+      "created": "5d"
+    },
+    {
+      "name": "SANITY_DATASET",
+      "value": "Encrypted",
+      "environments": "Production",
+      "created": "5d"
+    },
+    {
+      "name": "SANITY_PROJECT_ID",
+      "value": "Encrypted",
+      "environments": "Production",
+      "created": "5d"
+    },
+    {
+      "name": "NEXT_PUBLIC_SITE_URL",
+      "value": "Encrypted",
+      "environments": "Production",
+      "created": "5d"
+    }
+  ],
+  "health": {
+    "overall": "excellent",
+    "issues": [],
+    "recommendations": [],
+    "score": 100
+  },
+  "performance": {
+    "latestDeployment": "https://suptia-kiro-ppzi2iyrg-ryotaverses-projects.vercel.app",
+    "analysis": "パフォーマンス分析は外部ツールで実行してください",
+    "recommendations": [
+      "Lighthouse でCore Web Vitalsを測定",
+      "Vercel Analytics でリアルユーザーメトリクスを確認",
+      "Bundle Analyzer でバンドルサイズを最適化"
+    ]
+  },
+  "security": {
+    "level": "good",
+    "issues": [],
+    "recommendations": []
+  },
+  "summary": {
+    "deploymentCount": 20,
+    "envVarCount": 14,
+    "healthScore": 100,
+    "securityLevel": "good"
+  }
+}

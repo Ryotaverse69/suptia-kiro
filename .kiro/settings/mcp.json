@@ -76,6 +76,8 @@
       "_comment_features": "listDeployments, getDeployment, getProject, listDomains, addDomain, envList, envSet",
       "_baseUrl": "https://api.vercel.com",
       "_auto_approve_rationale": "読み取り系は自動承認、書き込み系（addDomain/envSet）は手動承認必須",
+      "_status": "一時的に無効化 - mcp-vercel-api@latestパッケージが存在しないため",
+      "_alternative": "fetchサーバーは使用不可（robots.txt制限）、カスタムMCPサーバー実装が必要",
       "command": "uvx",
       "args": [
         "mcp-vercel-api@latest"
@@ -83,7 +85,7 @@
       "env": {
         "VERCEL_TOKEN": "${VERCEL_TOKEN}"
       },
-      "disabled": false,
+      "disabled": true,
       "autoApprove": [
         "listDeployments",
         "getDeployment", 
