@@ -26,15 +26,79 @@
         "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_ここにPAT"
       },
       "disabled": false,
+      "autoApprove": []
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/ryota/suptia-kiro"
+      ],
+      "disabled": false,
       "autoApprove": [
-        "get_pull_request",
-        "get_pull_request_status",
-        "list_workflow_runs",
-        "get_job_logs",
-        "list_workflow_jobs",
-        "get_workflow_run",
-        "get_me"
+        "*",
+        "read_text_file"
       ]
+    },
+    "web-search": {
+      "command": "uvx",
+      "args": [
+        "mcp-web-search@0.1.0"
+      ],
+      "disabled": true,
+      "autoApprove": [
+        "search",
+        "web_search",
+        "search_with_sources",
+        "get_page_content"
+      ]
+    },
+    "brave-search": {
+      "command": "uvx",
+      "args": [
+        "mcp-brave-search@latest"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "search",
+        "web_search",
+        "news_search",
+        "brave_web_search"
+      ]
+    },
+    "vercel-mcp": {
+      "_comment": "Vercel REST API連携専用の軽量MCP",
+      "_comment_use_case": "デプロイメント監視、プロジェクト管理、ドメイン設定、環境変数管理",
+      "_comment_features": "listDeployments, getDeployment, getProject, listDomains, addDomain, envList, envSet",
+      "_baseUrl": "https://api.vercel.com",
+      "_auto_approve_rationale": "読み取り系は自動承認、書き込み系（addDomain/envSet）は手動承認必須",
+      "command": "uvx",
+      "args": [
+        "mcp-vercel-api@latest"
+      ],
+      "env": {
+        "VERCEL_TOKEN": "${VERCEL_TOKEN}"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "listDeployments",
+        "getDeployment", 
+        "getProject",
+        "listDomains",
+        "envList"
+      ]
+    },
+    "database": {
+      "command": "uvx",
+      "args": [
+        "mcp-database@latest"
+      ],
+      "disabled": true,
+      "autoApprove": []
     }
   }
 }
