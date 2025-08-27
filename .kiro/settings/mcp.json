@@ -10,7 +10,8 @@
         "http-first"
       ],
       "disabled": false,
-      "autoApprove": []
+      "autoApprove": [],
+      "_comment": "本番CMS変更は手動承認必須 - 要件3.3準拠"
     },
     "github": {
       "command": "docker",
@@ -26,7 +27,8 @@
         "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_ここにPAT"
       },
       "disabled": false,
-      "autoApprove": []
+      "autoApprove": [],
+      "_comment": "本番リポジトリ変更は手動承認必須 - 要件3.3準拠"
     },
     "filesystem": {
       "command": "npx",
@@ -36,10 +38,8 @@
         "/Users/ryota/suptia-kiro"
       ],
       "disabled": false,
-      "autoApprove": [
-        "*",
-        "read_text_file"
-      ]
+      "autoApprove": ["*"],
+      "_comment": "ローカルファイル操作は全自動承認 - 本番影響なし"
     },
     "web-search": {
       "command": "uvx",
@@ -49,10 +49,11 @@
       "disabled": true,
       "autoApprove": [
         "search",
-        "web_search",
+        "web_search", 
         "search_with_sources",
         "get_page_content"
-      ]
+      ],
+      "_comment": "情報収集系は自動承認 - 読み取り専用"
     },
     "brave-search": {
       "command": "uvx",
@@ -64,20 +65,12 @@
       },
       "disabled": false,
       "autoApprove": [
-        "search",
-        "web_search",
-        "news_search",
-        "brave_web_search"
-      ]
+        "brave_web_search",
+        "brave_local_search"
+      ],
+      "_comment": "情報収集系は自動承認 - 読み取り専用"
     },
     "vercel-mcp": {
-      "_comment": "Vercel REST API連携専用の軽量MCP",
-      "_comment_use_case": "デプロイメント監視、プロジェクト管理、ドメイン設定、環境変数管理",
-      "_comment_features": "listDeployments, getDeployment, getProject, listDomains, addDomain, envList, envSet",
-      "_baseUrl": "https://api.vercel.com",
-      "_auto_approve_rationale": "読み取り系は自動承認、書き込み系（addDomain/envSet）は手動承認必須",
-      "_status": "一時的に無効化 - mcp-vercel-api@latestパッケージが存在しないため",
-      "_alternative": "fetchサーバーは使用不可（robots.txt制限）、カスタムMCPサーバー実装が必要",
       "command": "uvx",
       "args": [
         "mcp-vercel-api@latest"
@@ -92,7 +85,17 @@
         "getProject",
         "listDomains",
         "envList"
-      ]
+      ],
+      "_comment": "読み取り系のみ自動承認、書き込み系（addDomain/envSet等）は手動承認"
+    },
+    "analytics": {
+      "command": "uvx",
+      "args": [
+        "mcp-analytics@latest"
+      ],
+      "disabled": true,
+      "autoApprove": ["*"],
+      "_comment": "分析・監視系は全自動承認 - 読み取り専用"
     },
     "database": {
       "command": "uvx",
@@ -100,7 +103,8 @@
         "mcp-database@latest"
       ],
       "disabled": true,
-      "autoApprove": []
+      "autoApprove": [],
+      "_comment": "データベース操作は手動承認必須"
     }
   }
 }
