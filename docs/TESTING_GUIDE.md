@@ -2,20 +2,50 @@
 
 ## 概要
 
-Suptia Git ワークフローの統合テストとエンドツーエンドテストの実行方法について説明します。
+Suptiaプロジェクトの包括的なテスト戦略について説明します。システム品質保証機能の実装により、統合テスト、エンドツーエンドテスト、パフォーマンステスト、受け入れテストが完全に自動化されました。
 
 ## テストの種類
 
-### 1. 統合テスト・エンドツーエンドテスト
+### 1. システム品質保証テスト（新機能）
 
-完全なGitワークフロー（dev → Preview → PR → master → 本番）をテストします。
+システム品質保証機能の包括的なテストを実行します。
+
+```bash
+# 品質保証システム全体のテスト
+npm run quality:test
+
+# 品質チェックの実行
+npm run quality:check
+
+# 自動修正機能のテスト
+npm run quality:fix
+
+# または直接実行
+node .kiro/scripts/run-quality-check.mjs
+```
+
+**テスト内容:**
+
+- 全コンポーネントの初期化確認
+- 品質チェック機能の動作確認
+- 自動修正機能の動作確認
+- パフォーマンス閾値の確認
+- 品質ゲートの実行確認
+
+### 2. 統合テスト・エンドツーエンドテスト
+
+完全なGitワークフローとシステム品質保証機能の統合テストを実行します。
 
 ```bash
 # 統合テスト・E2Eテストの実行
 npm run test:integration
 
+# エンドツーエンドテストの実行
+npm run test:e2e
+
 # または直接実行
-node scripts/test-integration-e2e.mjs
+node .kiro/scripts/run-integration-tests.mjs
+node .kiro/scripts/run-end-to-end-tests.mjs
 ```
 
 **テスト内容:**
@@ -24,8 +54,50 @@ node scripts/test-integration-e2e.mjs
 - PR → master → 本番デプロイフローの検証
 - CI/CD パイプラインの設定確認
 - エンドツーエンドワークフローの整合性チェック
+- 品質保証システムとの統合確認
 
-### 2. Preview環境ワークフローテスト
+### 3. パフォーマンステスト（修正完了）
+
+システムのパフォーマンス閾値を確認し、最適化を実行します。
+
+```bash
+# パフォーマンステストの実行
+npm run test:performance
+
+# パフォーマンス監視の実行
+npm run performance:monitor
+
+# または直接実行
+node .kiro/scripts/test-performance-monitor.mjs
+```
+
+**テスト内容:**
+
+- 判定時間の測定（100ms以内）
+- メモリ使用量の確認（512MB以内）
+- CPU使用率の監視
+- パフォーマンス閾値の動的調整
+
+### 4. 受け入れテスト（修正完了）
+
+システムが要件を満たしていることを確認します。
+
+```bash
+# 受け入れテストの実行
+npm run test:acceptance
+
+# または直接実行
+node .kiro/scripts/run-acceptance-tests.mjs
+```
+
+**テスト内容:**
+
+- 全要件の適合性確認
+- ユーザーシナリオの実行
+- システム全体の動作確認
+- 品質基準の達成確認
+
+### 5. Preview環境ワークフローテスト
 
 dev ブランチから Preview 環境へのデプロイフローをテストします。
 
@@ -44,7 +116,7 @@ node scripts/test-preview-workflow.mjs
 - 必要なスクリプトファイルの存在確認
 - Preview URL生成機能の確認
 
-### 3. 本番デプロイメントテスト
+### 6. 本番デプロイメントテスト
 
 本番環境へのデプロイフローをテストします。
 
@@ -63,13 +135,16 @@ node scripts/test-production-deployment.mjs
 - ブランチ保護設定の確認
 - 通知機能のテスト
 
-### 4. 全ワークフローテスト
+### 7. 全ワークフローテスト
 
 すべてのワークフローテストを順次実行します。
 
 ```bash
 # 全ワークフローテスト
 npm run test:workflow
+
+# 品質保証システムを含む全テスト
+npm run test:all-quality
 ```
 
 ## 環境変数

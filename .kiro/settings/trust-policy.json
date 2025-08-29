@@ -1,0 +1,66 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-08-29T13:14:29.717Z",
+  "autoApprove": {
+    "gitOperations": [
+      "status",
+      "log",
+      "diff",
+      "add",
+      "stash",
+      "stash pop",
+      "tag",
+      "remote",
+      "fetch"
+    ],
+    "fileOperations": [
+      "read",
+      "ls",
+      "cat",
+      "grep",
+      "find",
+      "head",
+      "tail"
+    ],
+    "cliOperations": {
+      "npm": [
+        "install",
+        "run build",
+        "run test",
+        "run dev",
+        "list"
+      ],
+      "node": [
+        "--version",
+        "-v",
+        "--help"
+      ],
+      "yarn": [
+        "install",
+        "build",
+        "test",
+        "list"
+      ]
+    },
+    "scriptExecution": {
+      "extensions": [],
+      "allowedPaths": []
+    }
+  },
+  "manualApprove": {
+    "deleteOperations": [
+      "*"
+    ],
+    "forceOperations": [
+      "*"
+    ],
+    "productionImpact": [
+      "*"
+    ]
+  },
+  "security": {
+    "maxAutoApprovalPerHour": 100,
+    "suspiciousPatternDetection": true,
+    "logAllOperations": true
+  }
+}

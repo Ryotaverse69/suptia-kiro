@@ -1,5 +1,8 @@
-import { sanity } from "@/lib/sanity.client";
+import { sanityServerWithCache } from "@/lib/sanityServer";
 import { calculateEffectiveCostPerDay, formatCostJPY } from "@/lib/cost";
+
+// ISR Configuration - Revalidate every 30 minutes (1800 seconds)
+export const revalidate = 1800;
 
 interface Product {
   name: string;
@@ -21,7 +24,7 @@ async function getProducts(): Promise<Product[]> {
   }`;
 
   try {
-    const products = await sanity.fetch(query);
+    const products = await sanityServerWithCache.fetchProducts(query);
     return products || [];
   } catch (error) {
     console.error("Failed to fetch products:", error);

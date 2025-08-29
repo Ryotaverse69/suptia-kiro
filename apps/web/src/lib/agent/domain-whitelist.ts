@@ -1,28 +1,28 @@
 /**
- * Domain Whitelist for LLM Agent Safety
- * 許可ドメインの管理とネットワークアクセス制限
+ * LLMエージェント安全フレームワーク用ドメインホワイトリスト
+ * 要件3.2に基づく許可ドメイン制限の実装
  */
 
-// 許可されたドメインのリスト
+// 許可されたドメインのリスト（要件3.2準拠）
 export const ALLOWED_DOMAINS = [
-  // Sanity CMS
+  // Sanity CMS（要件3.2で明示的に許可）
   '*.sanity.io',
   'sanity.io',
   'cdn.sanity.io',
   'api.sanity.io',
   
-  // 自社ドメイン
+  // 自社ドメイン（要件3.2で明示的に許可）
   '*.suptia.com',
   'suptia.com',
   'www.suptia.com',
   'api.suptia.com',
   
-  // 開発環境
+  // 開発環境（要件3.2で明示的に許可）
   'localhost',
   '127.0.0.1',
   '0.0.0.0',
   
-  // Vercel API
+  // Vercel API（開発・運用に必要）
   'api.vercel.com',
   
   // ローカルネットワーク（開発用）

@@ -143,6 +143,9 @@ describe('Enhanced Rate Limiting', () => {
 
   describe('Violation Logging', () => {
     it('レート制限違反をログに記録する', async () => {
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'development';
+      
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       
       const handler = createMockHandler();
@@ -162,6 +165,7 @@ describe('Enhanced Rate Limiting', () => {
       );
 
       consoleSpy.mockRestore();
+      process.env.NODE_ENV = originalEnv;
     });
 
     it('違反情報を取得できる', async () => {

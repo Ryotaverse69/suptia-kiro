@@ -1,0 +1,86 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-08-27T10:00:00Z",
+  "autoApprove": {
+    "gitOperations": [
+      "status",
+      "commit",
+      "push",
+      "pull",
+      "merge",
+      "log",
+      "diff",
+      "show",
+      "branch",
+      "checkout",
+      "switch",
+      "stash",
+      "tag"
+    ],
+    "fileOperations": [
+      "read",
+      "write",
+      "create",
+      "update",
+      "mkdir",
+      "copy",
+      "move"
+    ],
+    "cliOperations": {
+      "vercel": [
+        "env ls",
+        "domains ls",
+        "deployments ls",
+        "status",
+        "whoami",
+        "projects ls"
+      ],
+      "npm": [
+        "install",
+        "run build",
+        "run test",
+        "run lint",
+        "run format"
+      ]
+    },
+    "scriptExecution": {
+      "extensions": [".mjs", ".js"],
+      "allowedPaths": [
+        "scripts/",
+        ".kiro/scripts/",
+        ".kiro/lib/trust-policy/"
+      ]
+    }
+  },
+  "manualApprove": {
+    "deleteOperations": [
+      "git branch -D",
+      "git push --delete",
+      "rm -rf",
+      "vercel env rm",
+      "vercel domain rm",
+      "npm uninstall"
+    ],
+    "forceOperations": [
+      "git reset --hard",
+      "git push --force",
+      "git push -f",
+      "git rebase -i"
+    ],
+    "productionImpact": [
+      "github:write",
+      "sanity-dev:write",
+      "vercel:envSet",
+      "vercel:addDomain",
+      "vercel:deploy",
+      "npm:publish"
+    ]
+  },
+  "security": {
+    "maxAutoApprovalPerHour": 1000,
+    "suspiciousPatternDetection": true,
+    "logAllOperations": true,
+    "enableAuditLog": true,
+    "backupOnChange": true
+  }
+}

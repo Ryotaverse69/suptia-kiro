@@ -29,6 +29,9 @@ importers:
       sanity:
         specifier: ^3.99.0
         version: 3.99.0(@emotion/is-prop-valid@1.2.2)(@types/node@20.19.10)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(immer@10.1.1)(jiti@2.5.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.2)(yaml@2.8.1)
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
       zod:
         specifier: ^4.0.17
         version: 4.0.17
@@ -5038,6 +5041,9 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  server-only@0.0.1:
+    resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
+
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
     engines: {node: '>= 0.4'}
@@ -7890,15 +7896,15 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@sanity/presentation-comlink@1.0.28(@sanity/client@7.8.2)(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))':
+  '@sanity/presentation-comlink@1.0.28(@sanity/client@7.8.2(debug@4.4.1))(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))':
     dependencies:
       '@sanity/client': 7.8.2(debug@4.4.1)
       '@sanity/comlink': 3.0.9
-      '@sanity/visual-editing-types': 1.1.5(@sanity/client@7.8.2)(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))
+      '@sanity/visual-editing-types': 1.1.5(@sanity/client@7.8.2(debug@4.4.1))(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))
     transitivePeerDependencies:
       - '@sanity/types'
 
-  '@sanity/preview-url-secret@2.1.14(@sanity/client@7.8.2)':
+  '@sanity/preview-url-secret@2.1.14(@sanity/client@7.8.2(debug@4.4.1))':
     dependencies:
       '@sanity/client': 7.8.2(debug@4.4.1)
       '@sanity/uuid': 3.0.2
@@ -8110,7 +8116,7 @@ snapshots:
       - react-dom
       - react-is
 
-  '@sanity/visual-editing-types@1.1.5(@sanity/client@7.8.2)(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))':
+  '@sanity/visual-editing-types@1.1.5(@sanity/client@7.8.2(debug@4.4.1))(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))':
     dependencies:
       '@sanity/client': 7.8.2(debug@4.4.1)
     optionalDependencies:
@@ -9498,7 +9504,7 @@ snapshots:
       '@typescript-eslint/parser': 6.21.0(eslint@8.57.1)(typescript@5.9.2)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1)
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.5(eslint@8.57.1)
@@ -9518,7 +9524,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1):
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.1(supports-color@8.1.1)
@@ -9533,14 +9539,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 6.21.0(eslint@8.57.1)(typescript@5.9.2)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -9555,7 +9561,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1))(eslint@8.57.1)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -11664,8 +11670,8 @@ snapshots:
       '@sanity/message-protocol': 0.13.3
       '@sanity/migrate': 3.99.0(@types/react@18.3.23)
       '@sanity/mutator': 3.99.0(@types/react@18.3.23)
-      '@sanity/presentation-comlink': 1.0.28(@sanity/client@7.8.2)(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))
-      '@sanity/preview-url-secret': 2.1.14(@sanity/client@7.8.2)
+      '@sanity/presentation-comlink': 1.0.28(@sanity/client@7.8.2(debug@4.4.1))(@sanity/types@3.99.0(@types/react@18.3.23)(debug@4.4.1))
+      '@sanity/preview-url-secret': 2.1.14(@sanity/client@7.8.2(debug@4.4.1))
       '@sanity/schema': 3.99.0(@types/react@18.3.23)(debug@4.4.1)
       '@sanity/sdk': 0.0.0-alpha.25(@types/react@18.3.23)(debug@4.4.1)(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))
       '@sanity/telemetry': 0.8.1(react@18.3.1)
@@ -11821,6 +11827,8 @@ snapshots:
   semver@6.3.1: {}
 
   semver@7.7.2: {}
+
+  server-only@0.0.1: {}
 
   set-function-length@1.2.2:
     dependencies:

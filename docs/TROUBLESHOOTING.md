@@ -25,6 +25,81 @@ graph TD
     Normal --> Documentation[ドキュメント確認]
 ```
 
+## 🔧 システム品質保証関連の問題
+
+### 1. 品質チェック失敗
+
+**症状**: `Quality check failed with issues`
+
+**原因**: システムコンポーネントの初期化エラーまたは設定問題
+
+**解決方法**:
+
+```bash
+# 品質チェックの詳細確認
+node .kiro/scripts/run-quality-check.mjs
+
+# 自動修正の実行
+npm run quality:fix
+
+# 初期化状態の確認
+node .kiro/scripts/verify-initialization.mjs
+
+# 設定ファイルの確認
+cat .kiro/settings/trust-policy.json
+```
+
+### 2. デプロイメント準備未完了
+
+**症状**: `Deployment readiness check failed`
+
+**解決方法**:
+
+```bash
+# デプロイメント準備の詳細確認
+node .kiro/lib/trust-policy/demo-deployment-readiness-simple.mjs
+
+# ブロッカーの確認
+node .kiro/scripts/test-deployment-readiness-checker.mjs
+
+# 品質ゲートの状態確認
+node .kiro/lib/trust-policy/demo-quality-gate-manager.mjs
+```
+
+### 3. パフォーマンステスト失敗
+
+**症状**: `Performance test failed - threshold exceeded`
+
+**解決方法**:
+
+```bash
+# パフォーマンス監視の実行
+node .kiro/scripts/test-performance-monitor.mjs
+
+# 閾値の確認
+cat .kiro/settings/performance-thresholds.json
+
+# パフォーマンス最適化の実行
+node .kiro/lib/trust-policy/demo-performance-optimizer.mjs
+```
+
+### 4. 自動修正機能エラー
+
+**症状**: `Auto fix failed to resolve issues`
+
+**解決方法**:
+
+```bash
+# 自動修正のテスト
+node .kiro/scripts/test-auto-fix.mjs
+
+# 修正履歴の確認
+node .kiro/lib/trust-policy/demo-auto-fix.mjs
+
+# 手動修正が必要な問題の確認
+grep "autoFixable.*false" .kiro/reports/quality-*.md
+```
+
 ## 🔧 CI/CD関連の問題
 
 ### 1. format:check エラー

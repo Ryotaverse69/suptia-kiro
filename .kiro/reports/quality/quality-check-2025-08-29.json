@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-08-29T13:14:29.718Z",
+  "result": {
+    "passed": false,
+    "issues": [
+      {
+        "id": "low-auto-approval-rate",
+        "type": "invalid_config",
+        "severity": "medium",
+        "component": "Configuration",
+        "description": "自動承認率が90.3%と目標の95%を下回っています",
+        "autoFixable": true,
+        "metadata": {
+          "currentRate": 90.32258064516128,
+          "targetRate": 95
+        },
+        "detectedAt": "2025-08-29T13:14:28.709Z",
+        "fixApplied": true,
+        "fixDetails": "自動修正が適用されました"
+      },
+      {
+        "id": "test-execution-error",
+        "type": "test_failure",
+        "severity": "high",
+        "component": "Testing",
+        "description": "テストの実行中にエラーが発生しました",
+        "autoFixable": false,
+        "detectedAt": "2025-08-29T13:14:29.716Z",
+        "fixApplied": false
+      }
+    ],
+    "summary": {
+      "total": 2,
+      "critical": 0,
+      "high": 1,
+      "medium": 1,
+      "low": 0,
+      "autoFixed": 1
+    },
+    "recommendations": [
+      "⚠️ 高優先度の問題があります。早急な対応を推奨します。"
+    ]
+  },
+  "systemInfo": {
+    "nodeVersion": "v22.16.0",
+    "platform": "darwin"
+  }
+}

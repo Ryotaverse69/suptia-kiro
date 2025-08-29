@@ -1,3 +1,6 @@
+// ISR Configuration - Revalidate every 1 hour (3600 seconds)
+export const revalidate = 3600;
+
 export default function ComparePage() {
   return (
     <div>

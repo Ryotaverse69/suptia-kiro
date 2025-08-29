@@ -17,21 +17,29 @@ export function middleware(req: NextRequest) {
   // Expose nonce for debugging/usage if needed
   nextRes.headers.set("x-nonce", nonce);
 
-  // Attach CSP only in production; dev is handled by next.config.mjs
+  // Attach strict CSP in production with nonce; dev is handled by next.config.mjs
   if (process.env.NODE_ENV === "production") {
     const csp = [
       "default-src 'self'",
+      `script-src 'self' 'nonce-${nonce}'`, // Strict: no unsafe-inline, only nonce
+      "style-src 'self' 'unsafe-inline'", // Tailwind requires unsafe-inline
       "img-src 'self' https://cdn.sanity.io data:",
       "connect-src 'self' https://*.sanity.io",
-      "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
-      // Allow only scripts with the generated nonce
-      `script-src 'self' 'nonce-${nonce}'`,
       "upgrade-insecure-requests",
+      // GA4 support (commented - uncomment when needed):
+      // `script-src 'self' 'nonce-${nonce}' https://www.googletagmanager.com`,
+      // "connect-src 'self' https://*.sanity.io https://www.google-analytics.com https://analytics.google.com",
     ].join("; ");
 
     nextRes.headers.set("Content-Security-Policy", csp);
   }
+
+  // Apply additional security headers at request level
+  nextRes.headers.set("X-Content-Type-Options", "nosniff");
+  nextRes.headers.set("X-Frame-Options", "DENY");
+  nextRes.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  nextRes.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 
   return nextRes;
 }

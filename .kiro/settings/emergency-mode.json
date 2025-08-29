@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "enabledAt": "2025-08-29T13:14:29.657Z",
+  "autoApproveOnly": [
+    "git status",
+    "git log",
+    "git diff"
+  ]
+}

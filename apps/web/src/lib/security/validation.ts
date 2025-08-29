@@ -143,7 +143,7 @@ export function withValidation<T>(
             {
               error: "Validation failed",
               message: "Invalid input data",
-              details: error.errors.map(err => ({
+              details: error.issues.map(err => ({
                 field: err.path.join('.'),
                 message: err.message,
                 code: err.code,
@@ -192,6 +192,7 @@ export const sanitize = {
    */
   html: (input: string): string => {
     return input
+      .replace(/javascript:/gi, '') // Remove javascript: protocol
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
@@ -228,7 +229,7 @@ export const validate = {
     return {
       isValid: result.success,
       sanitized,
-      errors: result.success ? undefined : result.error.errors.map(e => e.message),
+      errors: result.success ? undefined : result.error.issues.map(e => e.message),
     };
   },
 
@@ -250,7 +251,7 @@ export const validate = {
       sanitized,
       errors: result.success 
         ? (hasDisposableDomain ? ['Disposable email addresses are not allowed'] : undefined)
-        : result.error.errors.map(e => e.message),
+        : result.error.issues.map(e => e.message),
     };
   },
 
@@ -260,7 +261,7 @@ export const validate = {
   searchQuery: (query: string): { isValid: boolean; sanitized: string; errors?: string[] } => {
     const sanitized = sanitize.searchQuery(query);
     
-    // Check for potentially malicious content
+    // Check for potentially malicious content in original query
     const maliciousPatterns = [
       /<script/i,
       /javascript:/i,
@@ -269,19 +270,25 @@ export const validate = {
     ];
     
     const hasMaliciousContent = maliciousPatterns.some(pattern => 
-      pattern.test(sanitized)
+      pattern.test(query) // Check original query, not sanitized
     );
     
+    const errors: string[] = [];
+    
+    if (hasMaliciousContent) {
+      errors.push('Query contains potentially malicious content');
+    }
+    if (sanitized.length === 0) {
+      errors.push('Query cannot be empty');
+    }
+    if (query.trim().length > 200) { // Check original query length
+      errors.push('Query is too long');
+    }
+    
     return {
-      isValid: sanitized.length > 0 && sanitized.length <= 200 && !hasMaliciousContent,
+      isValid: sanitized.length > 0 && query.trim().length <= 200 && !hasMaliciousContent,
       sanitized,
-      errors: hasMaliciousContent 
-        ? ['Query contains potentially malicious content']
-        : sanitized.length === 0 
-        ? ['Query cannot be empty']
-        : sanitized.length > 200
-        ? ['Query is too long']
-        : undefined,
+      errors: errors.length > 0 ? errors : undefined,
     };
   },
 };

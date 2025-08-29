@@ -2,7 +2,10 @@
 import "@/env";
 import { headers } from "next/headers";
 import Script from "next/script";
-import { getSiteUrl } from "@/lib/runtimeConfig";
+import { 
+  generateWebsiteJsonLd, 
+  generateOrganizationJsonLd 
+} from "@/lib/seo/json-ld";
 
 export default function RootLayout({
   children,
@@ -10,19 +13,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const nonce = headers().get("x-nonce") || undefined;
-  const siteUrl = getSiteUrl();
-  const websiteJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "サプティア",
-    url: siteUrl,
-  };
+  const websiteJsonLd = generateWebsiteJsonLd();
+  const organizationJsonLd = generateOrganizationJsonLd();
   return (
     <html lang="ja">
       <body>
-        {/* Global JSON-LD (example) rendered with CSP nonce */}
+        {/* Global JSON-LD structured data */}
         <Script id="website-jsonld" type="application/ld+json" nonce={nonce}>
           {JSON.stringify(websiteJsonLd)}
+        </Script>
+        <Script id="organization-jsonld" type="application/ld+json" nonce={nonce}>
+          {JSON.stringify(organizationJsonLd)}
         </Script>
         {children}
       </body>

@@ -92,6 +92,12 @@ git branch
 # 全チェックを実行（初回は時間がかかります）
 npm run precommit
 
+# 品質保証システムの初期化確認
+node .kiro/scripts/verify-initialization.mjs
+
+# 品質チェックの実行
+npm run quality:check
+
 # 個別チェック（問題がある場合）
 npm run lint
 npm run test
@@ -155,8 +161,11 @@ npm run get-preview-url
 
 1. **[開発フローガイド](./DEVELOPMENT_WORKFLOW.md)** - 詳細な開発プロセス
 2. **[クイックリファレンス](./QUICK_REFERENCE.md)** - 日常的なコマンド集
-3. **[プロジェクト要件](../requirements.md)** - プロジェクトの全体像
-4. **[設計文書](../design.md)** - アーキテクチャの理解
+3. **[システム品質保証ガイド](./.kiro/docs/SYSTEM_QUALITY_ASSURANCE_GUIDE.md)** - 品質保証機能の理解
+4. **[開発者向けガイド](./.kiro/docs/DEVELOPER_GUIDE.md)** - 品質保証機能の開発・拡張方法
+5. **[API仕様書](./.kiro/docs/API_SPECIFICATION.md)** - 品質保証APIの詳細
+6. **[プロジェクト要件](../requirements.md)** - プロジェクトの全体像
+7. **[設計文書](../design.md)** - アーキテクチャの理解
 
 ### 技術スタック理解
 
@@ -179,11 +188,21 @@ graph TB
         GitHub[GitHub Actions]
     end
 
-    subgraph "Quality"
+    subgraph "Quality Assurance (New!)"
+        QAC[Quality Assurance Controller]
+        DRC[Deployment Readiness Checker]
+        QGM[Quality Gate Manager]
+        PM[Performance Monitor]
+        TFM[Test Framework Manager]
+    end
+
+    subgraph "Testing & Quality"
         ESLint[ESLint]
         Prettier[Prettier]
         Vitest[Vitest]
         Playwright[Playwright]
+        ITS[Integration Tests]
+        E2E[End-to-End Tests]
     end
 ```
 

@@ -1,6 +1,7 @@
 /**
  * Domain Whitelist Tests
- * ドメインホワイトリストとネットワークアクセス制限のテスト
+ * LLMエージェント安全フレームワーク用ドメインホワイトリストのテスト
+ * 要件3.2: ネットワークアクセス制限の検証
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';

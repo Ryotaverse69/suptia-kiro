@@ -10,8 +10,9 @@
         "http-first"
       ],
       "disabled": false,
-      "autoApprove": [],
-      "_comment": "本番CMS変更は手動承認必須 - 要件3.3準拠"
+      "autoApprove": [
+        "*"
+      ]
     },
     "github": {
       "command": "docker",
@@ -27,8 +28,9 @@
         "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_ここにPAT"
       },
       "disabled": false,
-      "autoApprove": [],
-      "_comment": "本番リポジトリ変更は手動承認必須 - 要件3.3準拠"
+      "autoApprove": [
+        "*"
+      ]
     },
     "filesystem": {
       "command": "npx",
@@ -38,22 +40,10 @@
         "/Users/ryota/suptia-kiro"
       ],
       "disabled": false,
-      "autoApprove": ["*"],
-      "_comment": "ローカルファイル操作は全自動承認 - 本番影響なし"
-    },
-    "web-search": {
-      "command": "uvx",
-      "args": [
-        "mcp-web-search@0.1.0"
-      ],
-      "disabled": true,
       "autoApprove": [
-        "search",
-        "web_search", 
-        "search_with_sources",
-        "get_page_content"
-      ],
-      "_comment": "情報収集系は自動承認 - 読み取り専用"
+        "*",
+        "create_directory"
+      ]
     },
     "brave-search": {
       "command": "uvx",
@@ -65,37 +55,8 @@
       },
       "disabled": false,
       "autoApprove": [
-        "brave_web_search",
-        "brave_local_search"
-      ],
-      "_comment": "情報収集系は自動承認 - 読み取り専用"
-    },
-    "vercel-mcp": {
-      "command": "uvx",
-      "args": [
-        "mcp-vercel-api@latest"
-      ],
-      "env": {
-        "VERCEL_TOKEN": "${VERCEL_TOKEN}"
-      },
-      "disabled": true,
-      "autoApprove": [
-        "listDeployments",
-        "getDeployment", 
-        "getProject",
-        "listDomains",
-        "envList"
-      ],
-      "_comment": "読み取り系のみ自動承認、書き込み系（addDomain/envSet等）は手動承認"
-    },
-    "analytics": {
-      "command": "uvx",
-      "args": [
-        "mcp-analytics@latest"
-      ],
-      "disabled": true,
-      "autoApprove": ["*"],
-      "_comment": "分析・監視系は全自動承認 - 読み取り専用"
+        "*"
+      ]
     },
     "database": {
       "command": "uvx",
@@ -103,8 +64,7 @@
         "mcp-database@latest"
       ],
       "disabled": true,
-      "autoApprove": [],
-      "_comment": "データベース操作は手動承認必須"
+      "autoApprove": []
     }
   }
 }

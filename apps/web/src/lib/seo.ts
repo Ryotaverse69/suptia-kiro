@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import { getSiteUrl } from "./runtimeConfig";
+import { generateCanonical, cleanUrl } from "./seo/canonical";
+import { type ProductSEOData } from "./seo/json-ld";
 
 // Base SEO configuration
 const SITE_NAME = "サプティア";
@@ -24,7 +26,8 @@ export function generateMetadata({
 }: SEOProps = {}): Metadata {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
   const siteUrl = getSiteUrl();
-  const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
+  // Use canonical URL generation with UTM parameter cleaning (要件4.3準拠)
+  const canonicalUrl = canonical ? generateCanonical(canonical) : siteUrl;
   const imageUrl = ogImage || `${siteUrl}/og-default.jpg`;
 
   return {
@@ -62,15 +65,7 @@ export function generateMetadata({
   };
 }
 
-// Product-specific SEO
-export interface ProductSEOData {
-  name: string;
-  brand: string;
-  description?: string;
-  priceJPY: number;
-  slug: string;
-  images?: string[];
-}
+// Product-specific SEO (type imported from json-ld module)
 
 export function generateProductMetadata(product: ProductSEOData): Metadata {
   const title = `${product.name} - ${product.brand}`;
@@ -81,7 +76,7 @@ export function generateProductMetadata(product: ProductSEOData): Metadata {
   return generateMetadata({
     title,
     description,
-    canonical: `/products/${product.slug}`,
+    canonical: `/products/${product.slug}`, // generateCanonical will be used internally
     keywords: [
       product.name,
       product.brand,
@@ -93,70 +88,30 @@ export function generateProductMetadata(product: ProductSEOData): Metadata {
   });
 }
 
-// JSON-LD structured data generators
-export function generateProductJsonLd(product: ProductSEOData) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    brand: {
-      "@type": "Brand",
-      name: product.brand,
-    },
-    description: product.description || `${product.brand}の${product.name}`,
-    offers: {
-      "@type": "Offer",
-      price: product.priceJPY,
-      priceCurrency: "JPY",
-      availability: "https://schema.org/InStock",
-      url: `${getSiteUrl()}/products/${product.slug}`,
-    },
-    image: product.images?.[0] || `${getSiteUrl()}/product-placeholder.jpg`,
-    url: `${getSiteUrl()}/products/${product.slug}`,
-  };
-}
+// JSON-LD functions are now imported from ./seo/json-ld module
 
-export function generateBreadcrumbJsonLd(
-  items: Array<{ name: string; url: string }>,
-) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: items.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.name,
-      item: `${getSiteUrl()}${item.url}`,
-    })),
-  };
-}
+// Re-export canonical utilities from dedicated module
+export { 
+  cleanUrl, 
+  generateCanonical, 
+  generateCanonicalFromUrl,
+  isValidCanonicalUrl,
+  extractPathFromCanonical 
+} from "./seo/canonical";
 
-// Canonical URL utilities
-export function cleanUrl(url: string): string {
-  const urlObj = new URL(url);
-
-  // Remove tracking parameters
-  const trackingParams = [
-    "utm_source",
-    "utm_medium",
-    "utm_campaign",
-    "utm_term",
-    "utm_content",
-    "fbclid",
-    "gclid",
-    "msclkid",
-    "twclid",
-    "ref",
-    "source",
-    "campaign",
-  ];
-
-  trackingParams.forEach((param) => {
-    urlObj.searchParams.delete(param);
-  });
-
-  return urlObj.toString();
-}
+// Re-export JSON-LD utilities from dedicated module
+export {
+  generateProductJsonLd,
+  generateBreadcrumbJsonLd,
+  generateWebsiteJsonLd,
+  generateOrganizationJsonLd,
+  type ProductSEOData,
+  type BreadcrumbItem,
+  type ProductJsonLd,
+  type BreadcrumbJsonLd,
+  type WebsiteJsonLd,
+  type OrganizationJsonLd
+} from "./seo/json-ld";
 
 // Font preloading utilities
 export function getFontPreloadLinks() {

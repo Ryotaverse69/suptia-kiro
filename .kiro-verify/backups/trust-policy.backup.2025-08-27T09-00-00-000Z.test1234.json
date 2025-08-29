@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "originalPath": ".kiro-verify/settings/trust-policy.json",
+    "backupTime": "2025-08-27T09:00:00Z",
+    "reason": "test",
+    "hash": "test1234",
+    "version": "0.7"
+  },
+  "content": {
+    "version": "0.7",
+    "autoApprove": {
+      "gitOperations": [
+        "status"
+      ]
+    },
+    "manualApprove": {
+      "deleteOperations": []
+    },
+    "security": {
+      "maxAutoApprovalPerHour": 200
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "granted": true,
+  "grantedAt": "2025-08-29T14:28:00.137Z",
+  "validUntil": "2025-08-30T14:28:00.137Z",
+  "conditions": [
+    "All critical quality gates must remain passing",
+    "No new critical issues must be introduced",
+    "Post-deployment verification must be completed"
+  ],
+  "approver": "Quality Assurance System"
+}

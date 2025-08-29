@@ -9,6 +9,11 @@
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:security": "vitest run --testNamePattern=\"security|rate-limit|validation|headers\"",
+    "test:seo": "vitest run --testNamePattern=\"seo|json-ld|sitemap|canonical\"",
+    "test:accessibility": "vitest run --testNamePattern=\"accessibility|a11y|aria|keyboard\"",
+    "test:agent-safety": "vitest run --testNamePattern=\"agent|content-filter|domain-whitelist\"",
     "lint": "next lint",
     "format": "prettier --write .",
     "format:check": "prettier . --check",
@@ -18,6 +23,7 @@
     "headers": "cd ../.. && node scripts/check-headers.mjs",
     "jsonld": "cd ../.. && node scripts/validate-jsonld.mjs",
     "dod:check": "cd ../.. && node scripts/check-dod.mjs",
+    "dod:verify": "cd ../.. && node scripts/verify-dod.mjs",
     "preview:verify": "node ../../scripts/verify-preview-env.mjs",
     "preview:url": "node ../../scripts/get-preview-url.mjs",
     "perf:optimize": "node ../../scripts/performance-optimizer.mjs",
@@ -25,28 +31,29 @@
     "perf:cleanup": "node ../../scripts/performance-optimizer.mjs --cleanup"
   },
   "dependencies": {
-    "next": "14.2.5",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "@sanity/client": "^7.8.2",
     "@sanity/vision": "^4.3.0",
     "groq": "^4.3.0",
+    "next": "14.2.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "sanity": "^3.99.0",
+    "server-only": "^0.0.1",
     "zod": "^4.0.17"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.1.5",
+    "@testing-library/react": "^14.1.2",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "typescript": "^5.0.0",
-    "vitest": "^1.0.4",
-    "@testing-library/react": "^14.1.2",
-    "@testing-library/jest-dom": "^6.1.5",
     "@vitejs/plugin-react": "^4.2.0",
-    "jsdom": "^23.0.1",
     "eslint": "^8.55.0",
     "eslint-config-next": "14.0.4",
-    "prettier": "^3.1.0"
+    "jsdom": "^23.0.1",
+    "prettier": "^3.1.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.4"
   },
   "packageManager": "pnpm@9.0.0"
 }

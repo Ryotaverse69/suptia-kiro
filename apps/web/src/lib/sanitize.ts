@@ -1,71 +1,23 @@
 // XSS protection and content sanitization utilities
 
-// Allowed block types for Portable Text
-export const ALLOWED_BLOCK_TYPES = ["block", "image", "break"] as const;
+// 新しいPortable Textサニタイザーを使用することを推奨
+// 詳細な実装は lib/content/portable-text-sanitizer.ts を参照
+import { 
+  sanitizePortableText as newSanitizePortableText,
+  ALLOWED_BLOCK_TYPES,
+  ALLOWED_MARKS,
+  ALLOWED_STYLES
+} from './content/portable-text-sanitizer';
 
-// Allowed marks for Portable Text
-export const ALLOWED_MARKS = ["strong", "em", "code", "underline"] as const;
-
-// Allowed styles for blocks
-export const ALLOWED_STYLES = [
-  "normal",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "blockquote",
-] as const;
-
-// Sanitize Portable Text content
+// 後方互換性のためのレガシー関数（非推奨）
+// @deprecated 新しい lib/content/portable-text-sanitizer.ts を使用してください
 export function sanitizePortableText(blocks: any[]): any[] {
-  if (!Array.isArray(blocks)) {
-    return [];
-  }
-
-  return blocks
-    .filter((block) => {
-      // Only allow whitelisted block types
-      return block && ALLOWED_BLOCK_TYPES.includes(block._type);
-    })
-    .map((block) => {
-      if (block._type === "block") {
-        return {
-          ...block,
-          style: ALLOWED_STYLES.includes(block.style) ? block.style : "normal",
-          children: Array.isArray(block.children)
-            ? block.children.map(sanitizeSpan)
-            : [],
-          markDefs: [], // Remove all mark definitions to prevent link injection
-        };
-      }
-
-      if (block._type === "image") {
-        return {
-          _type: "image",
-          _key: block._key,
-          asset: block.asset,
-          alt: typeof block.alt === "string" ? block.alt.substring(0, 200) : "",
-        };
-      }
-
-      return block;
-    });
+  console.warn('sanitizePortableText is deprecated. Use lib/content/portable-text-sanitizer.ts instead');
+  return newSanitizePortableText(blocks);
 }
 
-function sanitizeSpan(span: any): any {
-  if (!span || typeof span !== "object") {
-    return { _type: "span", text: "" };
-  }
-
-  return {
-    _type: "span",
-    _key: span._key,
-    text: typeof span.text === "string" ? span.text : "",
-    marks: Array.isArray(span.marks)
-      ? span.marks.filter((mark: any) => ALLOWED_MARKS.includes(mark))
-      : [],
-  };
-}
+// 後方互換性のための定数エクスポート
+export { ALLOWED_BLOCK_TYPES, ALLOWED_MARKS, ALLOWED_STYLES };
 
 // Slug utilities with validation
 export function isValidSlug(slug: string): boolean {

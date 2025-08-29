@@ -1,0 +1,12 @@
+{
+  "securityLevel": 3,
+  "isManualApprovalMode": true,
+  "lastSecurityIncident": {
+    "reason": "suspicious_pattern_high",
+    "timestamp": "2025-08-28T14:23:36.024Z",
+    "previousLevel": 2,
+    "newLevel": 3
+  },
+  "threatCount": 2,
+  "lastStateChange": "2025-08-28T14:23:36.024Z"
+}

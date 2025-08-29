@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   sanitizePortableText,
   isValidSlug,
@@ -8,8 +8,28 @@ import {
 } from "../sanitize";
 
 describe("Sanitization Utilities", () => {
-  describe("sanitizePortableText", () => {
-    it("許可されたブロックタイプのみを保持する", () => {
+  describe("sanitizePortableText (Legacy)", () => {
+    it("非推奨警告を表示する", () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      
+      const blocks = [
+        {
+          _type: "block",
+          style: "normal",
+          children: [{ _type: "span", text: "Hello" }],
+        },
+      ];
+
+      sanitizePortableText(blocks);
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'sanitizePortableText is deprecated. Use lib/content/portable-text-sanitizer.ts instead'
+      );
+      
+      consoleSpy.mockRestore();
+    });
+
+    it("新しいサニタイザーに処理を委譲する", () => {
       const blocks = [
         {
           _type: "block",
@@ -71,7 +91,7 @@ describe("Sanitization Utilities", () => {
 
       const sanitized = sanitizePortableText(blocks);
 
-      expect(sanitized[0].markDefs).toEqual([]);
+      expect(sanitized[0]).not.toHaveProperty('markDefs');
     });
 
     it("無効な入力を処理する", () => {

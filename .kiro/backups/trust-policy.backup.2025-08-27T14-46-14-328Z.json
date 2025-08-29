@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-08-27T10:00:00Z",
+  "autoApprove": {
+    "gitOperations": [
+      "status",
+      "commit", 
+      "push",
+      "pull",
+      "merge",
+      "log",
+      "diff",
+      "show",
+      "branch",
+      "checkout",
+      "switch"
+    ],
+    "fileOperations": [
+      "read",
+      "write", 
+      "create",
+      "update",
+      "mkdir"
+    ],
+    "cliOperations": {
+      "vercel": [
+        "env ls",
+        "domains ls", 
+        "deployments ls",
+        "status",
+        "whoami"
+      ]
+    },
+    "scriptExecution": {
+      "extensions": [".mjs"],
+      "allowedPaths": ["scripts/", ".kiro/scripts/"]
+    }
+  },
+  "manualApprove": {
+    "deleteOperations": [
+      "git branch -D",
+      "git push --delete", 
+      "rm -rf",
+      "vercel env rm",
+      "vercel domain rm"
+    ],
+    "forceOperations": [
+      "git reset --hard",
+      "git push --force",
+      "git push -f"
+    ],
+    "productionImpact": [
+      "github:write",
+      "sanity-dev:write", 
+      "vercel:envSet",
+      "vercel:addDomain"
+    ]
+  },
+  "security": {
+    "maxAutoApprovalPerHour": 1000,
+    "suspiciousPatternDetection": true,
+    "logAllOperations": true
+  }
+}

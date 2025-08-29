@@ -1,12 +1,12 @@
-import { sanityServer } from "@/lib/sanityServer";
+import { sanityServerWithCache } from "@/lib/sanityServer";
 import { checkCompliance, generateSampleDescription } from "@/lib/compliance";
 import { WarningBanner } from "@/components/WarningBanner";
 import { PriceTable } from "@/components/PriceTable";
-import {
-  generateProductMetadata,
-  generateProductJsonLd,
-  generateBreadcrumbJsonLd,
-} from "@/lib/seo";
+import { generateProductMetadata } from "@/lib/seo";
+import { 
+  generateProductJsonLd, 
+  generateBreadcrumbJsonLd 
+} from "@/lib/seo/json-ld";
 import { notFound } from "next/navigation";
 import { isValidSlug } from "@/lib/sanitize";
 import Image from "next/image";
@@ -56,7 +56,7 @@ async function getProduct(slug: string): Promise<Product | null> {
   }`;
 
   try {
-    const product = await sanityServer.fetch(query, { slug });
+    const product = await sanityServerWithCache.fetchProduct(query, { slug });
     return product || null;
   } catch (error) {
     console.error("Failed to fetch product:", error);
@@ -190,6 +190,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
     </>
   );
 }
+
+// ISR Configuration - Revalidate every 10 minutes (600 seconds)
+export const revalidate = 600;
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: PageProps) {

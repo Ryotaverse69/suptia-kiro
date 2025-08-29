@@ -1,0 +1,254 @@
+name: Comprehensive CI Pipeline
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+defaults:
+  run:
+    working-directory: apps/web
+
+jobs:
+  # 必須チェック: ビルド
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        env:
+          NEXT_PUBLIC_BASE_URL: http://localhost:3000
+          NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+          NEXT_PUBLIC_SANITY_DATASET: production
+        run: pnpm run build
+
+  # 必須チェック: テスト
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run comprehensive tests
+        run: |
+          echo "🧪 Running comprehensive test suite..."
+          pnpm run test --run
+          echo "✅ All tests completed"
+
+      - name: Generate test coverage report
+        run: pnpm run test:coverage --run
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: apps/web/coverage/
+          retention-days: 30  #
+ セキュリティ監査: pnpm audit
+  security-audit:
+    name: security-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true  # 警告レベル
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run pnpm audit (要件8.6)
+        run: |
+          echo "🔍 Running pnpm security audit..."
+          pnpm audit --audit-level moderate || echo "⚠️ Security vulnerabilities found (warning level)"
+          echo "✅ Security audit completed"
+
+      - name: Generate audit report
+        run: |
+          pnpm audit --json > audit-report.json || true
+          echo "📊 Audit report generated"
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-report
+          path: apps/web/audit-report.json
+          retention-days: 30
+
+  # 静的解析: Semgrep
+  static-analysis:
+    name: static-analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true  # 警告レベル
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep (要件8.6)
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/javascript
+            p/typescript
+            p/react
+            p/nextjs
+            p/security-audit
+          generateSarif: "1"
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+      - name: Upload Semgrep results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-results
+          path: semgrep.sarif
+          retention-days: 30  # パフォーマンス監
+査: Lighthouse CI
+  lighthouse-ci:
+    name: lighthouse-ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true  # 警告レベル
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        env:
+          NEXT_PUBLIC_BASE_URL: http://localhost:3000
+          NEXT_PUBLIC_SANITY_PROJECT_ID: demo
+          NEXT_PUBLIC_SANITY_DATASET: production
+        run: pnpm run build
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.12.x
+
+      - name: Run Lighthouse CI (要件8.6)
+        run: |
+          echo "🚀 Running Lighthouse CI..."
+          lhci autorun || echo "⚠️ Lighthouse CI completed with warnings"
+          echo "✅ Performance audit completed"
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/
+          retention-days: 30
+
+  # DoD基準の自動チェック
+  dod-verification:
+    name: dod-verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [build, test, security-audit, static-analysis, lighthouse-ci]
+    if: always()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify DoD criteria (要件8.6)
+        run: |
+          echo "📋 Verifying Definition of Done criteria..."
+          
+          # 1. すべてのテストが緑色
+          echo "✅ Tests: ${{ needs.test.result }}"
+          
+          # 2. ビルドが成功
+          echo "✅ Build: ${{ needs.build.result }}"
+          
+          # 3. セキュリティ監査（警告レベル）
+          echo "⚠️ Security Audit: ${{ needs.security-audit.result }}"
+          
+          # 4. 静的解析（警告レベル）
+          echo "⚠️ Static Analysis: ${{ needs.static-analysis.result }}"
+          
+          # 5. Lighthouse CI（警告レベル）
+          echo "⚠️ Lighthouse CI: ${{ needs.lighthouse-ci.result }}"
+          
+          echo "📊 DoD verification completed"
+
+      - name: Run additional DoD checks
+        run: |
+          echo "🔍 Running additional DoD checks..."
+          
+          # lint/formatチェック
+          pnpm run lint || echo "⚠️ Lint issues found"
+          pnpm run format:check || echo "⚠️ Format issues found"
+          
+          # 型チェック
+          pnpm run typecheck || echo "⚠️ Type errors found"
+          
+          echo "✅ Additional checks completed"
