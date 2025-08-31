@@ -33,7 +33,8 @@
         "list_workflow_jobs",
         "rerun_workflow_run",
         "run_workflow",
-        "list_issues"
+        "list_issues",
+        "get_file_contents"
       ]
     },
     "filesystem": {

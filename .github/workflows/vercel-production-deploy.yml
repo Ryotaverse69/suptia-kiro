@@ -26,6 +26,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
       - name: Deploy to Vercel Production
         uses: amondnet/vercel-action@v20
         id: vercel-deploy
@@ -65,8 +70,7 @@ jobs:
 
       - name: Install dependencies for verification
         run: |
-          cd apps/web
-          npm install chalk axios
+          pnpm install
 
       - name: Verify Production Deployment
         id: verify-deployment
@@ -127,60 +131,40 @@ jobs:
             echo "monitoring_status=skipped" >> $GITHUB_OUTPUT
           fi
 
-      - name: Test Custom Domain
-        id: test-domain
+      - name: Diagnose Domain Settings
+        id: diagnose-domain
         continue-on-error: true
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
         run: |
-          echo "🔍 Testing custom domain..."
+          echo "🔍 Running domain settings diagnosis..."
           
-          # より長い待機時間でドメイン伝播を待つ
-          echo "Waiting for domain propagation..."
-          sleep 60
+          if node scripts/diagnose-domain-settings.mjs; then
+            echo "✅ Domain diagnosis completed successfully"
+            echo "diagnosis_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Domain diagnosis detected issues"
+            echo "diagnosis_status=warning" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Verify Custom Domain
+        id: verify-domain
+        continue-on-error: true
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: |
+          echo "🔍 Verifying custom domain configuration..."
           
-          # suptia.com のテスト（複数回リトライ）
-          DOMAIN_ATTEMPTS=5
-          DOMAIN_SUCCESS=false
-          
-          for i in $(seq 1 $DOMAIN_ATTEMPTS); do
-            echo "Testing suptia.com (attempt $i/$DOMAIN_ATTEMPTS)..."
-            
-            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://suptia.com || echo "000")
-            echo "suptia.com HTTP Status: $HTTP_STATUS"
-            
-            if [ "$HTTP_STATUS" = "200" ]; then
-              echo "✅ suptia.com is accessible"
-              
-              # Vercelヘッダーの確認
-              VERCEL_ID=$(curl -s -I https://suptia.com | grep -i "x-vercel-id" | cut -d' ' -f2 | tr -d '\r\n' || echo "")
-              if [ -n "$VERCEL_ID" ]; then
-                echo "✅ suptia.com Vercel ID: $VERCEL_ID"
-              fi
-              
-              DOMAIN_SUCCESS=true
-              break
-            else
-              echo "⚠️ suptia.com returned HTTP $HTTP_STATUS"
-              if [ $i -lt $DOMAIN_ATTEMPTS ]; then
-                echo "Waiting 30 seconds before retry..."
-                sleep 30
-              fi
-            fi
-          done
-          
-          if [ "$DOMAIN_SUCCESS" = "true" ]; then
+          if node scripts/verify-custom-domain.mjs; then
+            echo "✅ Custom domain verification successful"
             echo "domain_status=success" >> $GITHUB_OUTPUT
           else
-            echo "domain_status=pending" >> $GITHUB_OUTPUT
-          fi
-          
-          # www.suptia.com のテスト
-          WWW_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://www.suptia.com || echo "000")
-          echo "www.suptia.com HTTP Status: $WWW_STATUS"
-          
-          if [ "$WWW_STATUS" = "200" ] || [ "$WWW_STATUS" = "301" ] || [ "$WWW_STATUS" = "302" ]; then
-            echo "✅ www.suptia.com is accessible"
-          else
-            echo "⚠️ www.suptia.com returned HTTP $WWW_STATUS"
+            echo "❌ Custom domain verification failed"
+            echo "domain_status=failed" >> $GITHUB_OUTPUT
           fi
 
       - name: Create Success Comment
@@ -188,14 +172,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEPLOYMENT_URL: ${{ steps.vercel-deploy.outputs.preview-url }}
-          DOMAIN_STATUS: ${{ steps.test-domain.outputs.domain_status }}
+          DOMAIN_STATUS: ${{ steps.verify-domain.outputs.domain_status }}
+          DIAGNOSIS_STATUS: ${{ steps.diagnose-domain.outputs.diagnosis_status }}
           VERCEL_ID: ${{ steps.verify-deployment.outputs.vercel_id }}
         run: |
           # 最新のPRにコメントを追加（もしあれば）
           LATEST_PR=$(gh pr list --state merged --limit 1 --json number --jq '.[0].number' || echo "")
           
-          DOMAIN_EMOJI="${{ steps.test-domain.outputs.domain_status == 'success' && '✅' || '⚠️' }}"
-          DOMAIN_TEXT="${{ steps.test-domain.outputs.domain_status == 'success' && 'Ready' || 'Propagating' }}"
+          DOMAIN_EMOJI="${{ steps.verify-domain.outputs.domain_status == 'success' && '✅' || '⚠️' }}"
+          DOMAIN_TEXT="${{ steps.verify-domain.outputs.domain_status == 'success' && 'Ready' || 'Issues Detected' }}"
+          DIAGNOSIS_EMOJI="${{ steps.diagnose-domain.outputs.diagnosis_status == 'success' && '✅' || '⚠️' }}"
           
           cat > comment_body.txt << 'EOF'
           🚀 Production Deployment Successful
@@ -205,6 +191,7 @@ jobs:
           - 🆔 Vercel ID: `${VERCEL_ID:-'N/A'}`
           - 📝 Commit: `${{ github.sha }}`
           - 🌐 Domain Status: $DOMAIN_EMOJI $DOMAIN_TEXT
+          - 🔍 Diagnosis: $DIAGNOSIS_EMOJI Domain configuration checked
           - ⏰ Deployed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
           
           Production URLs:
@@ -212,6 +199,10 @@ jobs:
           - 🌍 [www.suptia.com](https://www.suptia.com)
           
           The production environment has been successfully updated!
+          
+          📋 Diagnostic Reports:
+          - Domain diagnostic report available in workflow artifacts
+          - Custom domain verification report available in workflow artifacts
           EOF
           
           COMMENT_BODY=$(cat comment_body.txt)
@@ -271,7 +262,7 @@ jobs:
             --label "deployment,production,urgent,auto-recovery-failed" \
             --assignee "${{ github.actor }}" || echo "Could not create issue"
 
-      - name: Upload Deployment Logs
+      - name: Upload Deployment Logs and Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -279,4 +270,6 @@ jobs:
           path: |
             vercel-*.log
             deployment-*.json
+            domain-diagnostic-report.json
+            domain-verification-report.json
           retention-days: 30
