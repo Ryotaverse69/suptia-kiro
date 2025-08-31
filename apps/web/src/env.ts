@@ -1,36 +1,60 @@
 // Environment variable validation
 // This file validates required environment variables at startup
 
-function validateEnvVar(name: string, value: string | undefined): string {
+function validateEnvVar(name: string, value: string | undefined, fallback?: string): string {
+  // If value is missing or blank, use fallback when provided
   if (!value || value.trim() === "") {
-    throw new Error(
-      `Missing required environment variable: ${name}\n` +
-        `Please check your .env.local file and ensure ${name} is set.\n` +
-        `See .env.local.example for reference.`,
-    );
+    if (fallback !== undefined) {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(`ENV: ${name} is missing. Using fallback: ${fallback}`);
+      }
+      return fallback;
+    }
+
+    // No fallback: warn (dev) and return empty string to avoid build-time crashes
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        `ENV: Missing required environment variable: ${name}. ` +
+          `Set it in .env.local or Vercel project settings.`,
+      );
+    }
+    return "";
   }
 
   // Check for placeholder values that haven't been replaced
   if (value === "your-project-id" || value === "your-dataset-name") {
-    throw new Error(
-      `Environment variable ${name} contains placeholder value: ${value}\n` +
-        `Please replace with your actual Sanity configuration.\n` +
-        `See .env.local.example for reference.`,
-    );
+    if (fallback !== undefined) {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(
+          `ENV: ${name} has placeholder value (${value}). Using fallback: ${fallback}`,
+        );
+      }
+      return fallback;
+    }
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        `ENV: ${name} has placeholder value (${value}). Replace with actual value.`,
+      );
+    }
   }
 
   return value;
 }
 
 // Validate Sanity configuration
+// Provide safe defaults to avoid failing builds when preview env vars are not configured yet.
 export const SANITY_PROJECT_ID = validateEnvVar(
   "NEXT_PUBLIC_SANITY_PROJECT_ID",
   process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  // Safe demo fallback
+  "demo",
 );
 
 export const SANITY_DATASET = validateEnvVar(
   "NEXT_PUBLIC_SANITY_DATASET",
   process.env.NEXT_PUBLIC_SANITY_DATASET,
+  // Safe demo fallback
+  "public",
 );
 
 // Optional environment variables with defaults

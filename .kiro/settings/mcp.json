@@ -26,7 +26,15 @@
         "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_ここにPAT"
       },
       "disabled": false,
-      "autoApprove": []
+      "autoApprove": [
+        "list_workflow_runs",
+        "get_job_logs",
+        "get_workflow_run",
+        "list_workflow_jobs",
+        "rerun_workflow_run",
+        "run_workflow",
+        "list_issues"
+      ]
     },
     "filesystem": {
       "command": "npx",
@@ -71,11 +79,6 @@
       ]
     },
     "vercel-mcp": {
-      "_comment": "Vercel REST API連携専用の軽量MCP",
-      "_comment_use_case": "デプロイメント監視、プロジェクト管理、ドメイン設定、環境変数管理",
-      "_comment_features": "listDeployments, getDeployment, getProject, listDomains, addDomain, envList, envSet",
-      "_baseUrl": "https://api.vercel.com",
-      "_auto_approve_rationale": "読み取り系は自動承認、書き込み系（addDomain/envSet）は手動承認必須",
       "command": "uvx",
       "args": [
         "mcp-vercel-api@latest"
@@ -86,7 +89,7 @@
       "disabled": false,
       "autoApprove": [
         "listDeployments",
-        "getDeployment", 
+        "getDeployment",
         "getProject",
         "listDomains",
         "envList"

@@ -1,0 +1,11 @@
+{"operationType":"git","command":"git","args":["status"],"decision":"auto","processingTime":0,"timestamp":"2025-08-30T13:16:48.476Z"}
+{"operationType":"git","command":"git","args":["log","--oneline","-5"],"decision":"auto","processingTime":0,"timestamp":"2025-08-30T13:16:48.476Z"}
+{"operationType":"file","command":"touch","args":["new-feature.ts"],"decision":"manual","processingTime":0,"timestamp":"2025-08-30T13:16:48.476Z"}
+{"operationType":"file","command":"mkdir","args":["components"],"decision":"auto","processingTime":0,"timestamp":"2025-08-30T13:16:48.476Z"}
+{"operationType":"git","command":"git","args":["add","."],"decision":"auto","processingTime":0,"timestamp":"2025-08-30T13:16:48.476Z"}
+{"operationType":"git","command":"git","args":["commit","-m","Add new feature"],"decision":"auto","processingTime":1,"timestamp":"2025-08-30T13:16:48.477Z"}
+{"operationType":"git","command":"git","args":["push","origin","feature-branch"],"decision":"auto","processingTime":0,"timestamp":"2025-08-30T13:16:48.477Z"}
+{"operationType":"cli","command":"vercel","args":["deployments","ls"],"decision":"auto","processingTime":0,"timestamp":"2025-08-30T13:16:48.477Z"}
+{"operationType":"cli","command":"vercel","args":["env","ls"],"decision":"auto","processingTime":0,"timestamp":"2025-08-30T13:16:48.477Z"}
+{"operationType":"git","command":"git","args":["reset","--hard","HEAD~1"],"decision":"manual","processingTime":0,"timestamp":"2025-08-30T13:16:48.477Z"}
+{"operationType":"file","command":"rm","args":["-rf","old-feature"],"decision":"manual","processingTime":0,"timestamp":"2025-08-30T13:16:48.477Z"}

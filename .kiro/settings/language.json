@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-01-30T00:00:00.000Z",
+  "defaultLanguage": "ja",
+  "supportedLanguages": ["ja", "en"],
+  "forceLanguage": "ja",
+  "languageOverride": {
+    "enabled": false,
+    "allowOverride": false,
+    "overrideTag": "#override-language"
+  },
+  "localization": {
+    "locale": "ja-JP",
+    "timezone": "Asia/Tokyo",
+    "dateFormat": "YYYY-MM-DD",
+    "timeFormat": "HH:mm:ss",
+    "currency": "JPY",
+    "numberFormat": "ja-JP"
+  },
+  "communication": {
+    "defaultResponseLanguage": "ja",
+    "errorMessageLanguage": "ja",
+    "logLanguage": "ja",
+    "documentationLanguage": "ja",
+    "commentLanguage": "en",
+    "codeLanguage": "en"
+  },
+  "restrictions": {
+    "ignoreLanguageChangeRequests": true,
+    "maintainJapaneseInDocumentation": true,
+    "preserveEnglishInCode": true,
+    "preserveEnglishInIdentifiers": true
+  },
+  "exceptions": {
+    "allowEnglishForTechnicalTerms": true,
+    "allowEnglishForAPINames": true,
+    "allowEnglishForCodeComments": true,
+    "allowEnglishForVariableNames": true
+  }
+}
