@@ -64,7 +64,9 @@ jobs:
           fi
 
       - name: Install dependencies for verification
-        run: npm install chalk axios
+        run: |
+          cd apps/web
+          npm install chalk axios
 
       - name: Verify Production Deployment
         id: verify-deployment
@@ -90,7 +92,17 @@ jobs:
               fi
               
               echo "deployment_status=success" >> $GITHUB_OUTPUT
-          
+            else
+              echo "❌ Deployment verification failed with HTTP $HTTP_STATUS"
+              echo "deployment_status=failed" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+          else
+            echo "❌ No deployment URL found"
+            echo "deployment_status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
       - name: Advanced Deployment Monitoring
         id: monitor-deployment
         continue-on-error: true
@@ -102,22 +114,17 @@ jobs:
           echo "🔍 高度なデプロイ監視を実行中..."
           
           # 監視スクリプトの実行
-          if node scripts/monitor-deployment.mjs; then
-            echo "✅ デプロイ監視完了"
-            echo "monitoring_status=success" >> $GITHUB_OUTPUT
-          else
-            echo "⚠️ デプロイ監視で問題を検出"
-            echo "monitoring_status=warning" >> $GITHUB_OUTPUT
-          fi
+          if [ -f "scripts/monitor-deployment.mjs" ]; then
+            if node scripts/monitor-deployment.mjs; then
+              echo "✅ デプロイ監視完了"
+              echo "monitoring_status=success" >> $GITHUB_OUTPUT
             else
-              echo "❌ Deployment verification failed with HTTP $HTTP_STATUS"
-              echo "deployment_status=failed" >> $GITHUB_OUTPUT
-              exit 1
+              echo "⚠️ デプロイ監視で問題を検出"
+              echo "monitoring_status=warning" >> $GITHUB_OUTPUT
             fi
           else
-            echo "❌ No deployment URL found"
-            echo "deployment_status=failed" >> $GITHUB_OUTPUT
-            exit 1
+            echo "⚠️ 監視スクリプトが見つかりません"
+            echo "monitoring_status=skipped" >> $GITHUB_OUTPUT
           fi
 
       - name: Test Custom Domain
@@ -233,12 +240,17 @@ The production environment has been successfully updated!"
           echo "🔄 自動復旧を試行中..."
           
           # 自動復旧スクリプトの実行
-          if node scripts/auto-recovery.mjs; then
-            echo "✅ 自動復旧が成功しました"
-            echo "recovery_status=success" >> $GITHUB_OUTPUT
+          if [ -f "scripts/auto-recovery.mjs" ]; then
+            if node scripts/auto-recovery.mjs; then
+              echo "✅ 自動復旧が成功しました"
+              echo "recovery_status=success" >> $GITHUB_OUTPUT
+            else
+              echo "❌ 自動復旧に失敗しました"
+              echo "recovery_status=failed" >> $GITHUB_OUTPUT
+            fi
           else
-            echo "❌ 自動復旧に失敗しました"
-            echo "recovery_status=failed" >> $GITHUB_OUTPUT
+            echo "⚠️ 自動復旧スクリプトが見つかりません"
+            echo "recovery_status=skipped" >> $GITHUB_OUTPUT
           fi
 
       - name: Notify Deployment Failure
