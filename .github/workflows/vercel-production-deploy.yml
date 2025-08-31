@@ -31,15 +31,41 @@ jobs:
         with:
           version: 9.0.0
 
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Test build locally
+        run: |
+          echo "🔨 Testing local build..."
+          cd apps/web
+          pnpm run build
+          echo "✅ Local build successful!"
+
+      - name: Install Vercel CLI
+        run: pnpm add -g vercel
+
       - name: Deploy to Vercel Production
-        uses: amondnet/vercel-action@v20
         id: vercel-deploy
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod --confirm'
-          working-directory: ./
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          echo "🚀 Starting Vercel production deployment..."
+          
+          # Vercel CLIでデプロイ実行
+          DEPLOYMENT_URL=$(vercel --prod --token $VERCEL_TOKEN --confirm --yes 2>&1 | tee deploy.log | grep -o 'https://[^[:space:]]*' | tail -1)
+          
+          if [ -n "$DEPLOYMENT_URL" ]; then
+            echo "✅ Deployment successful!"
+            echo "Deployment URL: $DEPLOYMENT_URL"
+            echo "preview-url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Deployment failed!"
+            echo "Deploy log:"
+            cat deploy.log
+            exit 1
+          fi
 
       - name: Wait for Deployment to be Ready
         run: |
@@ -68,9 +94,7 @@ jobs:
             echo "⚠️ Deployment readiness check timed out, but continuing..."
           fi
 
-      - name: Install dependencies for verification
-        run: |
-          pnpm install
+
 
       - name: Verify Production Deployment
         id: verify-deployment
