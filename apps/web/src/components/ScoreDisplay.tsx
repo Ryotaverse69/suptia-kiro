@@ -397,28 +397,24 @@ export const ScoreDisplay = memo(function ScoreDisplay({
     return <ScoreDisplaySkeleton className={className} />;
   }
   
-  // エラー状態の表示
-  if (error) {
-    return (
-      <div className={`bg-white rounded-lg border border-gray-200 shadow-sm p-6 ${className}`}>
-        <ErrorDisplay error={error} />
-      </div>
-    );
-  }
-  
-  // スコア結果がない場合
-  if (!scoreResult) {
-    return (
-      <div className={`bg-white rounded-lg border border-gray-200 shadow-sm p-6 ${className}`}>
-        <div className="text-center text-gray-500">
-          <p>スコアデータがありません</p>
-        </div>
-      </div>
-    );
-  }
-  
-  const { total, components, weights, isComplete, missingData } = scoreResult;
-  
+  // Hooksは条件分岐の前に呼び出す必要があるため、
+  // scoreResult が無い場合に備えてデフォルト値を用意する
+  const total = scoreResult?.total ?? 0;
+  const components = scoreResult?.components ?? {
+    evidence: 0,
+    safety: 0,
+    cost: 0,
+    practicality: 0,
+  };
+  const weights = scoreResult?.weights ?? {
+    evidence: 0.25,
+    safety: 0.25,
+    cost: 0.25,
+    practicality: 0.25,
+  };
+  const isComplete = scoreResult?.isComplete ?? false;
+  const missingData = scoreResult?.missingData ?? [] as string[];
+
   // スコア可視化データの準備（メモ化）
   const visualization: ScoreVisualization = useMemo(() => ({
     total,
@@ -448,6 +444,26 @@ export const ScoreDisplay = memo(function ScoreDisplay({
     
     return summary;
   }, [total, totalLevel, components, weights, isComplete, missingData]);
+
+  // エラー状態の表示
+  if (error) {
+    return (
+      <div className={`bg-white rounded-lg border border-gray-200 shadow-sm p-6 ${className}`}>
+        <ErrorDisplay error={error} />
+      </div>
+    );
+  }
+  
+  // スコア結果がない場合
+  if (!scoreResult) {
+    return (
+      <div className={`bg-white rounded-lg border border-gray-200 shadow-sm p-6 ${className}`}>
+        <div className="text-center text-gray-500">
+          <p>スコアデータがありません</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div 

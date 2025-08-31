@@ -506,6 +506,16 @@ export const ScoreBreakdown = memo(function ScoreBreakdown({
   isLoading = false,
   error = null
 }: ScoreBreakdownProps) {
+  // スクリーンリーダー用の詳細説明（Hooksは条件分岐の前に呼び出す）
+  const screenReaderSummary = useMemo(() => {
+    return `スコア詳細分析：` +
+      `エビデンススコア${breakdown.evidence.score}点（重み${Math.round(weights.evidence * 100)}%）、` +
+      `安全性スコア${breakdown.safety.score}点（重み${Math.round(weights.safety * 100)}%）、` +
+      `コストスコア${breakdown.cost.score}点（重み${Math.round(weights.cost * 100)}%）、` +
+      `実用性スコア${breakdown.practicality.score}点（重み${Math.round(weights.practicality * 100)}%）。` +
+      `各セクションを展開すると詳細な計算根拠を確認できます。`;
+  }, [breakdown, weights]);
+
   // ローディング状態の表示
   if (isLoading) {
     return <ScoreBreakdownSkeleton className={className} />;
@@ -515,16 +525,6 @@ export const ScoreBreakdown = memo(function ScoreBreakdown({
   if (error) {
     return <ScoreBreakdownError error={error} className={className} />;
   }
-  
-  // スクリーンリーダー用の詳細説明
-  const screenReaderSummary = useMemo(() => {
-    return `スコア詳細分析：` +
-      `エビデンススコア${breakdown.evidence.score}点（重み${Math.round(weights.evidence * 100)}%）、` +
-      `安全性スコア${breakdown.safety.score}点（重み${Math.round(weights.safety * 100)}%）、` +
-      `コストスコア${breakdown.cost.score}点（重み${Math.round(weights.cost * 100)}%）、` +
-      `実用性スコア${breakdown.practicality.score}点（重み${Math.round(weights.practicality * 100)}%）。` +
-      `各セクションを展開すると詳細な計算根拠を確認できます。`;
-  }, [breakdown, weights]);
   
   return (
     <div 
