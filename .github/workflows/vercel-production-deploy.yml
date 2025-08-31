@@ -197,20 +197,24 @@ jobs:
           DOMAIN_EMOJI="${{ steps.test-domain.outputs.domain_status == 'success' && '✅' || '⚠️' }}"
           DOMAIN_TEXT="${{ steps.test-domain.outputs.domain_status == 'success' && 'Ready' || 'Propagating' }}"
           
-          COMMENT_BODY="🚀 **Production Deployment Successful**
-
-**Deployment Details:**
-- 🔗 Deployment URL: $DEPLOYMENT_URL
-- 🆔 Vercel ID: \`${VERCEL_ID:-'N/A'}\`
-- 📝 Commit: \`${{ github.sha }}\`
-- 🌐 Domain Status: $DOMAIN_EMOJI $DOMAIN_TEXT
-- ⏰ Deployed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-
-**Production URLs:**
-- 🌍 [suptia.com](https://suptia.com)
-- 🌍 [www.suptia.com](https://www.suptia.com)
-
-The production environment has been successfully updated!"
+          cat > comment_body.txt << 'EOF'
+          🚀 Production Deployment Successful
+          
+          Deployment Details:
+          - 🔗 Deployment URL: $DEPLOYMENT_URL
+          - 🆔 Vercel ID: `${VERCEL_ID:-'N/A'}`
+          - 📝 Commit: `${{ github.sha }}`
+          - 🌐 Domain Status: $DOMAIN_EMOJI $DOMAIN_TEXT
+          - ⏰ Deployed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          
+          Production URLs:
+          - 🌍 [suptia.com](https://suptia.com)
+          - 🌍 [www.suptia.com](https://www.suptia.com)
+          
+          The production environment has been successfully updated!
+          EOF
+          
+          COMMENT_BODY=$(cat comment_body.txt)
           
           if [ -n "$LATEST_PR" ]; then
             gh pr comment $LATEST_PR --body "$COMMENT_BODY" || echo "Could not add comment to PR"
@@ -219,12 +223,12 @@ The production environment has been successfully updated!"
           fi
           
           # Deployment summary
-          echo "## 🚀 Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ✅ Successful" >> $GITHUB_STEP_SUMMARY
-          echo "- **Deployment URL**: $DEPLOYMENT_URL" >> $GITHUB_STEP_SUMMARY
-          echo "- **Domain Status**: $DOMAIN_EMOJI $DOMAIN_TEXT" >> $GITHUB_STEP_SUMMARY
-          echo "- **Vercel ID**: \`${VERCEL_ID:-'N/A'}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ✅ Successful" >> $GITHUB_STEP_SUMMARY
+          echo "- Deployment URL: $DEPLOYMENT_URL" >> $GITHUB_STEP_SUMMARY
+          echo "- Domain Status: $DOMAIN_EMOJI $DOMAIN_TEXT" >> $GITHUB_STEP_SUMMARY
+          echo "- Vercel ID: \`${VERCEL_ID:-'N/A'}\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Auto Recovery Attempt
         if: failure()
@@ -263,38 +267,7 @@ The production environment has been successfully updated!"
           # Create an issue for deployment failure
           gh issue create \
             --title "🚨 Production Deployment Failed - $(date '+%Y-%m-%d %H:%M')" \
-            --body "**Production deployment failed**
-
-**Details:**
-- Workflow: ${{ github.workflow }}
-- Run ID: ${{ github.run_id }}
-- Commit: \`${{ github.sha }}\`
-- Branch: \`${{ github.ref_name }}\`
-- Auto Recovery: ${{ steps.auto-recovery.outputs.recovery_status || 'Not attempted' }}
-
-**Action Required:**
-1. Check workflow logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-2. Run diagnostics: \`node scripts/diagnose-vercel-project.mjs\`
-3. Verify environment variables: \`node scripts/verify-env-variables.mjs\`
-4. Check domain configuration: \`node scripts/verify-custom-domain.mjs\`
-5. Manual deployment: \`vercel --prod\`
-
-**Troubleshooting Commands:**
-\`\`\`bash
-# 診断実行
-node scripts/diagnose-vercel-project.mjs
-
-# 環境変数確認
-node scripts/verify-env-variables.mjs
-
-# ドメイン確認
-node scripts/verify-custom-domain.mjs
-
-# 手動デプロイ
-vercel --prod
-\`\`\`
-
-**Logs:** Available in workflow artifacts" \
+            --body "Production deployment failed. Check workflow logs for details." \
             --label "deployment,production,urgent,auto-recovery-failed" \
             --assignee "${{ github.actor }}" || echo "Could not create issue"
 
