@@ -2,91 +2,34 @@
 
 ## 概要
 
-- **実行日時**: 2025-08-26T14:24:34.091Z
-- **総テスト数**: 10
-- **成功**: 3
-- **失敗**: 0
+- **実行日時**: 2025-09-04T00:53:29.724Z
+- **総テスト数**: 9
+- **成功**: 1
+- **失敗**: 1
 - **スキップ**: 7
 
 ## テスト結果詳細
 
-### ✅ mcp_config_exists
+### ❌ mcp_config_exists
 
-- **ステータス**: passed
-- **メッセージ**: vercel-mcp設定が正しく存在する
-- **実行時刻**: 2025-08-26T14:24:34.094Z
-
-**詳細**:
-```json
-{
-  "config": {
-    "_comment": "Vercel REST API連携専用の軽量MCP",
-    "_comment_use_case": "デプロイメント監視、プロジェクト管理、ドメイン設定、環境変数管理",
-    "_comment_features": "listDeployments, getDeployment, getProject, listDomains, addDomain, envList, envSet",
-    "_baseUrl": "https://api.vercel.com",
-    "_auto_approve_rationale": "読み取り系は自動承認、書き込み系（addDomain/envSet）は手動承認必須",
-    "command": "uvx",
-    "args": [
-      "mcp-vercel-api@latest"
-    ],
-    "env": {
-      "VERCEL_TOKEN": "${VERCEL_TOKEN}"
-    },
-    "disabled": false,
-    "autoApprove": [
-      "listDeployments",
-      "getDeployment",
-      "getProject",
-      "listDomains",
-      "envList"
-    ]
-  }
-}
-```
-
-### ✅ auto_approve_config
-
-- **ステータス**: passed
-- **メッセージ**: 自動承認設定が正しい
-- **実行時刻**: 2025-08-26T14:24:34.094Z
-
-**詳細**:
-```json
-{
-  "expected": [
-    "listDeployments",
-    "getDeployment",
-    "getProject",
-    "listDomains",
-    "envList"
-  ],
-  "actual": [
-    "listDeployments",
-    "getDeployment",
-    "getProject",
-    "listDomains",
-    "envList"
-  ],
-  "manualApproveRequired": [
-    "addDomain",
-    "envSet"
-  ]
-}
-```
+- **ステータス**: failed
+- **メッセージ**: vercel-mcp設定が見つからない
+- **実行時刻**: 2025-09-04T00:53:29.729Z
 
 ### ✅ domain_whitelist_updated
 
 - **ステータス**: passed
 - **メッセージ**: api.vercel.com がドメインホワイトリストに追加済み
-- **実行時刻**: 2025-08-26T14:24:34.094Z
+- **実行時刻**: 2025-09-04T00:53:29.729Z
 
 ### ⏭️ listDeployments
 
 - **ステータス**: skipped
 - **メッセージ**: MCPサーバー未実装のためスキップ
-- **実行時刻**: 2025-08-26T14:24:34.094Z
+- **実行時刻**: 2025-09-04T00:53:29.729Z
 
 **詳細**:
+
 ```json
 {
   "expectedBehavior": "プロジェクトのデプロイメント一覧を取得",
@@ -98,9 +41,10 @@
 
 - **ステータス**: skipped
 - **メッセージ**: MCPサーバー未実装のためスキップ
-- **実行時刻**: 2025-08-26T14:24:34.094Z
+- **実行時刻**: 2025-09-04T00:53:29.729Z
 
 **詳細**:
+
 ```json
 {
   "expectedBehavior": "プロジェクト詳細情報を取得",
@@ -112,9 +56,10 @@
 
 - **ステータス**: skipped
 - **メッセージ**: MCPサーバー未実装のためスキップ
-- **実行時刻**: 2025-08-26T14:24:34.094Z
+- **実行時刻**: 2025-09-04T00:53:29.730Z
 
 **詳細**:
+
 ```json
 {
   "expectedBehavior": "プロジェクトのドメイン一覧を取得",
@@ -126,9 +71,10 @@
 
 - **ステータス**: skipped
 - **メッセージ**: MCPサーバー未実装のためスキップ
-- **実行時刻**: 2025-08-26T14:24:34.095Z
+- **実行時刻**: 2025-09-04T00:53:29.730Z
 
 **詳細**:
+
 ```json
 {
   "expectedBehavior": "環境変数一覧を取得",
@@ -140,9 +86,10 @@
 
 - **ステータス**: skipped
 - **メッセージ**: MCPサーバー未実装のためスキップ
-- **実行時刻**: 2025-08-26T14:24:34.095Z
+- **実行時刻**: 2025-09-04T00:53:29.730Z
 
 **詳細**:
+
 ```json
 {
   "expectedBehavior": "401 Unauthorized エラーを適切にハンドリング",
@@ -154,9 +101,10 @@
 
 - **ステータス**: skipped
 - **メッセージ**: MCPサーバー未実装のためスキップ
-- **実行時刻**: 2025-08-26T14:24:34.095Z
+- **実行時刻**: 2025-09-04T00:53:29.730Z
 
 **詳細**:
+
 ```json
 {
   "expectedBehavior": "403 Forbidden エラーを適切にハンドリング",
@@ -168,9 +116,10 @@
 
 - **ステータス**: skipped
 - **メッセージ**: MCPサーバー未実装のためスキップ
-- **実行時刻**: 2025-08-26T14:24:34.095Z
+- **実行時刻**: 2025-09-04T00:53:29.730Z
 
 **詳細**:
+
 ```json
 {
   "expectedBehavior": "429 Too Many Requests エラーを適切にハンドリング",
@@ -188,7 +137,7 @@
 
 2. **エラーハンドリングの強化**
    - 認証エラー (401) の適切な処理
-   - 権限エラー (403) の適切な処理  
+   - 権限エラー (403) の適切な処理
    - レート制限エラー (429) の適切な処理
 
 3. **環境変数の設定**
@@ -203,4 +152,4 @@
 
 ---
 
-*このレポートは自動生成されました。*
+_このレポートは自動生成されました。_

@@ -11,9 +11,9 @@
   }
   
   body {
-    background: linear-gradient(to bottom right, #f9fafb, #dbeafe);
+    background: #ffffff;
     min-height: 100vh;
-    color: #111827;
+    color: #0a0a0a;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -28,51 +28,50 @@
 @layer components {
   /* レガシーボタンスタイル（既存コンポーネントとの互換性のため） */
   .btn-primary {
-    background: linear-gradient(to right, #2563eb, #1d4ed8);
-    color: white;
+    background: #0f1115;
+    color: #fff;
     font-weight: 600;
     padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-radius: 9999px;
+    border: 1px solid rgba(0,0,0,0.9);
     transform: translateY(0);
-    transition: all 0.2s;
+    transition: transform .2s ease, background .2s ease, border-color .2s ease;
   }
-  
+
   .btn-primary:hover {
-    background: linear-gradient(to right, #1d4ed8, #1e40af);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    transform: translateY(-0.125rem);
+    background: #000;
+    border-color: #000;
+    transform: translateY(-1px);
   }
   
   .btn-secondary {
-    background: white;
-    color: #374151;
+    background: #fff;
+    color: #0f1115;
     font-weight: 600;
     padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border-radius: 9999px;
+    border: 1px solid rgba(15,17,21,0.15);
     transform: translateY(0);
-    transition: all 0.2s;
+    transition: transform .2s ease, border-color .2s ease, background .2s ease;
   }
-  
+
   .btn-secondary:hover {
-    background: #f9fafb;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    transform: translateY(-0.125rem);
+    background: #f7f7f8;
+    border-color: rgba(15,17,21,0.25);
+    transform: translateY(-1px);
   }
   
   /* レガシーカードスタイル（既存コンポーネントとの互換性のため） */
   .card {
-    background: white;
+    background: #fff;
     border-radius: 1rem;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    border: 1px solid #f3f4f6;
-    transition: all 0.3s;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 0 0 0 transparent;
+    transition: border-color .2s ease;
   }
-  
+
   .card:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-color: #d1d5db;
   }
   
   .card-hover:hover {
@@ -95,12 +94,10 @@
 
   /* 近未来的なグラデーションテキスト */
   .gradient-text {
-    background: linear-gradient(to right, #2563eb, #3b82f6, #10b981);
-    background-size: 200% 200%;
+    background: linear-gradient(90deg, #000, #3f3f46);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
-    animation: gradientShift 3s ease-in-out infinite;
   }
 
   /* スタイリッシュなシャドウ */
@@ -155,10 +152,26 @@
   }
   
   .bg-grid-pattern {
-    background-image: 
-      linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
-    background-size: 30px 30px;
+    background-image: linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .link-underline {
+    position: relative;
+  }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.2;
+    transition: opacity .2s ease;
+  }
+  .link-underline:hover::after {
+    opacity: 0.5;
   }
 
   /* スムーズなスクロール遷移 */

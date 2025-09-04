@@ -87,21 +87,8 @@ export default async function Home() {
   return (
     <div className='min-h-screen scroll-smooth'>
       {/* Hero Section - ファーストビュー */}
-      <section className='relative overflow-hidden min-h-screen flex items-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100'>
-        {/* 近未来的な背景パターン */}
-        <div className='absolute inset-0 bg-grid-pattern opacity-5'></div>
-        <div className='absolute inset-0 bg-gradient-to-r from-primary-500/5 via-transparent to-secondary-500/5'></div>
-
-        {/* 動的な背景要素 */}
-        <div className='absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-primary-400/20 to-primary-600/20 rounded-full blur-xl animate-pulse-gentle'></div>
-        <div
-          className='absolute bottom-20 right-10 w-24 h-24 bg-gradient-to-br from-secondary-400/20 to-secondary-600/20 rounded-full blur-xl animate-pulse-gentle'
-          style={{ animationDelay: '1s' }}
-        ></div>
-        <div
-          className='absolute top-1/3 right-1/4 w-16 h-16 bg-gradient-to-br from-indigo-400/20 to-purple-600/20 rounded-full blur-lg animate-bounce-gentle'
-          style={{ animationDelay: '2s' }}
-        ></div>
+      <section className='relative overflow-hidden min-h-screen flex items-center'>
+        {/* minimal hero without decorative blobs */}
 
         <div className='relative container mx-auto px-4 py-20'>
           <div className='text-center max-w-5xl mx-auto'>

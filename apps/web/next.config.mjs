@@ -41,7 +41,8 @@ const nextConfig = {
   
   // パフォーマンス最適化
   experimental: {
-    optimizePackageImports: ['@sanity/client', 'groq', 'clsx', 'tailwind-merge'],
+    // Avoid conflicts with serverComponentsExternalPackages; do not include '@sanity/client' here
+    optimizePackageImports: ['groq', 'clsx', 'tailwind-merge'],
     turbo: {
       rules: {
         '*.svg': {
