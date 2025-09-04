@@ -1,11 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#2563eb"/>
-      <stop offset="1" stop-color="#8b5cf6"/>
+    <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e40af"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0891b2"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
     </linearGradient>
   </defs>
-  <rect x="4" y="4" width="56" height="56" rx="12" fill="url(#g)"/>
-  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="34" fill="#fff">S</text>
+  
+  <!-- Blue rounded top section -->
+  <path d="M15 5 L85 5 Q95 5 95 15 L95 55 Q95 65 85 65 L15 65 Q5 65 5 55 L5 15 Q5 5 15 5 Z" fill="url(#blueGradient)"/>
+  
+  <!-- White S curve -->
+  <path d="M20 20 L70 20 Q80 20 80 30 Q80 35 75 37.5 Q80 40 80 45 Q80 55 70 55 L30 55 Q20 55 20 45 L20 40 Q20 35 25 35 L65 35 Q70 35 70 40 Q70 45 65 45 L35 45 Q30 45 30 40 Q30 35 35 35 L55 35 Q60 35 60 30 Q60 25 55 25 L25 25 Q20 25 20 30 Q20 35 25 35" fill="white"/>
+  
+  <!-- Green dot (top right) -->
+  <circle cx="85" cy="25" r="8" fill="url(#greenGradient)"/>
+  
+  <!-- Teal curved bottom section -->
+  <path d="M10 70 Q10 80 20 80 L40 80 Q50 80 50 90 Q50 100 40 100 L20 100 Q10 100 10 90 Z" fill="url(#tealGradient)"/>
+  
   <title>Suptia</title>
 </svg>
