@@ -25,7 +25,8 @@ export function generateMetadata({
   const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
   const siteUrl = getSiteUrl();
   const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
-  const imageUrl = ogImage || `${siteUrl}/og-default.jpg`;
+  // 既定OG画像はリモートプレースホルダーを使用（ローカルアセット依存を避ける）
+  const imageUrl = ogImage || `https://dummyimage.com/1200x630/2563eb/ffffff.png&text=Suptia`;
 
   return {
     title: fullTitle,
@@ -111,7 +112,7 @@ export function generateProductJsonLd(product: ProductSEOData) {
       availability: "https://schema.org/InStock",
       url: `${getSiteUrl()}/products/${product.slug}`,
     },
-    image: product.images?.[0] || `${getSiteUrl()}/product-placeholder.jpg`,
+    image: product.images?.[0] || `https://dummyimage.com/800x600/eeeeee/888888.png&text=Product`,
     url: `${getSiteUrl()}/products/${product.slug}`,
   };
 }

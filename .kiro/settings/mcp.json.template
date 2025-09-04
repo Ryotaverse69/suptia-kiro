@@ -10,12 +10,7 @@
         "http-first"
       ],
       "disabled": false,
-      "autoApprove": [
-        "list_workspace_schemas",
-        "create_document",
-        "get_schema",
-        "query_documents"
-      ]
+      "autoApprove": []
     },
     "github": {
       "command": "docker",

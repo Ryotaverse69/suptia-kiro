@@ -8,6 +8,7 @@ describe("PriceTable", () => {
     priceJPY: 3000,
     servingsPerContainer: 60,
     servingsPerDay: 2,
+    ingredients: [{ amountMgPerServing: 500 }, { amountMgPerServing: 300 }],
   };
 
   it("正常な商品データで価格テーブルを表示する", () => {
@@ -25,11 +26,31 @@ describe("PriceTable", () => {
     expect(screen.getByText("実効コスト/日")).toBeInTheDocument();
     expect(screen.getByText("￥100")).toBeInTheDocument(); // (3000/60)*2 = 100
 
+    // 合計mg/日 と 円/mg・日
+    expect(screen.getByText("合計mg/日")).toBeInTheDocument();
+    expect(screen.getByText(/mg\/日$/)).toBeInTheDocument();
+    expect(screen.getByText("円/mg・日")).toBeInTheDocument();
+
     expect(screen.getByText("継続日数")).toBeInTheDocument();
     expect(screen.getByText("30日")).toBeInTheDocument(); // 60/2 = 30
 
     expect(screen.getByText("1回あたりコスト")).toBeInTheDocument();
     expect(screen.getByText("￥50")).toBeInTheDocument(); // 3000/60 = 50
+  });
+
+  it("成分データがない場合は合計mg/日がデータ不足、円/mg・日は計算不可", () => {
+    const product = {
+      name: "No Ing Product",
+      priceJPY: 3000,
+      servingsPerContainer: 60,
+      servingsPerDay: 2,
+    } as any;
+
+    render(<PriceTable product={product} />);
+
+    expect(screen.getByText("合計mg/日")).toBeInTheDocument();
+    expect(screen.getByText("データ不足")).toBeInTheDocument();
+    expect(screen.getAllByText("計算不可").length).toBeGreaterThan(0);
   });
 
   it("計算エラー時にエラーメッセージを表示する", () => {

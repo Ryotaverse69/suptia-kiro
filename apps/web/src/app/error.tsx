@@ -14,28 +14,63 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-        <div className="text-6xl mb-4">⚠️</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          エラーが発生しました
-        </h2>
-        <p className="text-gray-600 mb-6">
-          申し訳ございません。予期しないエラーが発生しました。
-        </p>
-        <div className="space-y-3">
-          <button
-            onClick={reset}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            再試行
-          </button>
-          <a
-            href="/"
-            className="block w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-          >
-            ホームに戻る
-          </a>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center px-4">
+      <div className="max-w-md w-full text-center">
+        <div className="card p-8">
+          {/* Error Icon */}
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl">⚠️</span>
+          </div>
+
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            エラーが発生しました
+          </h2>
+
+          <p className="text-gray-600 mb-6 leading-relaxed">
+            申し訳ございません。予期しないエラーが発生しました。
+            しばらく時間をおいてから再度お試しください。
+          </p>
+
+          {/* Error details for development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="bg-gray-100 rounded-lg p-4 mb-6 text-left">
+              <h3 className="font-semibold text-gray-900 mb-2">開発者情報:</h3>
+              <p className="text-sm text-gray-700 font-mono break-all">
+                {error.message}
+              </p>
+              {error.digest && (
+                <p className="text-xs text-gray-500 mt-2">
+                  Digest: {error.digest}
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <button
+              onClick={reset}
+              className="btn-primary w-full"
+            >
+              🔄 再試行
+            </button>
+
+            <a
+              href="/"
+              className="btn-secondary w-full block"
+            >
+              🏠 ホームに戻る
+            </a>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <p className="text-sm text-gray-500">
+              問題が続く場合は、
+              <a href="/contact" className="text-primary-600 hover:text-primary-800 underline">
+                お問い合わせ
+              </a>
+              ください。
+            </p>
+          </div>
         </div>
       </div>
     </div>

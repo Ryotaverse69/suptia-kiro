@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { WarningBanner, type WarningType, type WarningSeverity } from "./WarningBanner";
+import { WarningBanner } from "./WarningBanner";
+
+type WarningType = 'compliance' | 'persona';
+type WarningSeverity = 'low' | 'medium' | 'high';
 import { checkText, type ComplianceResult } from "../lib/compliance";
 import { checkPersonaRules, type PersonaCheckResult } from "../lib/persona-rules";
 
@@ -83,7 +86,7 @@ export function PersonaWarnings({
 
       // 並行してコンプライアンスチェックとペルソナチェックを実行
       const [complianceResult, personaResult] = await Promise.all([
-        checkText(productText).catch(error => {
+        Promise.resolve(checkText(productText)).catch(error => {
           console.error('Compliance check failed:', error);
           return { hasViolations: false, violations: [] };
         }),
@@ -140,15 +143,15 @@ export function PersonaWarnings({
     if (warningState.complianceWarnings.hasViolations) {
       warningState.complianceWarnings.violations.forEach((violation, index) => {
         const warningId = `compliance-${index}`;
-        
+
         if (!warningState.dismissedWarnings.has(warningId)) {
           warnings.push({
             id: warningId,
             type: 'compliance',
-            severity: mapComplianceSeverity(violation.severity),
+            severity: 'medium' as const,
             message: `「${violation.originalText}」という表現について注意が必要です`,
             suggestion: violation.suggestedText,
-            priority: getSeverityPriority(mapComplianceSeverity(violation.severity))
+            priority: getSeverityPriority('medium')
           });
         }
       });
@@ -158,7 +161,7 @@ export function PersonaWarnings({
     if (warningState.personaWarnings.hasWarnings) {
       warningState.personaWarnings.warnings.forEach((warning, index) => {
         const warningId = `persona-${warning.ruleId}-${index}`;
-        
+
         if (!warningState.dismissedWarnings.has(warningId)) {
           warnings.push({
             id: warningId,
@@ -205,16 +208,58 @@ export function PersonaWarnings({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {combinedWarnings.map((warning) => (
+      {/* コンプライアンス警告 */}
+      {warningState.complianceWarnings.hasViolations && (
         <WarningBanner
-          key={warning.id}
-          type={warning.type}
-          severity={warning.severity}
-          message={warning.message}
-          suggestion={warning.suggestion}
-          onDismiss={() => handleWarningDismiss(warning.id)}
+          violations={warningState.complianceWarnings.violations}
+          onDismiss={() => {
+            warningState.complianceWarnings.violations.forEach((_, index) => {
+              handleWarningDismiss(`compliance-${index}`);
+            });
+          }}
         />
-      ))}
+      )}
+
+      {/* ペルソナ警告（個別表示） */}
+      {combinedWarnings
+        .filter(warning => warning.type === 'persona')
+        .map((warning) => {
+          const style = warning.severity === 'high'
+            ? { wrap: 'bg-red-50 border-red-200', icon: 'text-red-400', title: 'text-red-800', text: 'text-red-700' }
+            : warning.severity === 'medium'
+              ? { wrap: 'bg-yellow-50 border-yellow-200', icon: 'text-yellow-400', title: 'text-yellow-800', text: 'text-yellow-700' }
+              : { wrap: 'bg-blue-50 border-blue-200', icon: 'text-blue-400', title: 'text-blue-800', text: 'text-blue-700' };
+          return (
+          <div key={warning.id} className={`rounded-lg p-4 border ${style.wrap}`}>
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className={`h-5 w-5 ${style.icon}`} viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3 flex-1">
+                <h3 className={`text-sm font-medium ${style.title}`}>
+                  ペルソナ警告
+                </h3>
+                <div className={`mt-2 text-sm ${style.text}`}>
+                  <p>{warning.message}</p>
+                  {warning.suggestion && (
+                    <p className="mt-1 font-medium">推奨: {warning.suggestion}</p>
+                  )}
+                </div>
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    className={`text-sm font-medium ${style.title} hover:opacity-80`}
+                    onClick={() => handleWarningDismiss(warning.id)}
+                  >
+                    非表示にする
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );})}
     </div>
   );
 }

@@ -1,41 +1,43 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse, NextRequest } from 'next/server';
 
-// Generate a per-request nonce and attach CSP header in production
+function generateNonce(): string {
+  // Use Web Crypto API in middleware (Edge runtime compatible)
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  // Base64-url encode
+  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
 export function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
-  // Generate a cryptographically-strong nonce
-  const nonce = crypto.randomUUID().replace(/-/g, "");
+  const nonce = generateNonce();
+  res.headers.set('x-nonce', nonce);
 
-  // Propagate the nonce to the application via request header
-  const requestHeaders = new Headers(req.headers);
-  requestHeaders.set("x-nonce", nonce);
+  // Strict CSP with dynamic nonce for inline scripts (JSON-LD etc.)
+  const csp = [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}'`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' https://cdn.sanity.io data:",
+    "connect-src 'self' https://*.sanity.io",
+    "font-src 'self' data:",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    'upgrade-insecure-requests',
+  ].join('; ');
 
-  // Recreate response with modified request headers
-  const nextRes = NextResponse.next({ request: { headers: requestHeaders } });
+  res.headers.set('Content-Security-Policy', csp);
+  res.headers.set('X-Content-Type-Options', 'nosniff');
+  res.headers.set('X-Frame-Options', 'DENY');
+  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
-  // Expose nonce for debugging/usage if needed
-  nextRes.headers.set("x-nonce", nonce);
-
-  // Attach CSP only in production; dev is handled by next.config.mjs
-  if (process.env.NODE_ENV === "production") {
-    const csp = [
-      "default-src 'self'",
-      "img-src 'self' https://cdn.sanity.io data:",
-      "connect-src 'self' https://*.sanity.io",
-      "style-src 'self' 'unsafe-inline'",
-      "font-src 'self' data:",
-      // Allow only scripts with the generated nonce
-      `script-src 'self' 'nonce-${nonce}'`,
-      "upgrade-insecure-requests",
-    ].join("; ");
-
-    nextRes.headers.set("Content-Security-Policy", csp);
-  }
-
-  return nextRes;
+  return res;
 }
 
 export const config = {
-  matcher: ["/:path*"],
+  matcher: '/:path*',
 };
+

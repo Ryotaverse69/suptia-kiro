@@ -74,30 +74,30 @@ interface ProgressBarProps {
   isAnimated?: boolean;
 }
 
-const ProgressBar = memo(function ProgressBar({ 
-  value, 
-  max = 100, 
-  className = '', 
+const ProgressBar = memo(function ProgressBar({
+  value,
+  max = 100,
+  className = '',
   'aria-label': ariaLabel,
   'aria-describedby': ariaDescribedBy,
   isAnimated = true
 }: ProgressBarProps) {
-  const percentage = useMemo(() => 
-    Math.min(100, Math.max(0, (value / max) * 100)), 
+  const percentage = useMemo(() =>
+    Math.min(100, Math.max(0, (value / max) * 100)),
     [value, max]
   );
-  
+
   const colorClass = useMemo(() => getScoreColorClass(value), [value]);
-  
+
   const progressBarColor = useMemo(() => {
     if (colorClass.includes('green')) return 'bg-green-500';
     if (colorClass.includes('blue')) return 'bg-blue-500';
     if (colorClass.includes('yellow')) return 'bg-yellow-500';
     return 'bg-red-500';
   }, [colorClass]);
-  
+
   return (
-    <div 
+    <div
       className={`w-full bg-gray-200 rounded-full h-3 ${className}`}
       role="group"
       aria-label="スコア表示"
@@ -127,7 +127,7 @@ interface SkeletonProps {
 
 const Skeleton = memo(function Skeleton({ className = '', 'aria-label': ariaLabel }: SkeletonProps) {
   return (
-    <div 
+    <div
       className={`animate-pulse bg-gray-300 rounded ${className}`}
       role="status"
       aria-label={ariaLabel || "読み込み中"}
@@ -147,24 +147,24 @@ const ScoreDisplaySkeleton = memo(function ScoreDisplaySkeleton({ className = ''
       <div className="p-6 border-b border-gray-200">
         <div className="text-center">
           <Skeleton className="h-6 w-24 mx-auto mb-4" aria-label="総合スコアタイトル読み込み中" />
-          
+
           {/* 大きなスコア表示スケルトン */}
           <div className="mb-4">
             <Skeleton className="h-16 w-32 mx-auto rounded-full" aria-label="総合スコア値読み込み中" />
             <Skeleton className="h-4 w-16 mx-auto mt-2" aria-label="スコアレベル読み込み中" />
           </div>
-          
+
           {/* 総合スコアプログレスバースケルトン */}
           <div className="max-w-md mx-auto">
             <Skeleton className="h-4 w-full rounded-full" aria-label="総合スコアプログレスバー読み込み中" />
           </div>
         </div>
       </div>
-      
+
       {/* 個別スコア表示スケルトン */}
       <div className="p-6">
         <Skeleton className="h-5 w-32 mb-4" aria-label="要素別スコアタイトル読み込み中" />
-        
+
         <div className="space-y-3">
           {[1, 2, 3, 4].map((index) => (
             <div key={index} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg border border-gray-200">
@@ -172,15 +172,15 @@ const ScoreDisplaySkeleton = memo(function ScoreDisplaySkeleton({ className = ''
                 <Skeleton className="h-4 w-20 mb-1" aria-label={`要素${index}名読み込み中`} />
                 <Skeleton className="h-3 w-16" aria-label={`要素${index}重み読み込み中`} />
               </div>
-              
+
               <div className="flex-shrink-0">
                 <Skeleton className="h-6 w-12 rounded-full" aria-label={`要素${index}スコア読み込み中`} />
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <Skeleton className="h-3 w-full rounded-full" aria-label={`要素${index}プログレスバー読み込み中`} />
               </div>
-              
+
               <div className="sm:max-w-xs">
                 <Skeleton className="h-3 w-full" aria-label={`要素${index}説明読み込み中`} />
               </div>
@@ -188,7 +188,7 @@ const ScoreDisplaySkeleton = memo(function ScoreDisplaySkeleton({ className = ''
           ))}
         </div>
       </div>
-      
+
       <span className="sr-only">スコアを計算しています。しばらくお待ちください。</span>
     </div>
   );
@@ -205,20 +205,20 @@ interface IndividualScoreProps {
   index: number;
 }
 
-const IndividualScore = memo(function IndividualScore({ 
-  label, 
-  score, 
-  weight, 
-  description, 
-  index 
+const IndividualScore = memo(function IndividualScore({
+  label,
+  score,
+  weight,
+  description,
+  index
 }: IndividualScoreProps) {
   const colorClass = useMemo(() => getScoreColorClass(score), [score]);
   const weightPercentage = useMemo(() => Math.round(weight * 100), [weight]);
   const scoreLevel = useMemo(() => getScoreLevel(score), [score]);
-  
+
   const descriptionId = `score-description-${index}`;
   const scoreId = `score-value-${index}`;
-  
+
   const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
     // Enterキーまたはスペースキーで詳細にフォーカス
     if (event.key === 'Enter' || event.key === ' ') {
@@ -229,9 +229,9 @@ const IndividualScore = memo(function IndividualScore({
       }
     }
   }, []);
-  
+
   return (
-    <div 
+    <div
       className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg border border-gray-200 hover:border-gray-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-colors"
       role="group"
       aria-labelledby={scoreId}
@@ -248,26 +248,26 @@ const IndividualScore = memo(function IndividualScore({
           重み {weightPercentage}%
         </div>
       </div>
-      
+
       {/* スコア値 */}
       <div className="flex-shrink-0">
-        <span 
+        <span
           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${colorClass}`}
           aria-label={`${label}スコア ${score.toFixed(1)}点、評価レベル ${scoreLevel}`}
         >
           {score.toFixed(1)}
         </span>
       </div>
-      
+
       {/* プログレスバー */}
       <div className="flex-1 min-w-0">
-        <ProgressBar 
-          value={score} 
+        <ProgressBar
+          value={score}
           aria-label={`${label}スコア: ${score.toFixed(1)}/100、評価レベル: ${scoreLevel}`}
           aria-describedby={description ? descriptionId : undefined}
         />
       </div>
-      
+
       {/* 説明（モバイルでは折りたたみ） */}
       {description && (
         <div id={descriptionId} className="text-sm text-gray-600 sm:max-w-xs">
@@ -287,19 +287,19 @@ interface MissingDataWarningProps {
 
 const MissingDataWarning = memo(function MissingDataWarning({ missingData }: MissingDataWarningProps) {
   if (missingData.length === 0) return null;
-  
+
   return (
-    <div 
+    <div
       className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4"
       role="alert"
       aria-labelledby="missing-data-title"
     >
       <div className="flex items-start">
         <div className="flex-shrink-0">
-          <svg 
-            className="h-5 w-5 text-yellow-400" 
-            viewBox="0 0 20 20" 
-            fill="currentColor" 
+          <svg
+            className="h-5 w-5 text-yellow-400"
+            viewBox="0 0 20 20"
+            fill="currentColor"
             aria-hidden="true"
             role="img"
             aria-label="警告アイコン"
@@ -335,17 +335,17 @@ interface ErrorDisplayProps {
 
 const ErrorDisplay = memo(function ErrorDisplay({ error, onRetry }: ErrorDisplayProps) {
   return (
-    <div 
+    <div
       className="bg-red-50 border border-red-200 rounded-lg p-4"
       role="alert"
       aria-labelledby="error-title"
     >
       <div className="flex items-start">
         <div className="flex-shrink-0">
-          <svg 
-            className="h-5 w-5 text-red-400" 
-            viewBox="0 0 20 20" 
-            fill="currentColor" 
+          <svg
+            className="h-5 w-5 text-red-400"
+            viewBox="0 0 20 20"
+            fill="currentColor"
             aria-hidden="true"
             role="img"
             aria-label="エラーアイコン"
@@ -385,18 +385,13 @@ const ErrorDisplay = memo(function ErrorDisplay({ error, onRetry }: ErrorDisplay
  * 
  * 要件1.3, 4.1, 4.2, 4.4, 6.4に対応
  */
-export const ScoreDisplay = memo(function ScoreDisplay({ 
-  scoreResult, 
-  showBreakdown = false, 
+export const ScoreDisplay = memo(function ScoreDisplay({
+  scoreResult,
+  showBreakdown = false,
   className = '',
   isLoading = false,
   error = null
 }: ScoreDisplayProps) {
-  // ローディング状態の表示
-  if (isLoading) {
-    return <ScoreDisplaySkeleton className={className} />;
-  }
-  
   // Hooksは条件分岐の前に呼び出す必要があるため、
   // scoreResult が無い場合に備えてデフォルト値を用意する
   const total = scoreResult?.total ?? 0;
@@ -421,15 +416,15 @@ export const ScoreDisplay = memo(function ScoreDisplay({
     components,
     colors: {
       excellent: 'text-green-600 bg-green-100',
-      good: 'text-blue-600 bg-blue-100', 
+      good: 'text-blue-600 bg-blue-100',
       fair: 'text-yellow-600 bg-yellow-100',
       poor: 'text-red-600 bg-red-100'
     }
   }), [total, components]);
-  
+
   const totalColorClass = useMemo(() => getScoreColorClass(total), [total]);
   const totalLevel = useMemo(() => getScoreLevel(total), [total]);
-  
+
   // スクリーンリーダー用の詳細説明
   const screenReaderSummary = useMemo(() => {
     const summary = `商品の総合スコアは${total.toFixed(1)}点（${totalLevel}）です。` +
@@ -437,13 +432,18 @@ export const ScoreDisplay = memo(function ScoreDisplay({
       `安全性${components.safety.toFixed(1)}点（重み${Math.round(weights.safety * 100)}%）、` +
       `コスト${components.cost.toFixed(1)}点（重み${Math.round(weights.cost * 100)}%）、` +
       `実用性${components.practicality.toFixed(1)}点（重み${Math.round(weights.practicality * 100)}%）。`;
-    
+
     if (!isComplete && missingData.length > 0) {
       return summary + `データ不足項目：${missingData.join('、')}`;
     }
-    
+
     return summary;
   }, [total, totalLevel, components, weights, isComplete, missingData]);
+
+  // ローディング状態の表示
+  if (isLoading) {
+    return <ScoreDisplaySkeleton className={className} />;
+  }
 
   // エラー状態の表示
   if (error) {
@@ -453,7 +453,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
       </div>
     );
   }
-  
+
   // スコア結果がない場合
   if (!scoreResult) {
     return (
@@ -464,9 +464,9 @@ export const ScoreDisplay = memo(function ScoreDisplay({
       </div>
     );
   }
-  
+
   return (
-    <div 
+    <div
       className={`bg-white rounded-lg border border-gray-200 shadow-sm ${className}`}
       role="region"
       aria-labelledby="score-display-title"
@@ -478,17 +478,17 @@ export const ScoreDisplay = memo(function ScoreDisplay({
           <MissingDataWarning missingData={missingData} />
         </div>
       )}
-      
+
       {/* 総合スコア表示 */}
       <div className="p-6 border-b border-gray-200">
         <div className="text-center">
           <h3 id="score-display-title" className="text-lg font-semibold text-gray-900 mb-2">
             総合スコア
           </h3>
-          
+
           {/* 大きなスコア表示 */}
           <div className="mb-4">
-            <div 
+            <div
               className={`inline-flex items-center px-6 py-3 rounded-full text-3xl font-bold ${totalColorClass}`}
               role="img"
               aria-label={`総合スコア ${total.toFixed(1)}点、評価レベル ${totalLevel}`}
@@ -500,11 +500,11 @@ export const ScoreDisplay = memo(function ScoreDisplay({
               {totalLevel}
             </div>
           </div>
-          
+
           {/* 総合スコアプログレスバー */}
           <div className="max-w-md mx-auto">
-            <ProgressBar 
-              value={total} 
+            <ProgressBar
+              value={total}
               className="h-4"
               aria-label={`総合スコア: ${total.toFixed(1)}/100 (${totalLevel})`}
               aria-describedby="score-display-summary"
@@ -512,13 +512,13 @@ export const ScoreDisplay = memo(function ScoreDisplay({
           </div>
         </div>
       </div>
-      
+
       {/* 個別スコア表示 */}
       <div className="p-6">
         <h4 className="text-md font-semibold text-gray-900 mb-4">
           要素別スコア
         </h4>
-        
+
         <div className="space-y-3" role="list" aria-label="要素別スコア一覧">
           <div role="listitem">
             <IndividualScore
@@ -529,7 +529,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
               index={0}
             />
           </div>
-          
+
           <div role="listitem">
             <IndividualScore
               label="安全性"
@@ -539,7 +539,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
               index={1}
             />
           </div>
-          
+
           <div role="listitem">
             <IndividualScore
               label="コスト"
@@ -549,7 +549,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
               index={2}
             />
           </div>
-          
+
           <div role="listitem">
             <IndividualScore
               label="実用性"
@@ -560,7 +560,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
             />
           </div>
         </div>
-        
+
         {/* 詳細表示の切り替えヒント */}
         {!showBreakdown && (
           <div className="mt-4 text-center">
@@ -570,7 +570,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
           </div>
         )}
       </div>
-      
+
       {/* アクセシビリティ用の隠しテキスト */}
       <div id="score-display-summary" className="sr-only">
         <p>{screenReaderSummary}</p>

@@ -50,19 +50,6 @@
         "read_text_file"
       ]
     },
-    "web-search": {
-      "command": "uvx",
-      "args": [
-        "mcp-web-search@0.1.0"
-      ],
-      "disabled": true,
-      "autoApprove": [
-        "search",
-        "web_search",
-        "search_with_sources",
-        "get_page_content"
-      ]
-    },
     "brave-search": {
       "command": "uvx",
       "args": [
@@ -77,23 +64,6 @@
         "web_search",
         "news_search",
         "brave_web_search"
-      ]
-    },
-    "vercel-mcp": {
-      "command": "uvx",
-      "args": [
-        "mcp-vercel-api@latest"
-      ],
-      "env": {
-        "VERCEL_TOKEN": "${VERCEL_TOKEN}"
-      },
-      "disabled": false,
-      "autoApprove": [
-        "listDeployments",
-        "getDeployment",
-        "getProject",
-        "listDomains",
-        "envList"
       ]
     },
     "database": {

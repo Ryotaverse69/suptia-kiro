@@ -1,0 +1,154 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "clear": "Clear",
+    "apply": "Apply",
+    "reset": "Reset"
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About Suptia",
+    "ingredients": "Ingredient Guide",
+    "compare": "Popular Comparisons",
+    "mypage": "My Page",
+    "contact": "Contact",
+    "diagnosis": "Diagnosis",
+    "products": "Products"
+  },
+  "header": {
+    "logo": "Suptia",
+    "tagline": "Find the best supplements for you at the lowest prices.",
+    "language": "Language",
+    "currency": "Currency"
+  },
+  "footer": {
+    "about": "About Suptia",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "disclaimer": "Disclaimer",
+    "contact": "Contact"
+  },
+  "search": {
+    "placeholder": "Search supplements...",
+    "aiRecommendation": "AI Recommendation",
+    "popularSupplements": "Popular Supplements",
+    "noResults": "No search results found",
+    "searchResults": "Search Results"
+  },
+  "diagnosis": {
+    "title": "Find Your Perfect Supplement",
+    "subtitle": "Answer simple questions to discover supplements tailored for you",
+    "purpose": "Purpose",
+    "constitution": "Constitution",
+    "lifestyle": "Lifestyle",
+    "startDiagnosis": "Start Diagnosis",
+    "nextQuestion": "Next Question",
+    "previousQuestion": "Previous Question",
+    "complete": "Complete Diagnosis",
+    "results": "Diagnosis Results",
+    "totalScore": "Total Score",
+    "evidenceScore": "Evidence Score",
+    "safetyScore": "Safety Score",
+    "costScore": "Cost Score",
+    "practicalityScore": "Practicality Score",
+    "costPerDay": "Effective Cost/Day",
+    "dangerAlert": "Danger Alert"
+  },
+  "product": {
+    "details": "Product Details",
+    "ingredients": "Ingredients",
+    "amount": "Amount",
+    "dailyValue": "Daily Value",
+    "priceComparison": "Price Comparison",
+    "normalizedPrice": "Normalized Price (per mg/day)",
+    "priceHistory": "Price History",
+    "safetyInfo": "Safety Information",
+    "interactions": "Interactions",
+    "contraindications": "Contraindications",
+    "research": "Research",
+    "reviews": "Reviews",
+    "addToFavorites": "Add to Favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "outOfStock": "Out of Stock",
+    "inStock": "In Stock"
+  },
+  "comparison": {
+    "title": "Product Comparison",
+    "addProduct": "Add Product",
+    "removeProduct": "Remove Product",
+    "compareProducts": "Compare Products",
+    "noProductsSelected": "Please select products to compare",
+    "maxProductsReached": "You can compare up to {max} products"
+  },
+  "ingredients": {
+    "guide": "Ingredient Guide",
+    "categories": "Categories",
+    "vitamins": "Vitamins",
+    "minerals": "Minerals",
+    "herbs": "Herbs",
+    "aminoAcids": "Amino Acids",
+    "purposes": "By Purpose",
+    "fatigue": "Fatigue Recovery",
+    "beauty": "Beauty",
+    "immunity": "Immunity",
+    "forms": "Forms",
+    "tablet": "Tablet",
+    "capsule": "Capsule",
+    "powder": "Powder",
+    "liquid": "Liquid"
+  },
+  "mypage": {
+    "title": "My Page",
+    "favorites": "Favorites",
+    "history": "Diagnosis History",
+    "alerts": "Price Alerts",
+    "premium": "Premium Member",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "alerts": {
+    "title": "Price Alerts",
+    "create": "Create Alert",
+    "targetPrice": "Target Price",
+    "currentPrice": "Current Price",
+    "notification": "Notification Settings",
+    "email": "Email Notification",
+    "push": "Push Notification"
+  },
+  "currency": {
+    "jpy": "Yen",
+    "usd": "Dollar",
+    "symbol": {
+      "JPY": "¥",
+      "USD": "$"
+    }
+  },
+  "date": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "serverError": "Server error occurred",
+    "networkError": "Network error occurred",
+    "validationError": "Input validation error",
+    "unauthorized": "Authentication required",
+    "forbidden": "Access denied"
+  }
+}

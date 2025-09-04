@@ -106,14 +106,14 @@ function getScoreIcon(score: number): JSX.Element {
 const FactorDisplay = memo(function FactorDisplay({ factor, showContribution = true }: FactorDisplayProps) {
   const contribution = useMemo(() => factor.value * factor.weight, [factor.value, factor.weight]);
   const weightPercentage = useMemo(() => Math.round(factor.weight * 100), [factor.weight]);
-  
-  const factorId = useMemo(() => 
-    `factor-${factor.name.toLowerCase().replace(/\s+/g, '-')}`, 
+
+  const factorId = useMemo(() =>
+    `factor-${factor.name.toLowerCase().replace(/\s+/g, '-')}`,
     [factor.name]
   );
-  
+
   return (
-    <div 
+    <div
       className="bg-gray-50 rounded-lg p-4 border border-gray-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-colors"
       role="group"
       aria-labelledby={`${factorId}-title`}
@@ -128,9 +128,9 @@ const FactorDisplay = memo(function FactorDisplay({ factor, showContribution = t
             {factor.description}
           </p>
         </div>
-        
+
         <div className="flex-shrink-0 ml-4 text-right">
-          <div 
+          <div
             className="text-lg font-semibold text-gray-900"
             aria-label={`${factor.name}の値: ${factor.value.toFixed(1)}点`}
           >
@@ -141,7 +141,7 @@ const FactorDisplay = memo(function FactorDisplay({ factor, showContribution = t
           </div>
         </div>
       </div>
-      
+
       {/* 重み付け貢献度の可視化 */}
       {showContribution && factor.weight < 1.0 && (
         <div className="mt-3">
@@ -174,26 +174,26 @@ const FactorDisplay = memo(function FactorDisplay({ factor, showContribution = t
  * 
  * 各スコア要素の詳細を展開/折りたたみ可能な形式で表示します
  */
-const CollapsibleSection = memo(function CollapsibleSection({ 
-  title, 
-  score, 
-  weight, 
-  defaultExpanded = false, 
+const CollapsibleSection = memo(function CollapsibleSection({
+  title,
+  score,
+  weight,
+  defaultExpanded = false,
   children,
   sectionId
 }: CollapsibleSectionProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  
+
   const colorClass = useMemo(() => getScoreColorClass(score), [score]);
   const scoreIcon = useMemo(() => getScoreIcon(score), [score]);
   const weightPercentage = useMemo(() => Math.round(weight * 100), [weight]);
-  
+
   const toggleExpanded = useCallback(() => {
     setIsExpanded(prev => !prev);
   }, []);
-  
+
   const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
     switch (event.key) {
       case 'Enter':
@@ -221,7 +221,7 @@ const CollapsibleSection = memo(function CollapsibleSection({
         break;
     }
   }, [isExpanded, toggleExpanded]);
-  
+
   // 展開状態が変わった時のアナウンス
   useEffect(() => {
     if (isExpanded) {
@@ -233,13 +233,13 @@ const CollapsibleSection = memo(function CollapsibleSection({
       liveRegion.className = 'sr-only';
       liveRegion.textContent = announcement;
       document.body.appendChild(liveRegion);
-      
+
       setTimeout(() => {
         document.body.removeChild(liveRegion);
       }, 1000);
     }
   }, [isExpanded, title]);
-  
+
   return (
     <div className={`border rounded-lg ${colorClass} transition-all duration-200`}>
       {/* ヘッダー（クリック可能） */}
@@ -264,10 +264,10 @@ const CollapsibleSection = memo(function CollapsibleSection({
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-3">
             <div className="text-right">
-              <div 
+              <div
                 className="text-xl font-bold"
                 aria-label={`${title}スコア: ${score.toFixed(1)}点`}
               >
@@ -277,12 +277,11 @@ const CollapsibleSection = memo(function CollapsibleSection({
                 /100
               </div>
             </div>
-            
+
             {/* 展開/折りたたみアイコン */}
             <svg
-              className={`h-5 w-5 transition-transform duration-200 ${
-                isExpanded ? 'rotate-180' : ''
-              }`}
+              className={`h-5 w-5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''
+                }`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -293,7 +292,7 @@ const CollapsibleSection = memo(function CollapsibleSection({
           </div>
         </div>
       </button>
-      
+
       {/* 展開可能コンテンツ */}
       {isExpanded && (
         <div
@@ -333,18 +332,18 @@ interface SingleScoreBreakdownProps {
   sectionId: string;
 }
 
-const SingleScoreBreakdown = memo(function SingleScoreBreakdown({ 
-  title, 
-  breakdown, 
-  weight, 
+const SingleScoreBreakdown = memo(function SingleScoreBreakdown({
+  title,
+  breakdown,
+  weight,
   defaultExpanded = false,
   sectionId
 }: SingleScoreBreakdownProps) {
-  const hasDataIssues = useMemo(() => 
+  const hasDataIssues = useMemo(() =>
     breakdown.factors.some(f => f.description.includes('エラー') || f.description.includes('不足')),
     [breakdown.factors]
   );
-  
+
   return (
     <CollapsibleSection
       title={title}
@@ -359,13 +358,13 @@ const SingleScoreBreakdown = memo(function SingleScoreBreakdown({
           {breakdown.explanation}
         </p>
       </div>
-      
+
       {/* 計算要因一覧 */}
       <div className="space-y-3">
         <h5 className="font-medium text-gray-900 mb-2">
           計算要因
         </h5>
-        
+
         <div role="list" aria-label={`${title}の計算要因一覧`}>
           {breakdown.factors.map((factor, index) => (
             <div key={index} role="listitem">
@@ -377,15 +376,15 @@ const SingleScoreBreakdown = memo(function SingleScoreBreakdown({
           ))}
         </div>
       </div>
-      
+
       {/* データ不足の場合の注意事項 */}
       {hasDataIssues && (
         <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg" role="alert">
           <div className="flex items-start">
-            <svg 
-              className="h-5 w-5 text-yellow-400 mt-0.5 mr-2" 
-              fill="currentColor" 
-              viewBox="0 0 20 20" 
+            <svg
+              className="h-5 w-5 text-yellow-400 mt-0.5 mr-2"
+              fill="currentColor"
+              viewBox="0 0 20 20"
               aria-hidden="true"
               role="img"
               aria-label="注意アイコン"
@@ -419,7 +418,7 @@ const ScoreBreakdownSkeleton = memo(function ScoreBreakdownSkeleton({ className 
         <div className="animate-pulse bg-gray-300 rounded h-6 w-48 mx-auto mb-2"></div>
         <div className="animate-pulse bg-gray-300 rounded h-4 w-64 mx-auto"></div>
       </div>
-      
+
       {/* セクションスケルトン */}
       {[1, 2, 3, 4].map((index) => (
         <div key={index} className="border rounded-lg p-4">
@@ -441,7 +440,7 @@ const ScoreBreakdownSkeleton = memo(function ScoreBreakdownSkeleton({ className 
           </div>
         </div>
       ))}
-      
+
       <span className="sr-only">スコア詳細分析を読み込んでいます。しばらくお待ちください。</span>
     </div>
   );
@@ -450,23 +449,23 @@ const ScoreBreakdownSkeleton = memo(function ScoreBreakdownSkeleton({ className 
 /**
  * エラー表示コンポーネント
  */
-const ScoreBreakdownError = memo(function ScoreBreakdownError({ 
-  error, 
-  onRetry 
-}: { 
-  error: string; 
-  onRetry?: () => void; 
+const ScoreBreakdownError = memo(function ScoreBreakdownError({
+  error,
+  onRetry
+}: {
+  error: string;
+  onRetry?: () => void;
 }) {
   return (
-    <div 
+    <div
       className="bg-red-50 border border-red-200 rounded-lg p-6 text-center"
       role="alert"
       aria-labelledby="breakdown-error-title"
     >
-      <svg 
-        className="h-12 w-12 text-red-400 mx-auto mb-4" 
-        fill="none" 
-        viewBox="0 0 24 24" 
+      <svg
+        className="h-12 w-12 text-red-400 mx-auto mb-4"
+        fill="none"
+        viewBox="0 0 24 24"
         stroke="currentColor"
         aria-hidden="true"
       >
@@ -499,9 +498,9 @@ const ScoreBreakdownError = memo(function ScoreBreakdownError({
  * 
  * 要件2.1, 2.2, 2.3, 2.4, 2.5, 6.1, 6.2, 6.3, 4.4, 6.4に対応
  */
-export const ScoreBreakdown = memo(function ScoreBreakdown({ 
-  breakdown, 
-  weights, 
+export const ScoreBreakdown = memo(function ScoreBreakdown({
+  breakdown,
+  weights,
   className = '',
   isLoading = false,
   error = null
@@ -520,14 +519,14 @@ export const ScoreBreakdown = memo(function ScoreBreakdown({
   if (isLoading) {
     return <ScoreBreakdownSkeleton className={className} />;
   }
-  
+
   // エラー状態の表示
   if (error) {
-    return <ScoreBreakdownError error={error} className={className} />;
+    return <ScoreBreakdownError error={error} />;
   }
-  
+
   return (
-    <div 
+    <div
       className={`space-y-4 ${className}`}
       role="region"
       aria-labelledby="score-breakdown-title"
@@ -542,7 +541,7 @@ export const ScoreBreakdown = memo(function ScoreBreakdown({
           各要素をクリックまたはEnterキーで詳細な計算根拠を確認できます
         </p>
       </div>
-      
+
       {/* 各スコア要素の詳細 */}
       <SingleScoreBreakdown
         title="エビデンス"
@@ -551,7 +550,7 @@ export const ScoreBreakdown = memo(function ScoreBreakdown({
         defaultExpanded={false}
         sectionId="evidence-breakdown"
       />
-      
+
       <SingleScoreBreakdown
         title="安全性"
         breakdown={breakdown.safety}
@@ -559,7 +558,7 @@ export const ScoreBreakdown = memo(function ScoreBreakdown({
         defaultExpanded={false}
         sectionId="safety-breakdown"
       />
-      
+
       <SingleScoreBreakdown
         title="コスト"
         breakdown={breakdown.cost}
@@ -567,7 +566,7 @@ export const ScoreBreakdown = memo(function ScoreBreakdown({
         defaultExpanded={false}
         sectionId="cost-breakdown"
       />
-      
+
       <SingleScoreBreakdown
         title="実用性"
         breakdown={breakdown.practicality}
@@ -575,9 +574,9 @@ export const ScoreBreakdown = memo(function ScoreBreakdown({
         defaultExpanded={false}
         sectionId="practicality-breakdown"
       />
-      
+
       {/* 重み設定の説明 */}
-      <div 
+      <div
         className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg"
         role="complementary"
         aria-labelledby="weight-settings-title"
@@ -615,7 +614,7 @@ export const ScoreBreakdown = memo(function ScoreBreakdown({
           </div>
         </div>
       </div>
-      
+
       {/* アクセシビリティ用の隠しテキスト */}
       <div id="score-breakdown-summary" className="sr-only">
         <p>{screenReaderSummary}</p>

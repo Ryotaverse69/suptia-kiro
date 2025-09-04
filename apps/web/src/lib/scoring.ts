@@ -503,7 +503,7 @@ export function score(product: Product, weights: ScoreWeights = DEFAULT_WEIGHTS)
 
 // ===== エクスポート =====
 
-export default {
+const scoringModule = {
   score,
   calculateEvidenceScore,
   calculateSafetyScore,
@@ -516,3 +516,5 @@ export default {
   SAFETY_LEVEL_SCORES,
   FORM_SCORES
 };
+
+export default scoringModule;

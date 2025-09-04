@@ -1,0 +1,154 @@
+{
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました",
+    "retry": "再試行",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "delete": "削除",
+    "edit": "編集",
+    "close": "閉じる",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ",
+    "search": "検索",
+    "filter": "フィルター",
+    "sort": "並び替え",
+    "clear": "クリア",
+    "apply": "適用",
+    "reset": "リセット"
+  },
+  "navigation": {
+    "home": "ホーム",
+    "about": "サプティアとは",
+    "ingredients": "成分ガイド",
+    "compare": "人気比較",
+    "mypage": "マイページ",
+    "contact": "お問い合わせ",
+    "diagnosis": "診断",
+    "products": "商品"
+  },
+  "header": {
+    "logo": "サプティア",
+    "tagline": "あなたに最も合うサプリを最も安い価格で。",
+    "language": "言語",
+    "currency": "通貨"
+  },
+  "footer": {
+    "about": "サプティアとは",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "disclaimer": "免責事項",
+    "contact": "お問い合わせ"
+  },
+  "search": {
+    "placeholder": "サプリメントを検索...",
+    "aiRecommendation": "AIレコメンド",
+    "popularSupplements": "人気のサプリメント",
+    "noResults": "検索結果が見つかりませんでした",
+    "searchResults": "検索結果"
+  },
+  "diagnosis": {
+    "title": "あなたに最適なサプリメント診断",
+    "subtitle": "簡単な質問に答えて、あなたにぴったりのサプリメントを見つけましょう",
+    "purpose": "目的",
+    "constitution": "体質",
+    "lifestyle": "ライフスタイル",
+    "startDiagnosis": "診断を開始",
+    "nextQuestion": "次の質問",
+    "previousQuestion": "前の質問",
+    "complete": "診断完了",
+    "results": "診断結果",
+    "totalScore": "総合スコア",
+    "evidenceScore": "エビデンススコア",
+    "safetyScore": "安全性スコア",
+    "costScore": "コストスコア",
+    "practicalityScore": "実用性スコア",
+    "costPerDay": "実効コスト/日",
+    "dangerAlert": "危険成分アラート"
+  },
+  "product": {
+    "details": "商品詳細",
+    "ingredients": "成分一覧",
+    "amount": "配合量",
+    "dailyValue": "1日摂取目安量",
+    "priceComparison": "価格比較",
+    "normalizedPrice": "正規化価格（mg/日あたり）",
+    "priceHistory": "価格履歴",
+    "safetyInfo": "安全性情報",
+    "interactions": "相互作用",
+    "contraindications": "禁忌",
+    "research": "研究情報",
+    "reviews": "口コミ",
+    "addToFavorites": "お気に入りに追加",
+    "removeFromFavorites": "お気に入りから削除",
+    "outOfStock": "在庫切れ",
+    "inStock": "在庫あり"
+  },
+  "comparison": {
+    "title": "商品比較",
+    "addProduct": "商品を追加",
+    "removeProduct": "商品を削除",
+    "compareProducts": "商品を比較",
+    "noProductsSelected": "比較する商品を選択してください",
+    "maxProductsReached": "最大{max}商品まで比較できます"
+  },
+  "ingredients": {
+    "guide": "成分ガイド",
+    "categories": "カテゴリ",
+    "vitamins": "ビタミン",
+    "minerals": "ミネラル",
+    "herbs": "ハーブ",
+    "aminoAcids": "アミノ酸",
+    "purposes": "目的別",
+    "fatigue": "疲労回復",
+    "beauty": "美容",
+    "immunity": "免疫",
+    "forms": "形状",
+    "tablet": "錠剤",
+    "capsule": "カプセル",
+    "powder": "粉末",
+    "liquid": "液体"
+  },
+  "mypage": {
+    "title": "マイページ",
+    "favorites": "お気に入り",
+    "history": "診断履歴",
+    "alerts": "価格アラート",
+    "premium": "プレミアム会員",
+    "settings": "設定",
+    "logout": "ログアウト"
+  },
+  "alerts": {
+    "title": "価格アラート",
+    "create": "アラートを作成",
+    "targetPrice": "目標価格",
+    "currentPrice": "現在価格",
+    "notification": "通知設定",
+    "email": "メール通知",
+    "push": "プッシュ通知"
+  },
+  "currency": {
+    "jpy": "円",
+    "usd": "ドル",
+    "symbol": {
+      "JPY": "¥",
+      "USD": "$"
+    }
+  },
+  "date": {
+    "today": "今日",
+    "yesterday": "昨日",
+    "thisWeek": "今週",
+    "thisMonth": "今月",
+    "lastMonth": "先月"
+  },
+  "errors": {
+    "notFound": "ページが見つかりません",
+    "serverError": "サーバーエラーが発生しました",
+    "networkError": "ネットワークエラーが発生しました",
+    "validationError": "入力内容に誤りがあります",
+    "unauthorized": "認証が必要です",
+    "forbidden": "アクセス権限がありません"
+  }
+}

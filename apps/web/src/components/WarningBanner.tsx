@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ComplianceViolation } from "@/lib/compliance";
 
 interface WarningBannerProps {
@@ -15,6 +15,23 @@ export function WarningBanner({
   className = "",
 }: WarningBannerProps) {
   const [isDismissed, setIsDismissed] = useState(false);
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+  const prevFocusedRef = useRef<Element | null>(null);
+
+  useEffect(() => {
+    // 保存: バナー表示前のフォーカス要素
+    prevFocusedRef.current = document.activeElement;
+    // Escで閉じる
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleDismiss();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (violations.length === 0 || isDismissed) {
     return null;
@@ -23,16 +40,15 @@ export function WarningBanner({
   const handleDismiss = () => {
     setIsDismissed(true);
     onDismiss?.();
+    // フォーカス返却
+    const prev = prevFocusedRef.current as HTMLElement | null;
+    if (prev && typeof prev.focus === 'function') {
+      // 次のフレームで返却（DOM更新後）
+      requestAnimationFrame(() => prev.focus());
+    }
   };
 
-  // Sort violations by severity (high -> medium -> low)
-  const sortedViolations = [...violations].sort((a, b) => {
-    const severityOrder = { high: 3, medium: 2, low: 1 };
-    return (
-      (severityOrder[b.pattern as keyof typeof severityOrder] || 0) -
-      (severityOrder[a.pattern as keyof typeof severityOrder] || 0)
-    );
-  });
+  const sortedViolations = violations; // No severity info; keep original order
 
   return (
     <div
@@ -84,6 +100,7 @@ export function WarningBanner({
               onClick={handleDismiss}
               className="inline-flex bg-yellow-50 rounded-md p-1.5 text-yellow-500 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-yellow-50 focus:ring-yellow-600"
               aria-label="警告を閉じる"
+              ref={closeBtnRef}
             >
               <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path

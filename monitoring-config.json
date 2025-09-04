@@ -1,0 +1,298 @@
+{
+  "monitoring": {
+    "enabled": true,
+    "version": "1.0.0",
+    "lastUpdated": "2025-01-26T00:00:00Z"
+  },
+  
+  "domains": {
+    "primary": {
+      "domain": "suptia.com",
+      "protocol": "https",
+      "expectedStatus": 200,
+      "maxResponseTime": 5000,
+      "sslRequired": true,
+      "monitoring": {
+        "enabled": true,
+        "checkInterval": 300,
+        "alertThresholds": {
+          "responseTime": 5000,
+          "sslExpiryDays": 30,
+          "consecutiveFailures": 3
+        }
+      }
+    },
+    
+    "www": {
+      "domain": "www.suptia.com",
+      "protocol": "https",
+      "expectedStatus": 301,
+      "redirectTarget": "https://suptia.com",
+      "maxResponseTime": 3000,
+      "sslRequired": true,
+      "monitoring": {
+        "enabled": true,
+        "checkInterval": 300,
+        "alertThresholds": {
+          "responseTime": 3000,
+          "sslExpiryDays": 30,
+          "consecutiveFailures": 3
+        }
+      }
+    },
+    
+    "legacy": {
+      "domain": "suptia-kiro.vercel.app",
+      "protocol": "https",
+      "expectedStatus": 301,
+      "redirectTarget": "https://suptia.com",
+      "maxResponseTime": 3000,
+      "sslRequired": true,
+      "monitoring": {
+        "enabled": true,
+        "checkInterval": 600,
+        "alertThresholds": {
+          "responseTime": 5000,
+          "consecutiveFailures": 5
+        }
+      }
+    }
+  },
+  
+  "healthChecks": {
+    "endpoints": [
+      {
+        "name": "Health API",
+        "url": "https://suptia.com/api/health",
+        "method": "GET",
+        "expectedStatus": 200,
+        "timeout": 10000,
+        "checkInterval": 300,
+        "alertOnFailure": true
+      },
+      {
+        "name": "Domain Health API",
+        "url": "https://suptia.com/api/monitoring/domain-health",
+        "method": "GET",
+        "expectedStatus": 200,
+        "timeout": 15000,
+        "checkInterval": 600,
+        "alertOnFailure": true
+      }
+    ]
+  },
+  
+  "ssl": {
+    "monitoring": {
+      "enabled": true,
+      "checkInterval": 86400,
+      "alertThresholds": {
+        "expiryWarningDays": 30,
+        "expiryCriticalDays": 7
+      }
+    },
+    
+    "certificates": [
+      {
+        "domain": "suptia.com",
+        "port": 443,
+        "expectedIssuer": "Let's Encrypt",
+        "monitoring": true
+      },
+      {
+        "domain": "www.suptia.com",
+        "port": 443,
+        "expectedIssuer": "Let's Encrypt",
+        "monitoring": true
+      }
+    ]
+  },
+  
+  "dns": {
+    "monitoring": {
+      "enabled": true,
+      "checkInterval": 3600,
+      "resolvers": [
+        "8.8.8.8",
+        "1.1.1.1",
+        "208.67.222.222"
+      ]
+    },
+    
+    "records": [
+      {
+        "domain": "suptia.com",
+        "type": "A",
+        "expectedValues": ["vercel-ip-range"],
+        "monitoring": true
+      },
+      {
+        "domain": "www.suptia.com",
+        "type": "CNAME",
+        "expectedValues": ["cname.vercel-dns.com"],
+        "monitoring": true
+      }
+    ]
+  },
+  
+  "performance": {
+    "monitoring": {
+      "enabled": true,
+      "checkInterval": 300,
+      "metrics": [
+        "responseTime",
+        "ttfb",
+        "domContentLoaded",
+        "loadComplete"
+      ]
+    },
+    
+    "thresholds": {
+      "responseTime": {
+        "good": 1000,
+        "warning": 3000,
+        "critical": 5000
+      },
+      "ttfb": {
+        "good": 200,
+        "warning": 500,
+        "critical": 1000
+      },
+      "availability": {
+        "warning": 99.0,
+        "critical": 95.0
+      }
+    }
+  },
+  
+  "alerts": {
+    "channels": {
+      "console": {
+        "enabled": true,
+        "minSeverity": "info"
+      },
+      
+      "webhook": {
+        "enabled": false,
+        "url": "${ALERT_WEBHOOK_URL}",
+        "minSeverity": "warning",
+        "timeout": 10000,
+        "retries": 3
+      },
+      
+      "slack": {
+        "enabled": false,
+        "webhookUrl": "${SLACK_WEBHOOK_URL}",
+        "channel": "#alerts",
+        "minSeverity": "warning",
+        "timeout": 10000
+      },
+      
+      "email": {
+        "enabled": false,
+        "smtp": {
+          "host": "${SMTP_HOST}",
+          "port": "${SMTP_PORT}",
+          "secure": true,
+          "auth": {
+            "user": "${SMTP_USER}",
+            "pass": "${SMTP_PASS}"
+          }
+        },
+        "from": "${ALERT_EMAIL_FROM}",
+        "to": ["${ALERT_EMAIL_TO}"],
+        "minSeverity": "critical"
+      },
+      
+      "github": {
+        "enabled": true,
+        "createIssues": true,
+        "minSeverity": "critical",
+        "labels": ["domain-health", "automated"]
+      }
+    },
+    
+    "suppression": {
+      "enabled": true,
+      "cooldownMinutes": 30,
+      "maxAlertsPerHour": 10,
+      "rules": [
+        {
+          "type": "ssl_expiry",
+          "cooldownMinutes": 1440
+        },
+        {
+          "type": "consecutive_failures",
+          "cooldownMinutes": 60
+        }
+      ]
+    }
+  },
+  
+  "reporting": {
+    "enabled": true,
+    "formats": ["json", "html", "markdown"],
+    "schedule": {
+      "daily": "0 9 * * *",
+      "weekly": "0 9 * * 1",
+      "monthly": "0 9 1 * *"
+    },
+    
+    "metrics": {
+      "uptime": true,
+      "responseTime": true,
+      "sslStatus": true,
+      "alertSummary": true,
+      "performanceTrends": true
+    },
+    
+    "retention": {
+      "rawData": "7d",
+      "aggregatedData": "90d",
+      "reports": "365d"
+    }
+  },
+  
+  "integrations": {
+    "vercel": {
+      "enabled": true,
+      "projectId": "${VERCEL_PROJECT_ID}",
+      "teamId": "${VERCEL_TEAM_ID}",
+      "monitoring": {
+        "deployments": true,
+        "functions": true,
+        "domains": true
+      }
+    },
+    
+    "github": {
+      "enabled": true,
+      "repository": "${GITHUB_REPOSITORY}",
+      "actions": {
+        "createIssues": true,
+        "updateStatus": true,
+        "triggerWorkflows": false
+      }
+    }
+  },
+  
+  "maintenance": {
+    "logRotation": {
+      "enabled": true,
+      "maxSize": "100MB",
+      "maxFiles": 10,
+      "compress": true
+    },
+    
+    "dataCleanup": {
+      "enabled": true,
+      "schedule": "0 2 * * *",
+      "retentionDays": 30
+    },
+    
+    "healthCheck": {
+      "selfMonitoring": true,
+      "alertOnMonitoringFailure": true
+    }
+  }
+}

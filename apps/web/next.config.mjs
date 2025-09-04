@@ -15,14 +15,115 @@ function buildDevCSP() {
   return policies.join("; ");
 }
 
+// Optional: GA4/gtm snippet can be injected conditionally in layout when NEXT_PUBLIC_GA_ID is present.
+// Keep disabled by default to maintain a strict CSP (no inline scripts without nonce).
+
 const nextConfig = {
+  // 画像最適化設定
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "cdn.sanity.io",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 365, // 1年
+    dangerouslyAllowSVG: false,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+  
+  // パフォーマンス最適化
+  experimental: {
+    optimizePackageImports: ['@sanity/client', 'groq', 'clsx', 'tailwind-merge'],
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+    // 本番環境でのパフォーマンス最適化
+    serverComponentsExternalPackages: ['@sanity/client'],
+    optimizeCss: true,
+    scrollRestoration: true,
+  },
+  
+  // 本番環境設定
+  productionBrowserSourceMaps: false,
+  reactStrictMode: true,
+  swcMinify: true,
+  
+  // バンドル最適化
+  webpack: (config, { dev, isServer }) => {
+    // プロダクションビルドでのバンドル最適化
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            enforce: true,
+          },
+        },
+      };
+    }
+    
+    return config;
+  },
+  
+  // 静的最適化
+  trailingSlash: false,
+  poweredByHeader: false,
+  compress: true,
+  
+  // 本番環境でのリダイレクト設定
+  async redirects() {
+    return [
+      // www なしにリダイレクト
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.suptia.com',
+          },
+        ],
+        destination: 'https://suptia.com/:path*',
+        permanent: true,
+      },
+      // 旧URLからの移行
+      {
+        source: '/supplement/:slug',
+        destination: '/products/:slug',
+        permanent: true,
+      },
+    ];
+  },
+  
+  // 本番環境でのリライト設定
+  async rewrites() {
+    return [
+      // API プロキシ（必要に応じて）
+      {
+        source: '/api/proxy/:path*',
+        destination: 'https://api.suptia.com/:path*',
+      },
+    ];
   },
   async headers() {
     const isDev = process.env.NODE_ENV === "development";
@@ -40,6 +141,7 @@ const nextConfig = {
                 },
               ]
             : []),
+          // Production CSP is applied via Edge middleware with per-request nonce
           {
             key: "X-Content-Type-Options",
             value: "nosniff",

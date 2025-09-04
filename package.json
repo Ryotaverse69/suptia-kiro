@@ -58,6 +58,16 @@
     "preview:diagnose": "node scripts/diagnose-vercel-preview.mjs",
     "preview:get": "node scripts/get-preview-url.mjs",
     "preview:test": "node scripts/test-vercel-preview-workflow.mjs",
+    "monitor:start": "node scripts/start-monitoring.mjs start",
+    "monitor:test": "node scripts/start-monitoring.mjs test",
+    "monitor:report": "node scripts/start-monitoring.mjs report",
+    "monitor:health": "node scripts/monitor-domain-health.mjs check",
+    "monitor:health:continuous": "node scripts/monitor-domain-health.mjs monitor",
+    "monitor:health:report": "node scripts/monitor-domain-health.mjs report",
+    "alert:test": "node scripts/alert-manager.mjs test",
+    "alert:report": "node scripts/alert-manager.mjs report",
+    "domain:check": "npm run monitor:health",
+    "domain:monitor": "npm run monitor:start",
     "prepare": "husky || true"
   },
   "devDependencies": {

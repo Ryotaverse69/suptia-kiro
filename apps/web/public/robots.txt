@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://suptia.com/sitemap.xml
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /mypage/
+
+# Allow specific API endpoints for SEO
+Allow: /api/health
+
+# Crawl delay
+Crawl-delay: 1

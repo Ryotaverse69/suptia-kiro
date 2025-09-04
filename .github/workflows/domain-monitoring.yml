@@ -1,0 +1,351 @@
+name: Domain Health Monitoring
+
+on:
+  schedule:
+    # 5分間隔で実行
+    - cron: '*/5 * * * *'
+  
+  # 手動実行も可能
+  workflow_dispatch:
+    inputs:
+      check_type:
+        description: 'Type of check to run'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - ssl_only
+          - dns_only
+          - redirects_only
+      
+      alert_enabled:
+        description: 'Send alerts if issues found'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  domain-health-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          # OpenSSLツールのインストール（SSL証明書チェック用）
+          sudo apt-get update
+          sudo apt-get install -y openssl curl
+      
+      - name: Run domain health check
+        id: health_check
+        run: |
+          echo "Running domain health monitoring..."
+          
+          # ヘルスチェック実行
+          node scripts/monitor-domain-health.mjs check > health_result.json
+          
+          # 結果をGitHub Actionsの出力に設定
+          echo "health_result<<EOF" >> $GITHUB_OUTPUT
+          cat health_result.json >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # ステータス判定
+          if grep -q '"status":"critical"' health_result.json; then
+            echo "status=critical" >> $GITHUB_OUTPUT
+            echo "Critical issues detected in domain health check"
+            exit 1
+          elif grep -q '"status":"warning"' health_result.json; then
+            echo "status=warning" >> $GITHUB_OUTPUT
+            echo "Warnings detected in domain health check"
+          else
+            echo "status=healthy" >> $GITHUB_OUTPUT
+            echo "Domain health check passed"
+          fi
+        env:
+          NODE_ENV: production
+      
+      - name: Parse health check results
+        id: parse_results
+        run: |
+          # 結果の解析とサマリー生成
+          node -e "
+            const fs = require('fs');
+            const result = JSON.parse(fs.readFileSync('health_result.json', 'utf8'));
+            
+            console.log('Health Check Summary:');
+            console.log('===================');
+            console.log('Timestamp:', result.timestamp);
+            console.log('Overall Status:', result.summary?.critical > 0 ? 'CRITICAL' : 
+                                        result.summary?.warning > 0 ? 'WARNING' : 'HEALTHY');
+            console.log('Total Checks:', result.summary?.total || 0);
+            console.log('Healthy:', result.summary?.healthy || 0);
+            console.log('Warnings:', result.summary?.warning || 0);
+            console.log('Critical:', result.summary?.critical || 0);
+            
+            // ドメイン別結果
+            if (result.checks) {
+              console.log('\\nDomain Results:');
+              Object.entries(result.checks).forEach(([domain, check]) => {
+                if (typeof check === 'object' && check.status) {
+                  const statusIcon = check.status === 'healthy' ? '✅' : 
+                                   check.status === 'warning' ? '⚠️' : '❌';
+                  console.log(\`  \${statusIcon} \${domain}: \${check.status}\`);
+                }
+              });
+            }
+            
+            // アラート情報
+            if (result.alerts && result.alerts.length > 0) {
+              console.log('\\nAlerts Generated:');
+              result.alerts.forEach(alert => {
+                const severityIcon = alert.severity === 'critical' ? '🔴' : '🟡';
+                console.log(\`  \${severityIcon} \${alert.type}: \${alert.message}\`);
+              });
+            }
+          "
+      
+      - name: Send alerts if issues detected
+        if: steps.health_check.outputs.status != 'healthy' && (github.event.inputs.alert_enabled != 'false')
+        run: |
+          echo "Sending alerts for detected issues..."
+          
+          # アラート送信
+          if [ -f health_result.json ]; then
+            # 結果からアラートを抽出して送信
+            node -e "
+              const fs = require('fs');
+              const result = JSON.parse(fs.readFileSync('health_result.json', 'utf8'));
+              
+              if (result.alerts && result.alerts.length > 0) {
+                result.alerts.forEach(alert => {
+                  console.log('Sending alert:', JSON.stringify(alert, null, 2));
+                  // アラート送信スクリプトを呼び出し
+                  require('child_process').execSync(
+                    \`node scripts/alert-manager.mjs send '\${JSON.stringify(alert)}'\`,
+                    { stdio: 'inherit' }
+                  );
+                });
+              }
+            "
+          fi
+        env:
+          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_CHANNEL: '#alerts'
+      
+      - name: Update monitoring dashboard
+        if: always()
+        run: |
+          echo "Updating monitoring dashboard..."
+          
+          # 監視結果をVercelの環境変数やデータベースに保存
+          # （実装は本番環境の要件に応じて調整）
+          
+          if [ -f health_result.json ]; then
+            echo "Health check result saved for dashboard"
+            
+            # 結果をアーティファクトとして保存
+            mkdir -p monitoring-results
+            cp health_result.json monitoring-results/health-$(date +%Y%m%d-%H%M%S).json
+          fi
+      
+      - name: Upload monitoring results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: domain-health-results-${{ github.run_number }}
+          path: |
+            health_result.json
+            monitoring-results/
+          retention-days: 7
+      
+      - name: Create issue on critical failure
+        if: steps.health_check.outputs.status == 'critical'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let healthResult = {};
+            try {
+              healthResult = JSON.parse(fs.readFileSync('health_result.json', 'utf8'));
+            } catch (error) {
+              console.log('Could not parse health result:', error.message);
+            }
+            
+            const title = `🚨 Critical Domain Health Issue Detected - ${new Date().toISOString()}`;
+            
+            let body = `## Critical Domain Health Alert
+            
+            **Timestamp:** ${healthResult.timestamp || new Date().toISOString()}
+            **Workflow Run:** [#${context.runNumber}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            
+            ### Summary
+            `;
+            
+            if (healthResult.summary) {
+              body += `
+            - **Total Checks:** ${healthResult.summary.total}
+            - **Healthy:** ${healthResult.summary.healthy}
+            - **Warnings:** ${healthResult.summary.warning}
+            - **Critical:** ${healthResult.summary.critical}
+            `;
+            }
+            
+            if (healthResult.alerts && healthResult.alerts.length > 0) {
+              body += `
+            ### Alerts Generated
+            `;
+              healthResult.alerts.forEach(alert => {
+                const severityIcon = alert.severity === 'critical' ? '🔴' : '🟡';
+                body += `
+            ${severityIcon} **${alert.type}** (${alert.severity})
+            - Domain: ${alert.domain || 'N/A'}
+            - Message: ${alert.message}
+            `;
+                if (alert.details) {
+                  body += `- Details: \`${JSON.stringify(alert.details)}\`
+            `;
+                }
+              });
+            }
+            
+            body += `
+            ### Next Steps
+            1. Check the domain configuration in Vercel
+            2. Verify DNS settings
+            3. Check SSL certificate status
+            4. Review application logs
+            
+            ### Monitoring Dashboard
+            - [Health Check API](${process.env.NEXT_PUBLIC_SITE_URL}/api/health)
+            - [Domain Monitoring API](${process.env.NEXT_PUBLIC_SITE_URL}/api/monitoring/domain-health)
+            
+            ---
+            *This issue was automatically created by the domain monitoring workflow.*
+            `;
+            
+            // 既存の同様のissueがあるかチェック
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['domain-health', 'critical'],
+            });
+            
+            if (existingIssues.data.length === 0) {
+              // 新しいissueを作成
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['domain-health', 'critical', 'automated'],
+              });
+              
+              console.log('Critical issue created');
+            } else {
+              console.log('Critical issue already exists, skipping creation');
+            }
+        env:
+          NEXT_PUBLIC_SITE_URL: https://suptia.com
+      
+      - name: Comment on existing issues if resolved
+        if: steps.health_check.outputs.status == 'healthy'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // 解決済みの場合、既存のissueにコメントして閉じる
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['domain-health', 'critical'],
+            });
+            
+            for (const issue of existingIssues.data) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `✅ **Domain Health Restored**
+                
+                The domain health monitoring has detected that all critical issues have been resolved.
+                
+                **Timestamp:** ${new Date().toISOString()}
+                **Workflow Run:** [#${context.runNumber}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+                
+                This issue is being automatically closed.`
+              });
+              
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+                labels: [...issue.labels.map(l => l.name), 'resolved'],
+              });
+              
+              console.log(`Closed resolved issue #${issue.number}`);
+            }
+
+  # SSL証明書期限チェック（日次）
+  ssl-certificate-check:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 9 * * *' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Check SSL certificate expiry
+        run: |
+          echo "Checking SSL certificate expiry for suptia.com..."
+          
+          # SSL証明書の期限をチェック
+          EXPIRY_DATE=$(echo | openssl s_client -servername suptia.com -connect suptia.com:443 2>/dev/null | openssl x509 -noout -enddate | cut -d= -f2)
+          EXPIRY_TIMESTAMP=$(date -d "$EXPIRY_DATE" +%s)
+          CURRENT_TIMESTAMP=$(date +%s)
+          DAYS_UNTIL_EXPIRY=$(( (EXPIRY_TIMESTAMP - CURRENT_TIMESTAMP) / 86400 ))
+          
+          echo "SSL certificate expires on: $EXPIRY_DATE"
+          echo "Days until expiry: $DAYS_UNTIL_EXPIRY"
+          
+          # 30日以内に期限切れの場合はアラート
+          if [ $DAYS_UNTIL_EXPIRY -le 30 ]; then
+            echo "⚠️ SSL certificate expires in $DAYS_UNTIL_EXPIRY days!"
+            
+            # アラート送信
+            node scripts/alert-manager.mjs send "{
+              \"type\": \"ssl_expiry_warning\",
+              \"severity\": \"warning\",
+              \"domain\": \"suptia.com\",
+              \"message\": \"SSL certificate for suptia.com expires in $DAYS_UNTIL_EXPIRY days\",
+              \"details\": {
+                \"expiryDate\": \"$EXPIRY_DATE\",
+                \"daysUntilExpiry\": $DAYS_UNTIL_EXPIRY
+              }
+            }"
+            
+            exit 1
+          else
+            echo "✅ SSL certificate is valid for $DAYS_UNTIL_EXPIRY more days"
+          fi
+        env:
+          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
