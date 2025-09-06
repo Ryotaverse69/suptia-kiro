@@ -1,5 +1,7 @@
 import { useTranslation } from '@/contexts/LocaleContext';
 
+"use client";
+
 export default function IngredientCategoriesSection() {
   const { t } = useTranslation();
   const cats = [

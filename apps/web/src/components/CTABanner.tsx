@@ -1,3 +1,5 @@
+"use client";
+
 import { useTranslation } from '@/contexts/LocaleContext';
 
 export default function CTABanner() {

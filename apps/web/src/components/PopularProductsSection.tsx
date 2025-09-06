@@ -58,3 +58,4 @@ export default function PopularProductsSection({
     </section>
   );
 }
+"use client";
