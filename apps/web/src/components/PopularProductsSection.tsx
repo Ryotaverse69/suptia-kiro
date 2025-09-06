@@ -1,3 +1,5 @@
+"use client";
+
 import ProductCard from '@/components/ProductCard';
 import { calculateEffectiveCostPerDay } from '@/lib/cost';
 import { useTranslation } from '@/contexts/LocaleContext';
@@ -26,7 +28,7 @@ export default function PopularProductsSection({
         servingsPerContainer: p.servingsPerContainer,
         servingsPerDay: p.servingsPerDay,
       });
-    } catch {}
+    } catch { }
     return { ...p, costPerDay };
   });
 
@@ -58,4 +60,3 @@ export default function PopularProductsSection({
     </section>
   );
 }
-"use client";

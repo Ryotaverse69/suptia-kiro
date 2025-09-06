@@ -1,6 +1,6 @@
-import { useTranslation } from '@/contexts/LocaleContext';
-
 "use client";
+
+import { useTranslation } from '@/contexts/LocaleContext';
 
 export default function TrustIndicatorsSection() {
   const { t } = useTranslation();
