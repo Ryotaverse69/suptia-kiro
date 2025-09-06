@@ -150,5 +150,42 @@
     "validationError": "入力内容に誤りがあります",
     "unauthorized": "認証が必要です",
     "forbidden": "アクセス権限がありません"
+  },
+  "home": {
+    "actions": {
+      "compare": "商品を比較する",
+      "compareDesc": "人気商品を科学的根拠に基づいて横断比較",
+      "diagnosis": "診断して探す",
+      "diagnosisDesc": "簡単な質問に答えて最適なサプリを提案",
+      "guide": "成分ガイドを見る",
+      "guideDesc": "ビタミン・ミネラル・ハーブなどの効果と選び方"
+    },
+    "popular": {
+      "title": "人気のおすすめ",
+      "subtitle": "コスト/実効性のバランスに優れた注目商品"
+    },
+    "categories": {
+      "subtitle": "科学的根拠に基づいた成分情報で最適な選択を",
+      "vitaminsDesc": "A/C/D/E/B群の効果と選び方",
+      "mineralsDesc": "鉄/亜鉛/マグネシウムなど",
+      "herbsDesc": "アシュワガンダ/イチョウ葉など",
+      "aminoAcidsDesc": "BCAA/クレアチン/グリシンなど"
+    },
+    "trust": {
+      "title": "サプティアが選ばれる理由",
+      "safety": "安全性重視",
+      "safetyDesc": "科学的エビデンス基準",
+      "cost": "価格最適化",
+      "costDesc": "実効コスト分析",
+      "ai": "AI推奨",
+      "aiDesc": "説明可能な意思決定"
+    },
+    "cta": {
+      "titleLine1": "あなたに最適なサプリを",
+      "titleEmphasis": "見つけませんか？",
+      "subtitle": "科学的根拠に基づいた分析で、安全で効果的なサプリメントを選択しましょう。AIがあなたの目的と体質に合わせて最適な選択肢を提案します。",
+      "btnCompare": "今すぐ比較を始める",
+      "btnGuide": "成分ガイドを見る"
+    }
   }
 }

@@ -150,5 +150,42 @@
     "validationError": "Input validation error",
     "unauthorized": "Authentication required",
     "forbidden": "Access denied"
+  },
+  "home": {
+    "actions": {
+      "compare": "Compare Products",
+      "compareDesc": "Cross-compare popular items based on scientific evidence",
+      "diagnosis": "Find with Diagnosis",
+      "diagnosisDesc": "Answer simple questions to get tailored suggestions",
+      "guide": "Browse Ingredient Guide",
+      "guideDesc": "Learn effects and selection of vitamins, minerals, and herbs"
+    },
+    "popular": {
+      "title": "Popular Picks",
+      "subtitle": "Highlighted items with great cost/effectiveness balance"
+    },
+    "categories": {
+      "subtitle": "Make better choices with evidence-based ingredient info",
+      "vitaminsDesc": "Effects and selection of A/C/D/E/B",
+      "mineralsDesc": "Iron/Zinc/Magnesium and more",
+      "herbsDesc": "Ashwagandha/Ginkgo and others",
+      "aminoAcidsDesc": "BCAA/Creatine/Glycine"
+    },
+    "trust": {
+      "title": "Why Choose Suptia",
+      "safety": "Safety First",
+      "safetyDesc": "Evidence-based standards",
+      "cost": "Price Optimization",
+      "costDesc": "Effective cost analysis",
+      "ai": "AI Recommendations",
+      "aiDesc": "Explainable decision making"
+    },
+    "cta": {
+      "titleLine1": "Find your perfect supplement",
+      "titleEmphasis": "today",
+      "subtitle": "Choose safely and effectively with evidence-based analysis. AI suggests the best options for your goals and constitution.",
+      "btnCompare": "Start Comparing Now",
+      "btnGuide": "Browse Ingredient Guide"
+    }
   }
 }

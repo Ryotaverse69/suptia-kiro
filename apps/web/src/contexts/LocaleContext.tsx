@@ -9,6 +9,8 @@ import React, {
 } from 'react';
 import { BASE_CURRENCY, convertFromJPY } from '@/lib/exchange';
 import { useRouter, usePathname } from 'next/navigation';
+import jaMessages from '@/messages/ja.json';
+import enMessages from '@/messages/en.json';
 // 簡素化されたロケール設定
 const locales = ['ja', 'en'] as const;
 type Locale = (typeof locales)[number];
@@ -153,10 +155,23 @@ export function useLocale(): LocaleContextType {
 export function useTranslation() {
   const { locale } = useLocale();
 
-  // 簡易的な翻訳関数（実際のプロジェクトではnext-intlのuseTranslationsを使用）
+  // メッセージ辞書をロード（軽量な静的インポート）
+  const dict = locale === 'ja' ? jaMessages : enMessages;
+
+  const getByPath = (obj: any, path: string) => {
+    return path
+      .split('.')
+      .reduce((o, k) => (o && o[k] != null ? o[k] : undefined), obj);
+  };
+
   const t = (key: string, params?: Record<string, string | number>) => {
-    // この実装は簡易版です。実際にはnext-intlのuseTranslationsを使用してください
-    return key;
+    const template = getByPath(dict, key) ?? key;
+    if (typeof template !== 'string') return key;
+    if (!params) return template;
+    return Object.keys(params).reduce(
+      (acc, k) => acc.replace(new RegExp(`{${k}}`, 'g'), String(params[k]!)),
+      template
+    );
   };
 
   return { t, locale };
