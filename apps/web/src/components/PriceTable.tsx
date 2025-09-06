@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  calculateProductCosts,
-  formatCostPerMg,
-  formatCostJPY,
-} from '@/lib/cost';
+import { calculateProductCosts } from '@/lib/cost';
 import { useLocale } from '@/contexts/LocaleContext';
 
 export interface PriceTableProps {
@@ -19,7 +15,7 @@ export interface PriceTableProps {
 }
 
 export function PriceTable({ product, className = '' }: PriceTableProps) {
-  const { locale } = useLocale();
+  const { locale, formatPrice, formatNumber } = useLocale();
   const costResult = calculateProductCosts({
     priceJPY: product.priceJPY,
     servingsPerContainer: product.servingsPerContainer,
@@ -128,11 +124,11 @@ export function PriceTable({ product, className = '' }: PriceTableProps) {
                     className='text-green-600'
                     aria-label={
                       locale === 'ja'
-                        ? `1日あたり${formatCostJPY(effectiveCostPerDay)}`
-                        : `${formatCostJPY(effectiveCostPerDay)} per day`
+                        ? `1日あたり${formatPrice(effectiveCostPerDay)}`
+                        : `${formatPrice(effectiveCostPerDay)} per day`
                     }
                   >
-                    {formatCostJPY(effectiveCostPerDay)}
+                    {formatPrice(effectiveCostPerDay)}
                   </span>
                 )}
               </td>
@@ -148,9 +144,7 @@ export function PriceTable({ product, className = '' }: PriceTableProps) {
                         : `${totalMgPerDay} milligrams per day`
                     }
                   >
-                    {new Intl.NumberFormat(
-                      locale === 'ja' ? 'ja-JP' : 'en-US'
-                    ).format(totalMgPerDay)}
+                    {formatNumber(totalMgPerDay)}
                     mg/{t.days}
                   </span>
                 ) : (
@@ -165,11 +159,11 @@ export function PriceTable({ product, className = '' }: PriceTableProps) {
                   <span
                     aria-label={
                       locale === 'ja'
-                        ? `1mgあたり${formatCostPerMg(normalizedCost)}`
-                        : `${formatCostPerMg(normalizedCost)} per mg·day`
+                        ? `1mgあたり${formatPrice(normalizedCost)}`
+                        : `${formatPrice(normalizedCost)} per mg·day`
                     }
                   >
-                    {formatCostPerMg(normalizedCost)}
+                    {formatPrice(normalizedCost)}
                   </span>
                 ) : (
                   <span
@@ -192,7 +186,7 @@ export function PriceTable({ product, className = '' }: PriceTableProps) {
                     : `${continuationDays} days duration`
                 }
               >
-                {continuationDays}
+                {formatNumber(continuationDays)}
                 {t.days}
               </td>
             </tr>
@@ -202,11 +196,11 @@ export function PriceTable({ product, className = '' }: PriceTableProps) {
                 className='py-3 px-4 text-right font-semibold'
                 aria-label={
                   locale === 'ja'
-                    ? `1回あたり${formatCostJPY(costPerServing)}`
-                    : `${formatCostJPY(costPerServing)} per serving`
+                    ? `1回あたり${formatPrice(costPerServing)}`
+                    : `${formatPrice(costPerServing)} per serving`
                 }
               >
-                {formatCostJPY(costPerServing)}
+                {formatPrice(costPerServing)}
               </td>
             </tr>
           </tbody>

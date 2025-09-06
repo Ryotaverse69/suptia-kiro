@@ -9,10 +9,13 @@ describe('middleware security headers', () => {
     const csp = res.headers.get('Content-Security-Policy') || '';
     expect(csp).toContain("default-src 'self'");
     expect(csp).toContain("script-src 'self' 'nonce-");
+    expect(csp).toContain("object-src 'none'");
+    expect(csp).toContain("script-src-attr 'none'");
     expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff');
     expect(res.headers.get('X-Frame-Options')).toBe('DENY');
-    expect(res.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
+    expect(res.headers.get('Referrer-Policy')).toBe(
+      'strict-origin-when-cross-origin'
+    );
     expect(res.headers.get('Permissions-Policy')).toContain('camera=()');
   });
 });
-

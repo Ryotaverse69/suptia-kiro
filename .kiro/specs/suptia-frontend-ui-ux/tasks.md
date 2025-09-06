@@ -174,16 +174,59 @@
     - アクセシビリティテスト（axe-core）
     - _Requirements: 全要件_
 
-- [x] 12. 最終統合とデプロイ準備
-  - [x] 12.1 全機能の統合テスト
-    - 全ページ間のナビゲーション確認
-    - データフローの検証
-    - エラーハンドリングの確認
+- [x] 12. セキュリティとコンプライアンス対応
+  - [x] 12.1 薬機法対応の実装
+    - Sanityコンテンツの薬機法チェック機能（compliance.ts、compliance-simple.ts）
+    - コンプライアンス済みコンテンツのみ表示する仕組み（PersonaWarnings.tsx）
+    - 違反表現の自動検出とフィルタリング（tools/phrase-checker/rules.json連携）
+    - _Requirements: 9.1_
+
+  - [x] 12.2 コンテンツセキュリティの実装
+    - CSP（Content Security Policy）の設定（middleware.ts、next.config.mjs）
+    - コンテンツサニタイズ機能の実装（sanitize.ts、portable-text-sanitizer.ts）
+    - XSS攻撃対策の実装（セキュリティヘッダー、入力検証）
+    - _Requirements: 9.2_
+
+- [x] 13. パフォーマンス最適化とCore Web Vitals対応 - Task completed
+  - [x] 13.1 Core Web Vitals最適化の完全実装
+    - web-vitalsライブラリの統合とリアルタイム計測
+    - LCP最適化（画像遅延読み込み、フォント最適化）
+    - FID最適化（JavaScript分割、インタラクション最適化）
+    - CLS最適化（レイアウトシフト防止、サイズ指定）
+    - _Requirements: 9.3, 9.4, 9.5, 9.6_
+
+  - [x] 13.2 パフォーマンス監視システムの基盤実装
+    - PerformanceMonitorコンポーネントの実装
+    - monitoring-config.tsでの閾値設定
+    - 基本的なパフォーマンス計測機能
+    - _Requirements: 9.3_
+
+- [x] 14. 統合テストとE2Eテストの拡充 - Task completed
+  - [x] 14.1 重要ユーザーフローのE2Eテスト完成
+    - 商品検索から詳細表示までの完全フロー
+    - 診断システムの全ステップテスト
+    - 比較機能の操作性テスト
+    - マイページ機能の統合テスト
     - _Requirements: 全要件_
 
-  - [x] 12.2 本番環境対応
-    - 環境変数の設定
-    - SEO最適化（メタタグ、構造化データ）
-    - セキュリティ設定の確認
-    - パフォーマンス監視の設定
+  - [x] 14.2 アクセシビリティテストの強化
+    - axe-coreを使用したWCAG 2.1 AA準拠テスト
+    - キーボードナビゲーションの完全テスト
+    - スクリーンリーダー対応の検証
+    - カラーコントラスト自動チェック
+    - _Requirements: 全要件_
+
+- [x] 15. 本番環境対応と最終調整 - Task completed
+  - [x] 15.1 SEO最適化の完成
+    - 構造化データ（JSON-LD）の実装
+    - メタタグの動的生成
+    - サイトマップの自動生成
+    - robots.txtの最適化
+    - _Requirements: 全要件_
+
+  - [x] 15.2 本番デプロイ準備
+    - 環境変数の本番設定確認
+    - Vercel設定の最適化
+    - CDN設定とキャッシュ戦略
+    - 監視・アラート設定
     - _Requirements: 全要件_

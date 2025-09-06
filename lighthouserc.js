@@ -12,6 +12,11 @@ module.exports = {
         'categories:accessibility': ['error', { minScore: 0.9 }],
         'categories:best-practices': ['warn', { minScore: 0.9 }],
         'categories:seo': ['warn', { minScore: 0.9 }],
+        // Core Web Vitals thresholds
+        'largest-contentful-paint': ['error', { maxNumericValue: 2500 }], // ms
+        'cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],
+        // FID has been replaced by INP in field data; use MP-FID as a proxy in LH
+        'max-potential-fid': ['warn', { maxNumericValue: 100 }],
       },
     },
     upload: {

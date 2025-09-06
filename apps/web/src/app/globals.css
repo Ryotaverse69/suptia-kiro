@@ -18,8 +18,8 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* フォーカス時のアウトライン統一 */
-  *:focus {
+  /* フォーカス時のアウトライン統一（キーボード操作時のみ） */
+  *:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px #2563eb, 0 0 0 4px rgba(37, 99, 235, 0.1);
   }

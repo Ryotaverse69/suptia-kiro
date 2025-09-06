@@ -1,7 +1,8 @@
 import { sanity } from '@/lib/sanity.client';
-import { calculateEffectiveCostPerDay, formatCostJPY } from '@/lib/cost';
+import { calculateEffectiveCostPerDay } from '@/lib/cost';
 import { generateSEO } from '@/lib/seo-config';
 import dynamic from 'next/dynamic';
+import ClientPrice from '@/components/ClientPrice';
 
 export const metadata = generateSEO({
   title: 'サプティア - あなたに最も合うサプリを最も安い価格で',
@@ -99,13 +100,11 @@ export default async function Home() {
               </h1>
 
               {/* キャッチフレーズ - 要件1.2に準拠 */}
-              <p className='text-2xl md:text-3xl text-gray-700 mb-4 font-medium text-balance'>
-                あなたに最も合うサプリを
-              </p>
-              <p className='text-2xl md:text-3xl text-gray-700 mb-12 font-medium text-balance'>
-                <span className='gradient-text font-bold'>
-                  最も安い価格で。
-                </span>
+              <p
+                className='text-2xl md:text-3xl text-gray-700 mb-12 font-semibold text-balance'
+                data-testid='color-contrast'
+              >
+                あなたに最も合うサプリを最も安い価格で。
               </p>
 
               <HomeContent />
@@ -243,7 +242,7 @@ export default async function Home() {
                               </a>
                             </td>
                             <td className='py-6 px-6 text-gray-700 text-lg font-medium'>
-                              {formatCostJPY(product.priceJPY)}
+                              <ClientPrice amount={product.priceJPY} />
                             </td>
                             <td className='py-6 px-6'>
                               <span className='bg-gradient-to-r from-gray-100 to-gray-200 px-4 py-2 rounded-full text-sm font-medium'>
@@ -262,7 +261,10 @@ export default async function Home() {
                                 </span>
                               ) : (
                                 <span className='font-bold text-xl text-secondary-600 bg-gradient-to-r from-secondary-50 to-secondary-100 px-4 py-2 rounded-full shadow-sm'>
-                                  {formatCostJPY(effectiveCostPerDay)}
+                                  <ClientPrice
+                                    amount={effectiveCostPerDay}
+                                    ariaLabelPrefix='1日あたり'
+                                  />
                                 </span>
                               )}
                             </td>

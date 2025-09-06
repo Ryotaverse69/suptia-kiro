@@ -9,12 +9,16 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { SkipLinks } from '@/components/SkipLinks';
 import dynamic from 'next/dynamic';
+import LocaleHtmlLangSetter from '@/components/LocaleHtmlLangSetter';
 
 // パフォーマンス監視コンポーネントを動的インポート
 const PerformanceMonitor = dynamic(
   () => import('@/components/PerformanceMonitor'),
   { ssr: false }
 );
+const WebVitalsClient = dynamic(() => import('@/components/WebVitalsClient'), {
+  ssr: false,
+});
 
 export const metadata = {
   title: 'サプティア - あなたに最も合うサプリを最も安い価格で',
@@ -41,11 +45,13 @@ export const metadata = {
       { url: '/icons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
     ],
     apple: [
-      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      {
+        url: '/icons/apple-touch-icon.png',
+        sizes: '180x180',
+        type: 'image/png',
+      },
     ],
-    other: [
-      { rel: 'mask-icon', url: '/favicon.svg', color: '#3b82f6' },
-    ],
+    other: [{ rel: 'mask-icon', url: '/favicon.svg', color: '#3b82f6' }],
   },
   openGraph: {
     title: 'サプティア - あなたに最も合うサプリを最も安い価格で',
@@ -131,6 +137,19 @@ export default function RootLayout({
         <link rel='dns-prefetch' href='//fonts.googleapis.com' />
         <link rel='dns-prefetch' href='//fonts.gstatic.com' />
 
+        {/* Preconnect for performance */}
+        <link rel='preconnect' href='https://cdn.sanity.io' crossOrigin='' />
+        <link
+          rel='preconnect'
+          href='https://fonts.googleapis.com'
+          crossOrigin=''
+        />
+        <link
+          rel='preconnect'
+          href='https://fonts.gstatic.com'
+          crossOrigin=''
+        />
+
         {/* フォントのプリロードは外部CDNに依存するため一旦無効化 */}
 
         {/* Service Worker 登録 */}
@@ -160,11 +179,13 @@ export default function RootLayout({
 
         {/* Locale Provider for client-side components */}
         <LocaleProvider>
+          {/* Sync <html lang> on client with current locale */}
+          <LocaleHtmlLangSetter />
           {/* Header */}
           <Header />
 
           {/* Main Content */}
-          <main id='main-content' className='pt-16 min-h-screen'>
+          <main id='main-content' role='main' className='pt-16 min-h-screen'>
             {children}
           </main>
 
@@ -175,6 +196,7 @@ export default function RootLayout({
           {process.env.NODE_ENV === 'development' && (
             <PerformanceMonitor enableLogging={true} />
           )}
+          <WebVitalsClient />
         </LocaleProvider>
       </body>
     </html>

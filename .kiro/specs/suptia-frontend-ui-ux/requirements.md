@@ -4,6 +4,22 @@
 
 サプティアのフロントエンド全体のUI/UX構成を実装する機能です。ユーザーがサプリメントを効率的に検索・比較・選択できる包括的なWebアプリケーションを構築します。AIレコメンド機能、詳細な商品分析、個人診断機能を含む近未来的でスタイリッシュなインターフェースを提供します。
 
+### 技術スタック
+
+- Next.js 14.2.5 (App Router)
+- React 18.2.0
+- TypeScript 5
+- Tailwind CSS 4.1.12
+- Sanity CMS 3.99.0 (GROQクエリ)
+- Vitest / Playwright / ESLint / Prettier
+
+### デザイン要件
+
+- 背景色: 白ベース
+- アクセントカラー: 近未来的な青
+- フォント: Inter + Noto Sans JP
+- UIスタイル: シンプル & リッチ、スタイリッシュ
+
 ## Requirements
 
 ### Requirement 1
@@ -92,3 +108,16 @@
 1. WHEN ユーザーがフッターを確認 THEN 「サプティアとは」リンクが表示される
 2. WHEN ユーザーが法的情報を確認 THEN プライバシーポリシー・免責事項・利用規約へのリンクが表示される
 3. WHEN ユーザーがサポートを必要とする場合 THEN お問い合わせリンクが表示される
+
+### Requirement 9
+
+**User Story:** サイト運営者として、薬機法に準拠した安全なコンテンツ配信と高いパフォーマンスを維持したい
+
+#### Acceptance Criteria
+
+1. WHEN コンテンツが表示される THEN 薬機法チェック済みの表現のみがSanityから配信される
+2. WHEN ユーザーがサイトを利用 THEN コンテンツサニタイズとCSP設定により安全性が確保される
+3. WHEN サイトのパフォーマンスを測定 THEN Core Web Vitals合格基準を満たす
+4. WHEN ページが読み込まれる THEN LCP（Largest Contentful Paint）が2.5秒以下である
+5. WHEN ユーザーがインタラクション THEN FID（First Input Delay）が100ms以下である
+6. WHEN レイアウトが表示される THEN CLS（Cumulative Layout Shift）が0.1以下である
