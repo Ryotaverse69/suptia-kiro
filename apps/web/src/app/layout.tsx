@@ -126,9 +126,6 @@ export default function RootLayout({
   return (
     <html lang='ja' className='scroll-smooth'>
       <head>
-        <meta name='viewport' content='width=device-width, initial-scale=1' />
-        <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
-        <link rel='icon' href='/favicon.svg' sizes='any' type='image/svg+xml' />
         <link rel='manifest' href='/site.webmanifest' />
         <meta name='theme-color' content='#2563eb' />
 

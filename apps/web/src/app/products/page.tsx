@@ -1,5 +1,6 @@
 import { sanity } from '@/lib/sanity.client';
 import Link from 'next/link';
+import Image from 'next/image';
 import ClientPrice from '@/components/ClientPrice';
 import { calculateEffectiveCostPerDay } from '@/lib/cost';
 
@@ -233,11 +234,14 @@ export default async function ProductsIndexPage({
                 {/* Image / placeholder */}
                 <div className='mb-4'>
                   {p.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={p.imageUrl}
                       alt={p.imageAlt || p.name}
+                      width={640}
+                      height={256}
                       className='w-full h-40 object-cover rounded-lg border border-gray-100'
+                      sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
+                      priority={false}
                     />
                   ) : (
                     <div className='w-full h-40 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-4xl'>

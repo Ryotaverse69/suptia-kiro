@@ -22,10 +22,12 @@ export function middleware(req: NextRequest) {
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}'`,
     "script-src-attr 'none'",
-    "style-src 'self' 'unsafe-inline'",
+    // Allow Google Fonts stylesheets
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' https://cdn.sanity.io data:",
     "connect-src 'self' https://*.sanity.io",
-    "font-src 'self' data:",
+    // Allow Google Fonts font files
+    "font-src 'self' data: https://fonts.gstatic.com",
     "object-src 'none'",
     "frame-ancestors 'none'",
     "base-uri 'self'",
