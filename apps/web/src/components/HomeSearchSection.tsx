@@ -2,15 +2,16 @@
 
 import { useRouter } from 'next/navigation';
 import { AIRecommendationSearchBar } from '@/components/AIRecommendationSearchBar';
+import { sanitizeSearchQuery } from '@/lib/validate';
 
 export default function HomeSearchSection() {
   const router = useRouter();
 
   // 検索処理
   const handleSearch = (query: string) => {
-    if (query.trim()) {
-      // 検索結果ページへリダイレクト
-      router.push(`/products?search=${encodeURIComponent(query.trim())}`);
+    const safe = sanitizeSearchQuery(query || '');
+    if (safe) {
+      router.push(`/products?search=${encodeURIComponent(safe)}`);
     }
   };
 

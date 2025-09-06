@@ -38,7 +38,7 @@ export default function IngredientCategoriesSection() {
           <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-3'>
             <span className='gradient-text'>{t('ingredients.guide')}</span>
           </h2>
-          <p className='text-gray-600'>{t('home.categories.subtitle')}</p>
+          <p className='text-gray-700'>{t('home.categories.subtitle')}</p>
         </div>
         <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-4'>
           {cats.map(c => (
@@ -53,7 +53,7 @@ export default function IngredientCategoriesSection() {
               <h3 className='text-xl font-bold text-gray-900 mb-1'>
                 {c.label}
               </h3>
-              <p className='text-gray-600 text-sm'>{c.desc}</p>
+              <p className='text-gray-700 text-sm'>{c.desc}</p>
             </a>
           ))}
         </div>

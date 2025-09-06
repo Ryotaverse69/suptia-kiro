@@ -39,7 +39,7 @@ export default function PopularProductsSection({
           <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-3'>
             <span className='gradient-text'>{t('home.popular.title')}</span>
           </h2>
-          <p className='text-gray-600'>{t('home.popular.subtitle')}</p>
+          <p className='text-gray-700'>{t('home.popular.subtitle')}</p>
         </div>
         <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
           {enriched.map(p => (

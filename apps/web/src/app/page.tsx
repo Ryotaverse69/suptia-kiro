@@ -1,16 +1,21 @@
 import { generateSEO } from '@/lib/seo-config';
+import dynamic from 'next/dynamic';
 import HeroSection from '@/components/HeroSection';
-import HomePrimaryActions from '@/components/HomePrimaryActions';
-import PopularProductsSection from '@/components/PopularProductsSection';
-import IngredientCategoriesSection from '@/components/IngredientCategoriesSection';
-import TrustIndicatorsSection from '@/components/TrustIndicatorsSection';
-import CTABanner from '@/components/CTABanner';
+const HomePrimaryActions = dynamic(() => import('@/components/HomePrimaryActions'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
+const PopularProductsSection = dynamic(() => import('@/components/PopularProductsSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
+const IngredientCategoriesSection = dynamic(() => import('@/components/IngredientCategoriesSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
+const TrustIndicatorsSection = dynamic(() => import('@/components/TrustIndicatorsSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
+const CTABanner = dynamic(() => import('@/components/CTABanner'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
 
 export const metadata = generateSEO({
   title: 'サプティア - あなたに最も合うサプリを最も安い価格で',
   description:
     'AIが分析する科学的根拠に基づいたサプリメント比較サイト。成分・価格・安全性を総合評価し、あなたに最適なサプリメントを見つけます。',
   url: 'https://suptia.com',
+  keywords: [
+    'サプリメント', '比較', '価格比較', 'AI', '成分分析', '安全性', 'エビデンス',
+    'supplements', 'compare', 'price comparison', 'ingredient analysis'
+  ],
   type: 'website',
 });
 

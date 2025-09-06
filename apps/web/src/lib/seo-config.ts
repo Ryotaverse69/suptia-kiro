@@ -27,18 +27,10 @@ export const defaultSEO: SEOConfig = {
   title: 'サプティア - あなたに最も合うサプリを最も安い価格で',
   description: 'AIが分析する科学的根拠に基づいたサプリメント比較サイト。成分・価格・安全性を総合評価し、あなたに最適なサプリメントを見つけます。',
   keywords: [
-    'サプリメント',
-    '比較',
-    'AI分析',
-    '価格比較',
-    '成分分析',
-    '安全性',
-    'エビデンス',
-    'ビタミン',
-    'ミネラル',
-    '健康',
-    '栄養',
-    'サプティア'
+    'サプリメント', '比較', 'AI分析', '価格比較', '成分分析', '安全性', 'エビデンス',
+    'ビタミン', 'ミネラル', '健康', '栄養', 'サプティア',
+    // English synonyms for international SEO
+    'supplements', 'compare', 'price comparison', 'ingredient analysis', 'evidence-based', 'safety'
   ],
   image: `${env.site.url}/images/og-image.jpg`,
   url: env.site.url,
@@ -219,7 +211,7 @@ export function generateStructuredData(type: 'website' | 'product' | 'article', 
         url: env.site.url,
         potentialAction: {
           '@type': 'SearchAction',
-          target: `${env.site.url}/search?q={search_term_string}`,
+          target: `${env.site.url}/products?search={search_term_string}`,
           'query-input': 'required name=search_term_string',
         },
       };
