@@ -36,7 +36,7 @@ export default function ProductCard({
   return (
     <a
       href={href}
-      className='card p-5 hover:shadow-medium block focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-xl'
+      className='glass-effect rounded-2xl p-5 block shadow-soft hover:shadow-strong transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
     >
       <div className='mb-3'>
         {imageUrl ? (

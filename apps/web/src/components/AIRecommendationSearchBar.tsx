@@ -18,6 +18,7 @@ export interface AIRecommendationSearchBarProps {
     userContext?: UserContext;
     maxRecommendations?: number;
     enablePopularOnFocus?: boolean;
+    variant?: 'default' | 'glass';
 }
 
 export function AIRecommendationSearchBar({
@@ -28,6 +29,7 @@ export function AIRecommendationSearchBar({
     userContext,
     maxRecommendations = 5,
     enablePopularOnFocus = true,
+    variant = 'default',
 }: AIRecommendationSearchBarProps) {
     const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -108,6 +110,7 @@ export function AIRecommendationSearchBar({
                 placeholder={placeholder}
                 size={size}
                 className={className}
+                variant={variant}
             />
 
             {/* AIレコメンド状態インジケーター */}

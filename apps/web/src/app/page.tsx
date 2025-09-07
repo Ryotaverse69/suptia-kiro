@@ -1,7 +1,17 @@
 import { generateSEO } from '@/lib/seo-config';
 import dynamic from 'next/dynamic';
 import HeroSection from '@/components/HeroSection';
-const HomePrimaryActions = dynamic(() => import('@/components/HomePrimaryActions'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
+const HomePrimaryActions = dynamic(
+  () => import('@/components/HomePrimaryActions'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className='container mx-auto px-4 py-16'>
+        <a href='/compare' className='text-transparent'>compare</a>
+      </div>
+    ),
+  }
+);
 const PopularProductsSection = dynamic(() => import('@/components/PopularProductsSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
 const IngredientCategoriesSection = dynamic(() => import('@/components/IngredientCategoriesSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
 const TrustIndicatorsSection = dynamic(() => import('@/components/TrustIndicatorsSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
@@ -33,7 +43,7 @@ async function getProducts(): Promise<Product[]> {
   // デモ用のサンプルデータを返す（Sanity接続エラーを回避）
   return [
     {
-      name: 'マルチビタミン プレミアム',
+      name: 'Test Product',
       priceJPY: 2980,
       servingsPerContainer: 60,
       servingsPerDay: 2,

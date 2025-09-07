@@ -1,6 +1,20 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Home from './page';
+import { LocaleProvider } from '@/contexts/LocaleContext';
+
+// Mock Next.js app router hooks used in LocaleProvider
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  usePathname: () => '/',
+}));
 
 // Mock Sanity client
 vi.mock('@/lib/sanity.client', () => ({
@@ -24,16 +38,19 @@ beforeEach(() => {
 });
 
 describe('Home Page', () => {
-  it('renders the main heading', async () => {
+  const renderWithLocale = async () => {
     const HomeComponent = await Home();
-    render(HomeComponent);
+    return render(<LocaleProvider>{HomeComponent}</LocaleProvider>);
+  };
+
+  it('renders the main heading', async () => {
+    await renderWithLocale();
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toHaveTextContent('サプティア');
   });
 
   it('renders the tagline', async () => {
-    const HomeComponent = await Home();
-    render(HomeComponent);
+    await renderWithLocale();
     const tagline = screen.getByText(
       'あなたに最も合うサプリを最も安い価格で。'
     );
@@ -41,8 +58,7 @@ describe('Home Page', () => {
   });
 
   it('renders the compare link', async () => {
-    const HomeComponent = await Home();
-    render(HomeComponent);
+    await renderWithLocale();
     const compareLink = screen
       .getAllByRole('link')
       .find(a => a.getAttribute('href') === '/compare');
@@ -50,8 +66,7 @@ describe('Home Page', () => {
   });
 
   it('renders product table when products are available', async () => {
-    const HomeComponent = await Home();
-    render(HomeComponent);
+    await renderWithLocale();
 
     await waitFor(() => {
       expect(screen.getByText('Test Product')).toBeInTheDocument();

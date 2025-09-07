@@ -54,7 +54,7 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 transition-shadow ${isScrolled ? 'shadow-sm' : ''}`}
+      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-200 transition-[background-color,box-shadow] duration-300 ${isScrolled ? 'bg-white/95 shadow-sm' : 'bg-white/80'}`}
     >
       <div className='container mx-auto px-4'>
         <div className='flex items-center justify-between h-16'>
@@ -77,14 +77,14 @@ export function Header() {
             <Link
               href='/'
               aria-current={pathname === '/' ? 'page' : undefined}
-              className={`transition-colors duration-200 link-underline ${pathname === '/' ? 'text-primary-700' : 'text-gray-800 hover:text-black'}`}
+              className={`transition-colors duration-200 link-underline ${pathname === '/' ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
             >
               ホーム
             </Link>
             <Link
               href='/about'
               aria-current={pathname === '/about' ? 'page' : undefined}
-              className={`transition-colors duration-200 link-underline ${pathname === '/about' ? 'text-primary-700' : 'text-gray-800 hover:text-black'}`}
+              className={`transition-colors duration-200 link-underline ${pathname === '/about' ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
             >
               サプティアとは
             </Link>
@@ -93,14 +93,14 @@ export function Header() {
               aria-current={
                 pathname?.startsWith('/ingredients') ? 'page' : undefined
               }
-              className={`transition-colors duration-200 link-underline ${pathname?.startsWith('/ingredients') ? 'text-primary-700' : 'text-gray-800 hover:text-black'}`}
+              className={`transition-colors duration-200 link-underline ${pathname?.startsWith('/ingredients') ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
             >
               成分ガイド
             </Link>
             <Link
               href='/compare'
               aria-current={pathname === '/compare' ? 'page' : undefined}
-              className={`transition-colors duration-200 link-underline ${pathname === '/compare' ? 'text-primary-700' : 'text-gray-800 hover:text-black'}`}
+              className={`transition-colors duration-200 link-underline ${pathname === '/compare' ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
             >
               人気比較
             </Link>
@@ -109,7 +109,7 @@ export function Header() {
               aria-current={
                 pathname?.startsWith('/mypage') ? 'page' : undefined
               }
-              className={`transition-colors duration-200 link-underline ${pathname?.startsWith('/mypage') ? 'text-primary-700' : 'text-gray-800 hover:text-black'}`}
+              className={`transition-colors duration-200 link-underline ${pathname?.startsWith('/mypage') ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
             >
               マイページ
             </Link>

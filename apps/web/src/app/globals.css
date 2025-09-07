@@ -4,6 +4,29 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700;800&display=swap');
 
+/* Homepage redesign tokens */
+:root {
+  --color-white: #ffffff;
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F3F4F6;
+  --color-gray-900: #111827;
+
+  --color-primary-400: #60A5FA;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #2563EB;
+  --color-primary-700: #1D4ED8;
+  --color-accent-blue: #0066FF;
+  --color-accent-cyan: #06B6D4;
+
+  --gradient-primary: linear-gradient(135deg, #0066FF 0%, #3B82F6 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+
+  /* Easing */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
 @layer base {
   html {
     font-family: 'Inter', 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
@@ -22,6 +45,24 @@
   *:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px #2563eb, 0 0 0 4px rgba(37, 99, 235, 0.1);
+  }
+  /* Apple-like typography */
+  .text-hero {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .text-display {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .text-body-large {
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.6;
   }
 }
 
@@ -144,6 +185,69 @@
   .score-low {
     background: linear-gradient(to right, #ef4444, #ec4899);
   }
+  /* Hero full-viewport section */
+  .hero-section {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-background {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 80%, rgba(0, 102, 255, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.10) 0%, transparent 50%);
+  }
+
+  /* Ingredient category accent */
+  .ingredient-category-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .ingredient-category-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.3s var(--ease-out-quart);
+  }
+  .ingredient-category-card:hover::before {
+    transform: scaleX(1);
+  }
+  .ingredient-category-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(0, 102, 255, 0.12);
+  }
+
+  /* Footer link underline */
+  .footer-link {
+    color: #6B7280;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  .footer-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--color-accent-blue);
+    transition: width 0.3s var(--ease-out-quart);
+  }
+  .footer-link:hover { color: var(--color-accent-blue); }
+  .footer-link:hover::after { width: 100%; }
 }
 
 @layer utilities {
@@ -242,6 +346,18 @@
   @keyframes bounceGentle {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
+  }
+
+  /* Subtle glass hover */
+  @keyframes glassHover {
+    from {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    to {
+      backdrop-filter: blur(20px);
+      background: rgba(255, 255, 255, 0.2);
+    }
   }
 
   /* パララックス効果 */

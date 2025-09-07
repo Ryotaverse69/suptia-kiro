@@ -45,7 +45,7 @@ export default function IngredientCategoriesSection() {
             <a
               key={c.key}
               href={`/ingredients?category=${encodeURIComponent(c.key)}`}
-              className='glass-effect rounded-2xl p-7 text-center shadow-soft hover:shadow-strong transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
+              className='ingredient-category-card glass-effect rounded-2xl p-7 text-center shadow-soft hover:shadow-strong transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
             >
               <div className='w-20 h-20 bg-gradient-to-br from-white to-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-5 text-3xl'>
                 <span aria-hidden='true'>{c.icon}</span>

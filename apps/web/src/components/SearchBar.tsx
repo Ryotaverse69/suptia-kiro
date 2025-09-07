@@ -35,6 +35,7 @@ export interface SearchBarProps {
   placeholder?: string;
   size?: 'small' | 'large';
   className?: string;
+  variant?: 'default' | 'glass';
 }
 
 export function SearchBar({
@@ -43,6 +44,7 @@ export function SearchBar({
   placeholder = 'サプリメントを検索...',
   size = 'large',
   className = '',
+  variant = 'default',
 }: SearchBarProps) {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -173,7 +175,7 @@ export function SearchBar({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full ${styles.container} mx-auto ${className}`}
+      className={`relative w-full ${styles.container} mx-auto ${className} ${variant === 'glass' ? 'search-bar-hero' : ''}`}
     >
       {/* 検索入力フィールド */}
       <div className='relative'>
@@ -203,16 +205,9 @@ export function SearchBar({
           className={`
             ${styles.input}
             w-full
-            border-2 border-gray-200
-            rounded-2xl
-            bg-white
-            shadow-lg
-            focus:border-primary-500
-            focus:ring-4
-            focus:ring-primary-100
+            ${variant === 'glass' ? 'rounded-full bg-white/90 backdrop-blur-xl border-2 border-blue-500/10 shadow-xl focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10' : 'rounded-2xl bg-white border-2 border-gray-200 shadow-lg focus:border-primary-500 focus:ring-4 focus:ring-primary-100'}
             focus:outline-none
-            transition-all
-            duration-200
+            transition-all duration-200
             placeholder-gray-400
             ${isFocused ? 'shadow-xl' : ''}
           `}
@@ -229,20 +224,19 @@ export function SearchBar({
             right-2
             top-1/2
             -translate-y-1/2
-            bg-primary-600
-            hover:bg-primary-700
+            ${variant === 'glass' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-primary-600 hover:bg-primary-700'}
             disabled:bg-gray-300
             disabled:cursor-not-allowed
             text-white
             font-semibold
-            rounded-xl
+            ${variant === 'glass' ? 'rounded-full' : 'rounded-xl'}
             transition-all
             duration-200
             shadow-md
             hover:shadow-lg
             focus:outline-none
             focus:ring-2
-            focus:ring-primary-500
+            ${variant === 'glass' ? 'focus:ring-blue-500' : 'focus:ring-primary-500'}
             focus:ring-offset-2
           `}
         >
