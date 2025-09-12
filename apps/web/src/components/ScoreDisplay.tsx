@@ -103,7 +103,7 @@ const ProgressBar = memo(function ProgressBar({
       aria-label="スコア表示"
     >
       <div
-        className={`h-3 rounded-full ${isAnimated ? 'transition-all duration-300' : ''} ${progressBarColor}`}
+        className={`h-3 rounded-full ${isAnimated ? 'transition-all duration-200 ease-out' : ''} ${progressBarColor}`}
         style={{ width: `${percentage}%` }}
         role="progressbar"
         aria-valuenow={Math.round(value * 10) / 10}

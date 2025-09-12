@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import ClientPrice from '@/components/ClientPrice';
 
 function shimmer(w: number, h: number) {
@@ -34,9 +35,9 @@ export default function ProductCard({
   costPerDay,
 }: ProductCardProps) {
   return (
-    <a
+    <Link
       href={href}
-      className='glass-effect rounded-2xl p-5 block shadow-soft hover:shadow-strong transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
+      className='glass-effect rounded-2xl p-5 block shadow-soft hover:shadow-strong transition-all duration-200 ease-out hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 interactive'
     >
       <div className='mb-3'>
         {imageUrl ? (
@@ -91,6 +92,6 @@ export default function ProductCard({
           </span>
         </div>
       )}
-    </a>
+    </Link>
   );
 }

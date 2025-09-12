@@ -1,0 +1,26 @@
+<testsuites id="" name="" tests="6" failures="0" skipped="0" errors="0" time="4.143909000000001">
+<testsuite name="responsive-qa.spec.ts" timestamp="2025-09-12T12:52:23.583Z" hostname="chromium" tests="1" failures="0" skipped="0" time="0.377" errors="0">
+<testcase name="レスポンシブQA › モバイル/タブレット/デスクトップでナビゲーション表示が適切" classname="responsive-qa.spec.ts" time="0.377">
+</testcase>
+</testsuite>
+<testsuite name="responsive-qa.spec.ts" timestamp="2025-09-12T12:52:23.583Z" hostname="firefox" tests="1" failures="0" skipped="0" time="1.159" errors="0">
+<testcase name="レスポンシブQA › モバイル/タブレット/デスクトップでナビゲーション表示が適切" classname="responsive-qa.spec.ts" time="1.159">
+</testcase>
+</testsuite>
+<testsuite name="responsive-qa.spec.ts" timestamp="2025-09-12T12:52:23.583Z" hostname="webkit" tests="1" failures="0" skipped="0" time="0.794" errors="0">
+<testcase name="レスポンシブQA › モバイル/タブレット/デスクトップでナビゲーション表示が適切" classname="responsive-qa.spec.ts" time="0.794">
+</testcase>
+</testsuite>
+<testsuite name="responsive-qa.spec.ts" timestamp="2025-09-12T12:52:23.583Z" hostname="Mobile Chrome" tests="1" failures="0" skipped="0" time="0.395" errors="0">
+<testcase name="レスポンシブQA › モバイル/タブレット/デスクトップでナビゲーション表示が適切" classname="responsive-qa.spec.ts" time="0.395">
+</testcase>
+</testsuite>
+<testsuite name="responsive-qa.spec.ts" timestamp="2025-09-12T12:52:23.583Z" hostname="Mobile Safari" tests="1" failures="0" skipped="0" time="0.81" errors="0">
+<testcase name="レスポンシブQA › モバイル/タブレット/デスクトップでナビゲーション表示が適切" classname="responsive-qa.spec.ts" time="0.81">
+</testcase>
+</testsuite>
+<testsuite name="responsive-qa.spec.ts" timestamp="2025-09-12T12:52:23.583Z" hostname="Tablet" tests="1" failures="0" skipped="0" time="0.339" errors="0">
+<testcase name="レスポンシブQA › モバイル/タブレット/デスクトップでナビゲーション表示が適切" classname="responsive-qa.spec.ts" time="0.339">
+</testcase>
+</testsuite>
+</testsuites>

@@ -11,7 +11,7 @@ export default function HomeSearchSection() {
   const handleSearch = (query: string) => {
     const safe = sanitizeSearchQuery(query || '');
     if (safe) {
-      router.push(`/products?search=${encodeURIComponent(safe)}`);
+      router.push(`/search?search=${encodeURIComponent(safe)}`);
     }
   };
 

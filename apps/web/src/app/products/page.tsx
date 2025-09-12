@@ -201,13 +201,13 @@ export default async function ProductsIndexPage({
           </div>
         </div>
         {query && (
-          <a
-            className='text-sm text-gray-600 hover:text-gray-900'
+          <Link
+            className='text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200 ease-out'
             href='/products'
             aria-label='検索条件をクリア'
           >
             クリア
-          </a>
+          </Link>
         )}
       </form>
 
@@ -288,7 +288,7 @@ export default async function ProductsIndexPage({
       )}
 
       <div className='mt-10'>
-        <Link href='/' className='btn-secondary'>
+        <Link href='/' className='btn-secondary transition-all duration-200 ease-out'>
           ホームに戻る
         </Link>
       </div>

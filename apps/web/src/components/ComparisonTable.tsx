@@ -223,8 +223,8 @@ export function ComparisonTable({ products, onProductRemove, className = '' }: C
             </div>
 
             <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead className="bg-gray-50">
+                <table className="w-full min-w-[800px]">
+                    <thead className="bg-gray-50 sticky top-0 z-10">
                         <tr>
                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 操作

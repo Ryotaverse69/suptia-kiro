@@ -5,7 +5,13 @@ import {
   Product as ComparisonProduct,
 } from '@/components/ComparisonTable';
 import { ComparisonFilters } from '@/components/ComparisonFilters';
-import { ComparePageClient } from './ComparePageClient';
+import dynamic from 'next/dynamic';
+import OnVisible from '@/components/OnVisible';
+import DeferGradientSection from '@/components/DeferGradientSection';
+const ComparePageClient = dynamic(() => import('./ComparePageClient').then(m => m.ComparePageClient), {
+  ssr: false,
+  loading: () => <div className='glass-effect rounded-3xl p-6 shadow-xl text-center text-gray-600'>比較UIを読み込み中...</div>,
+});
 import { generateSEO } from '@/lib/seo-config';
 
 export const metadata = generateSEO({
@@ -178,9 +184,9 @@ export default async function ComparePage() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
       {/* Hero Section */}
-      <section className='bg-gradient-to-r from-primary-600 to-secondary-600 text-white py-20'>
-        <div className='container mx-auto px-4 text-center'>
-          <h1 className='text-4xl md:text-6xl font-bold mb-6'>商品比較</h1>
+      <DeferGradientSection className='text-white py-16'>
+        <div className='container mx-auto px-4 text-center min-h-[240px] flex flex-col items-center justify-center'>
+          <h1 className='text-4xl md:text-5xl font-bold leading-tight mb-4'>商品比較</h1>
           <p className='text-xl md:text-2xl text-primary-100 mb-8 max-w-3xl mx-auto'>
             科学的データに基づいて、あなたに最適なサプリメントを見つけましょう
           </p>
@@ -196,7 +202,7 @@ export default async function ComparePage() {
             </span>
           </div>
         </div>
-      </section>
+      </DeferGradientSection>
 
       {/* Comparison Section */}
       <section className='py-20'>
@@ -212,7 +218,9 @@ export default async function ComparePage() {
                 </p>
               </div>
 
-              <ComparePageClient initialProducts={products} />
+              <OnVisible intrinsicHeight={1200}>
+                <ComparePageClient initialProducts={products} />
+              </OnVisible>
 
               <div className='mt-8 text-center'>
                 <p className='text-gray-600 mb-4'>

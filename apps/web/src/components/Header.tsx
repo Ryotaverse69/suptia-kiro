@@ -5,6 +5,7 @@ import { useLocale } from '@/contexts/LocaleContext';
 import Link from 'next/link';
 import { Logo } from './Logo';
 import { usePathname } from 'next/navigation';
+import { useTranslation } from '@/contexts/LocaleContext';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,6 +13,7 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { locale, currency, setLocale, setCurrency } = useLocale();
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   // Elevation on scroll
   useEffect(() => {
@@ -54,7 +56,7 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-200 transition-[background-color,box-shadow] duration-300 ${isScrolled ? 'bg-white/95 shadow-sm' : 'bg-white/80'}`}
+      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-200 transition-[background-color,box-shadow] duration-200 ease-out ${isScrolled ? 'bg-white/95 shadow-sm' : 'bg-white/80'}`}
     >
       <div className='container mx-auto px-4'>
         <div className='flex items-center justify-between h-16'>
@@ -75,43 +77,27 @@ export function Header() {
             className='hidden lg:flex items-center space-x-8'
           >
             <Link
-              href='/'
-              aria-current={pathname === '/' ? 'page' : undefined}
-              className={`transition-colors duration-200 link-underline ${pathname === '/' ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
-            >
-              ホーム
-            </Link>
-            <Link
               href='/about'
               aria-current={pathname === '/about' ? 'page' : undefined}
-              className={`transition-colors duration-200 link-underline ${pathname === '/about' ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
+              className={`transition-colors duration-200 link-underline apple-hover ${pathname === '/about' ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
             >
-              サプティアとは
+              {t('navigation.about')}
             </Link>
             <Link
               href='/ingredients'
               aria-current={
                 pathname?.startsWith('/ingredients') ? 'page' : undefined
               }
-              className={`transition-colors duration-200 link-underline ${pathname?.startsWith('/ingredients') ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
+              className={`transition-colors duration-200 link-underline apple-hover ${pathname?.startsWith('/ingredients') ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
             >
-              成分ガイド
+              {t('navigation.ingredients')}
             </Link>
             <Link
               href='/compare'
               aria-current={pathname === '/compare' ? 'page' : undefined}
-              className={`transition-colors duration-200 link-underline ${pathname === '/compare' ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
+              className={`transition-colors duration-200 link-underline apple-hover ${pathname === '/compare' ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
             >
-              人気比較
-            </Link>
-            <Link
-              href='/mypage'
-              aria-current={
-                pathname?.startsWith('/mypage') ? 'page' : undefined
-              }
-              className={`transition-colors duration-200 link-underline ${pathname?.startsWith('/mypage') ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
-            >
-              マイページ
+              {t('navigation.compare')}
             </Link>
           </nav>
 
@@ -196,6 +182,17 @@ export function Header() {
               )}
             </div>
 
+            {/* Search Shortcut */}
+            <Link
+              href='/products'
+              className='hidden lg:inline-flex p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200'
+              aria-label='検索ショートカット'
+            >
+              <svg className='w-5 h-5 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' />
+              </svg>
+            </Link>
+
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -245,7 +242,7 @@ export function Header() {
                 className={`font-medium transition-colors duration-200 py-2 ${pathname === '/' ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                ホーム
+                {t('navigation.home')}
               </Link>
               <Link
                 href='/about'
@@ -253,7 +250,7 @@ export function Header() {
                 className={`font-medium transition-colors duration-200 py-2 ${pathname === '/about' ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                サプティアとは
+                {t('navigation.about')}
               </Link>
               <Link
                 href='/ingredients'
@@ -263,7 +260,7 @@ export function Header() {
                 className={`font-medium transition-colors duration-200 py-2 ${pathname?.startsWith('/ingredients') ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                成分ガイド
+                {t('navigation.ingredients')}
               </Link>
               <Link
                 href='/compare'
@@ -271,7 +268,7 @@ export function Header() {
                 className={`font-medium transition-colors duration-200 py-2 ${pathname === '/compare' ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                人気比較
+                {t('navigation.compare')}
               </Link>
               <Link
                 href='/mypage'
@@ -281,7 +278,7 @@ export function Header() {
                 className={`font-medium transition-colors duration-200 py-2 ${pathname?.startsWith('/mypage') ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                マイページ
+                {t('navigation.mypage')}
               </Link>
             </nav>
           </div>

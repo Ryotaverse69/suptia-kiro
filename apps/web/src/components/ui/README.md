@@ -81,6 +81,7 @@ import { Button } from '@/components/ui';
 <Button variant="secondary">セカンダリ</Button>
 <Button variant="outline">アウトライン</Button>
 <Button variant="ghost">ゴースト</Button>
+<Button variant="apple-blue">Appleブルー</Button>
 
 // サイズ
 <Button size="sm">小</Button>
@@ -92,7 +93,7 @@ import { Button } from '@/components/ui';
 ```
 
 #### Props
-- `variant`: 'primary' | 'secondary' | 'outline' | 'ghost'
+- `variant`: 'primary' | 'secondary' | 'outline' | 'ghost' | 'apple-blue'
 - `size`: 'sm' | 'md' | 'lg'
 - `disabled`: boolean
 - `className`: string

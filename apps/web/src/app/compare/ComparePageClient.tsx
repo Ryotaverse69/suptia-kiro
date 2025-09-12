@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { ComparisonTable, Product as ComparisonProduct, ComparisonCriteria } from "@/components/ComparisonTable";
-import { ComparisonFilters } from "@/components/ComparisonFilters";
 import { calculateEffectiveCostPerDay } from "@/lib/cost";
+import { LazyComparisonTable, LazyAdvancedFilters } from '@/components/LazyComponents';
+import type { Product as ComparisonProduct, ComparisonCriteria } from "@/components/ComparisonTable";
 
 interface SanityProduct {
     _id: string;
@@ -205,7 +205,7 @@ export function ComparePageClient({ initialProducts }: ComparePageClientProps) {
             </div>
 
             {/* フィルター設定 */}
-            <ComparisonFilters
+            <LazyAdvancedFilters
                 availableCriteria={DEFAULT_CRITERIA}
                 visibleCriteria={visibleCriteria}
                 onCriteriaChange={setVisibleCriteria}
@@ -213,7 +213,7 @@ export function ComparePageClient({ initialProducts }: ComparePageClientProps) {
             />
 
             {/* 比較テーブル */}
-            <ComparisonTable
+            <LazyComparisonTable
                 products={selectedProducts}
                 onProductRemove={handleProductRemove}
             />

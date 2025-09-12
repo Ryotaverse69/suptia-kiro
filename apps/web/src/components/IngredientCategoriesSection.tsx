@@ -32,7 +32,7 @@ export default function IngredientCategoriesSection() {
   ];
 
   return (
-    <section className='py-16 bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 relative overflow-hidden'>
+    <section className='py-16 bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 relative overflow-hidden animate-fade-in'>
       <div className='container mx-auto px-4'>
         <div className='text-center mb-12'>
           <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-3'>

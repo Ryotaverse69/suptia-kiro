@@ -26,7 +26,7 @@ export default function HomePrimaryActions() {
   ];
 
   return (
-    <section className='py-16'>
+    <section className='py-16 animate-fade-in'>
       <div className='container mx-auto px-4'>
         <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
           {cards.map(card => (

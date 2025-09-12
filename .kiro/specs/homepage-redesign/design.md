@@ -2,741 +2,816 @@
 
 ## Overview
 
-トップページのデザイン一新により、ブランド想起と信頼感を高め、検索・比較・診断の主要導線のクリック率を改善する。既存の機能を維持しつつ、UI/UXの刷新・品質向上にフォーカスし、レスポンシブデザイン、アクセシビリティ、パフォーマンス、国際化を高基準で統一する。
+サプティア（Suptia）のホームページを、Apple・x.aiのようなリッチで洗練されたデザインに一新する。白を基調とし近未来的なブルーをアクセントカラーとして、シンプルでスタイリッシュな見た目を実現する。全画面検索窓を中心とした印象的なファーストビューと、スクロールで段階的に現れるコンテンツセクションにより、ユーザーに強い印象を与える高品質なブランド体験を提供する。
 
 ## Architecture
 
-### 技術スタック
+### デザインシステム基盤
 
-- **フレームワーク**: Next.js 14 (App Router)
-- **スタイリング**: Tailwind CSS + カスタムCSS
-- **状態管理**: React Context (LocaleContext)
-- **国際化**: LocaleContext + ClientPrice
-- **フォント**: Inter + Noto Sans JP
-- **アイコン**: Emoji + 軽量SVG
+**カラーパレット:**
+```css
+:root {
+  /* 基調色 */
+  --color-white: #FFFFFF;
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F3F4F6;
+  --color-gray-900: #111827;
+  
+  /* 近未来的ブルー */
+  --color-primary-400: #60A5FA;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #2563EB;
+  --color-primary-700: #1D4ED8;
+  
+  /* アクセント */
+  --color-accent-blue: #0066FF;
+  --color-accent-cyan: #06B6D4;
+  
+  /* グラデーション */
+  --gradient-primary: linear-gradient(135deg, #0066FF 0%, #3B82F6 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+}
+```
 
-### 既存アーキテクチャとの統合
+**タイポグラフィ:**
+```css
+/* Appleスタイルのフォント階層 */
+.text-hero {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
 
-- 既存のHeader.tsxコンポーネントを活用
-- LocaleContext による言語・通貨切替機能を継承
-- AIRecommendationSearchBar の検索機能を維持
-- calculateEffectiveCostPerDay による価格計算ロジックを活用
-- 既存のデザインシステム（globals.css, tailwind.config.js）を拡張
+.text-display {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.text-body-large {
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+```
+
+**スペーシングシステム:**
+```css
+/* 8px基準のスペーシング */
+--space-1: 0.25rem;  /* 4px */
+--space-2: 0.5rem;   /* 8px */
+--space-4: 1rem;     /* 16px */
+--space-6: 1.5rem;   /* 24px */
+--space-8: 2rem;     /* 32px */
+--space-12: 3rem;    /* 48px */
+--space-16: 4rem;    /* 64px */
+--space-24: 6rem;    /* 96px */
+```
+
+### アニメーションシステム
+
+**イージング関数:**
+```css
+--ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+--ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+--ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+```
+
+**アニメーション定義:**
+```css
+/* フェードイン */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ガラス効果ホバー */
+@keyframes glassHover {
+  from {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+  }
+  to {
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+```
 
 ## Components and Interfaces
 
-### 1. ページ構成（apps/web/src/app/page.tsx）
+### 1. ページ全体構造
 
 ```typescript
 interface HomePageProps {
-  // サーバーサイドで取得される商品データ
   products: Product[];
+  locale: 'ja' | 'en';
+  currency: 'JPY' | 'USD';
 }
 
 interface Product {
+  id: string;
   name: string;
   priceJPY: number;
   servingsPerContainer: number;
   servingsPerDay: number;
   slug: { current: string };
   imageUrl?: string;
+  category?: string;
+  isPopular?: boolean;
 }
 ```
 
 **レイアウト構造:**
-
+```jsx
+<div className="min-h-screen bg-white">
+  <Header />
+  <main>
+    <HeroSection />           {/* 100vh */}
+    <PopularSupplementsSection />
+    <IngredientGuideSection />
+  </main>
+  <Footer />
+</div>
 ```
-<main role="main">
-  <HeroSection />
-  <PrimaryActionsSection />
-  <PopularProductsSection />
-  <IngredientCategoriesSection />
-  <TrustIndicatorsSection />
-  <CTASection />
-</main>
+
+### 2. ヘッダーコンポーネント
+
+**デザイン仕様:**
+```css
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 4rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  z-index: 50;
+  transition: background-color 0.3s ease;
+}
+
+.header-scrolled {
+  background: rgba(255, 255, 255, 0.95);
+}
 ```
 
-### 2. ヒーローセクション（刷新）
+**コンポーネント構造:**
+```typescript
+interface HeaderProps {
+  isScrolled: boolean;
+  locale: 'ja' | 'en';
+  currency: 'JPY' | 'USD';
+  onLocaleChange: (locale: 'ja' | 'en') => void;
+  onCurrencyChange: (currency: 'JPY' | 'USD') => void;
+}
+```
 
-**コンポーネント**: `apps/web/src/components/HeroSection.tsx`
+**レイアウト:**
+```jsx
+<header className="header">
+  <div className="container mx-auto px-6 h-full flex items-center justify-between">
+    <Logo />
+    <nav className="hidden md:flex space-x-8">
+      <NavLink href="/compare">商品比較</NavLink>
+      <NavLink href="/diagnosis">診断</NavLink>
+      <NavLink href="/ingredients">成分ガイド</NavLink>
+    </nav>
+    <div className="flex items-center space-x-4">
+      <LanguageCurrencySelector />
+      <AboutButton />
+    </div>
+  </div>
+</header>
+```
 
+### 3. ヒーローセクション（全画面検索）
+
+**デザイン仕様:**
+```css
+.hero-section {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(0, 102, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+}
+```
+
+**コンポーネント構造:**
 ```typescript
 interface HeroSectionProps {
   onSearch: (query: string) => void;
+  locale: 'ja' | 'en';
+}
+
+interface HeroContent {
+  ja: {
+    title: 'サプティア';
+    subtitle: 'Suptia';
+    description: 'あなたに最も合うサプリを最も安い価格で';
+    searchPlaceholder: 'サプリメント名や成分名で検索...';
+  };
+  en: {
+    title: 'Suptia';
+    subtitle: 'サプティア';
+    description: 'Find the best supplements at the best prices';
+    searchPlaceholder: 'Search supplements or ingredients...';
+  };
 }
 ```
+
+**レイアウト:**
+```jsx
+<section className="hero-section">
+  <div className="hero-background" />
+  <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
+    <div className="mb-8 animate-fade-in-up">
+      <h1 className="text-hero text-gray-900 mb-2">
+        {content[locale].title}
+      </h1>
+      <p className="text-display text-gray-600 mb-4">
+        {content[locale].subtitle}
+      </p>
+      <p className="text-body-large text-gray-500">
+        {content[locale].description}
+      </p>
+    </div>
+    
+    <div className="max-w-2xl mx-auto animate-fade-in-up delay-200">
+      <SearchBar 
+        size="hero"
+        placeholder={content[locale].searchPlaceholder}
+        onSearch={onSearch}
+      />
+    </div>
+  </div>
+</section>
+```
+
+### 4. 検索バーコンポーネント
 
 **デザイン仕様:**
-
-- **レイアウト**: センタリング、最大幅1200px
-- **背景**: 控えめなグラデーション（primary-50 → secondary-50）
-- **見出し**: `text-6xl md:text-8xl font-bold` でブランド名「サプティア」
-- **サブコピー**: `text-2xl md:text-3xl text-gray-700` で価値提案
-- **検索バー**: AIRecommendationSearchBar（大型サイズ）
-- **アニメーション**: フェードイン（0.6s ease-out）
-
-### 3. 主要導線カード（新設）
-
-**コンポーネント**: `apps/web/src/components/HomePrimaryActions.tsx`
-
-```typescript
-interface PrimaryAction {
-  id: string;
-  title: string;
-  description: string;
-  icon: string; // Emoji
-  href: string;
-  color: 'primary' | 'secondary' | 'accent';
+```css
+.search-bar-hero {
+  height: 4rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(0, 102, 255, 0.1);
+  border-radius: 2rem;
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  transition: all 0.3s var(--ease-out-quart);
 }
 
-interface HomePrimaryActionsProps {
-  actions: PrimaryAction[];
+.search-bar-hero:focus-within {
+  border-color: var(--color-accent-blue);
+  box-shadow: 
+    0 20px 40px rgba(0, 102, 255, 0.2),
+    0 0 0 4px rgba(0, 102, 255, 0.1);
+  transform: translateY(-2px);
 }
 ```
+
+**コンポーネント構造:**
+```typescript
+interface SearchBarProps {
+  size: 'hero' | 'normal';
+  placeholder: string;
+  onSearch: (query: string) => void;
+  className?: string;
+}
+```
+
+### 5. 人気サプリ比較セクション
 
 **デザイン仕様:**
+```css
+.popular-supplements-section {
+  padding: 6rem 0;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%);
+}
 
-- **レイアウト**: 3列グリッド（タブレット2列、モバイル1列）
-- **カードスタイル**: `glass-effect rounded-xl p-6 shadow-soft`
-- **ホバー効果**: `hover:shadow-medium hover:-translate-y-2`
-- **アクセシビリティ**: フォーカスリング、適切なARIA属性
+.supplement-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  transition: all 0.3s var(--ease-out-quart);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
 
-**デフォルトアクション:**
-
-```typescript
-const defaultActions: PrimaryAction[] = [
-  {
-    id: 'compare',
-    title: '商品を比較する',
-    description: '科学的根拠に基づいた詳細比較',
-    icon: '🔍',
-    href: '/compare',
-    color: 'primary',
-  },
-  {
-    id: 'diagnosis',
-    title: '診断を受ける',
-    description: 'AIがあなたに最適なサプリを提案',
-    icon: '🤖',
-    href: '/diagnosis',
-    color: 'secondary',
-  },
-  {
-    id: 'ingredients',
-    title: '成分ガイド',
-    description: '成分の効果と安全性を詳しく学ぶ',
-    icon: '📚',
-    href: '/ingredients',
-    color: 'accent',
-  },
-];
+.supplement-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 102, 255, 0.2);
+}
 ```
 
-### 4. 人気・おすすめ商品（刷新）
-
-**コンポーネント**: `apps/web/src/components/PopularProductsSection.tsx`
-
+**コンポーネント構造:**
 ```typescript
-interface PopularProductsSectionProps {
+interface PopularSupplementsSectionProps {
   products: Product[];
-  maxProducts?: number;
+  locale: 'ja' | 'en';
+  currency: 'JPY' | 'USD';
+}
+
+interface SupplementCardProps {
+  product: Product;
+  locale: 'ja' | 'en';
+  currency: 'JPY' | 'USD';
 }
 ```
+
+**レイアウト:**
+```jsx
+<section className="popular-supplements-section">
+  <div className="container mx-auto px-6">
+    <div className="text-center mb-16">
+      <h2 className="text-display text-gray-900 mb-4">
+        人気サプリ比較
+      </h2>
+      <p className="text-body-large text-gray-600">
+        科学的根拠に基づいた詳細比較
+      </p>
+    </div>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {products.map(product => (
+        <SupplementCard 
+          key={product.id}
+          product={product}
+          locale={locale}
+          currency={currency}
+        />
+      ))}
+    </div>
+  </div>
+</section>
+```
+
+### 6. 成分ガイドセクション
 
 **デザイン仕様:**
+```css
+.ingredient-guide-section {
+  padding: 6rem 0;
+  background: #FFFFFF;
+}
 
-- **レイアウト**: 3列グリッド（タブレット2列、モバイル1列）
-- **商品カード**: `ProductCard.tsx`（新規作成）
-- **画像**: next/image、遅延読み込み、適切なalt
-- **価格表示**: ClientPrice コンポーネント使用
-- **実効コスト**: calculateEffectiveCostPerDay 使用
+.ingredient-category-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(249,250,251,0.9) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  text-align: center;
+  transition: all 0.3s var(--ease-out-quart);
+  position: relative;
+  overflow: hidden;
+}
 
-**ProductCard インターフェース:**
+.ingredient-category-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+  transform: scaleX(0);
+  transition: transform 0.3s var(--ease-out-quart);
+}
 
-```typescript
-interface ProductCardProps {
-  product: Product;
-  showEffectiveCost?: boolean;
-  size?: 'small' | 'medium' | 'large';
+.ingredient-category-card:hover::before {
+  transform: scaleX(1);
+}
+
+.ingredient-category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 102, 255, 0.15);
 }
 ```
 
-### 5. 成分カテゴリガイド（改良）
-
-**コンポーネント**: `apps/web/src/components/IngredientCategoriesSection.tsx`
-
+**コンポーネント構造:**
 ```typescript
+interface IngredientGuideSectionProps {
+  locale: 'ja' | 'en';
+}
+
 interface IngredientCategory {
   id: string;
+  icon: string;
   name: string;
   description: string;
-  icon: string;
   href: string;
   color: string;
 }
 
-interface IngredientCategoriesSectionProps {
-  categories: IngredientCategory[];
-}
-```
-
-**デフォルトカテゴリ:**
-
-```typescript
-const defaultCategories: IngredientCategory[] = [
+const categories: IngredientCategory[] = [
   {
     id: 'vitamins',
+    icon: '🍊',
     name: 'ビタミン',
     description: 'ビタミンA、C、D、E、B群など必須ビタミン',
-    icon: '🍊',
     href: '/ingredients?category=vitamins',
-    color: 'orange',
+    color: 'orange'
   },
   {
     id: 'minerals',
+    icon: '⚡',
     name: 'ミネラル',
     description: 'カルシウム、鉄、亜鉛、マグネシウム',
-    icon: '⚡',
     href: '/ingredients?category=minerals',
-    color: 'gray',
+    color: 'gray'
   },
   {
     id: 'herbs',
+    icon: '🌿',
     name: 'ハーブ',
     description: 'ウコン、イチョウ、高麗人参など天然成分',
-    icon: '🌿',
     href: '/ingredients?category=herbs',
-    color: 'green',
+    color: 'green'
   },
   {
     id: 'amino-acids',
+    icon: '💪',
     name: 'アミノ酸',
     description: 'BCAA、グルタミン、アルギニン',
-    icon: '💪',
     href: '/ingredients?category=amino-acids',
-    color: 'blue',
-  },
+    color: 'blue'
+  }
 ];
 ```
 
-### 6. 信頼性指標（新設）
+### 7. フッターコンポーネント
 
-**コンポーネント**: `apps/web/src/components/TrustIndicatorsSection.tsx`
-
-```typescript
-interface TrustIndicator {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  metric?: string;
+**デザイン仕様:**
+```css
+.footer {
+  background: linear-gradient(180deg, #F9FAFB 0%, #F3F4F6 100%);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 4rem 0 2rem;
 }
 
-interface TrustIndicatorsSectionProps {
-  indicators: TrustIndicator[];
+.footer-link {
+  color: #6B7280;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
 }
-```
 
-**デフォルト指標:**
+.footer-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-accent-blue);
+  transition: width 0.3s var(--ease-out-quart);
+}
 
-```typescript
-const defaultIndicators: TrustIndicator[] = [
-  {
-    id: 'scientific',
-    title: '科学的根拠準拠',
-    description: 'エビデンスに基づく成分分析',
-    icon: '🛡️',
-    metric: '100%',
-  },
-  {
-    id: 'price-monitoring',
-    title: '価格監視',
-    description: '常に最安値を追跡・更新',
-    icon: '💰',
-    metric: '24/7',
-  },
-  {
-    id: 'user-feedback',
-    title: 'ユーザーフィードバック',
-    description: '実際の利用者の声を反映',
-    icon: '⭐',
-    metric: '1000+',
-  },
-];
+.footer-link:hover {
+  color: var(--color-accent-blue);
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
 ```
 
 ## Data Models
 
-### 既存データモデルの活用
+### ページデータ構造
 
 ```typescript
-// 既存のProduct型を拡張
-interface EnhancedProduct extends Product {
-  imageUrl?: string;
-  category?: string;
-  rating?: number;
-  reviewCount?: number;
-  isPopular?: boolean;
-  isFeatured?: boolean;
+interface HomePageData {
+  hero: HeroContent;
+  popularProducts: Product[];
+  ingredientCategories: IngredientCategory[];
+  seo: SEOData;
 }
 
-// 検索・レコメンド用
-interface SearchResult {
-  products: EnhancedProduct[];
-  totalCount: number;
-  facets: {
-    categories: string[];
-    priceRanges: PriceRange[];
-    brands: string[];
-  };
-}
-
-interface PriceRange {
-  min: number;
-  max: number;
-  label: string;
-  count: number;
+interface SEOData {
+  title: string;
+  description: string;
+  ogImage: string;
+  canonicalUrl: string;
 }
 ```
 
-### 新規データモデル
+### 状態管理
 
 ```typescript
-// ホームページ設定
-interface HomePageConfig {
-  hero: {
-    title: string;
-    subtitle: string;
-    ctaText: string;
-  };
-  featuredProducts: {
-    maxCount: number;
-    sortBy: 'popularity' | 'price' | 'rating';
-  };
-  categories: IngredientCategory[];
-  trustIndicators: TrustIndicator[];
-}
-
-// 多言語対応
-interface LocalizedContent {
-  ja: HomePageConfig;
-  en: HomePageConfig;
+interface HomePageState {
+  isHeaderScrolled: boolean;
+  searchQuery: string;
+  selectedLocale: 'ja' | 'en';
+  selectedCurrency: 'JPY' | 'USD';
+  isSearchFocused: boolean;
 }
 ```
 
 ## Error Handling
 
-### クライアントサイドエラー処理
+### エラー表示パターン
 
 ```typescript
-// 検索エラー
-interface SearchError {
-  type: 'network' | 'validation' | 'server';
+interface ErrorState {
+  type: 'loading' | 'network' | 'empty' | 'server';
   message: string;
   retryable: boolean;
 }
 
-// 商品データ取得エラー
-interface ProductLoadError {
-  type: 'loading' | 'empty' | 'network';
-  fallbackData?: Product[];
-}
-
-// エラーバウンダリ
-class HomePageErrorBoundary extends React.Component {
-  // エラー時のフォールバック表示
-  // ローディング状態の管理
-  // リトライ機能
-}
+// エラー表示コンポーネント
+const ErrorDisplay: React.FC<{ error: ErrorState }> = ({ error }) => (
+  <div className="text-center py-16">
+    <div className="text-6xl mb-4">😔</div>
+    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+      申し訳ございません
+    </h3>
+    <p className="text-gray-600 mb-6">{error.message}</p>
+    {error.retryable && (
+      <button className="btn-primary">
+        再試行
+      </button>
+    )}
+  </div>
+);
 ```
 
-### エラー表示パターン
+### ローディング状態
 
-1. **検索エラー**: インライン表示、リトライボタン
-2. **商品読み込みエラー**: スケルトン → エラーメッセージ → リトライ
-3. **画像読み込みエラー**: プレースホルダー画像表示
-4. **ネットワークエラー**: トースト通知 + オフライン表示
+```typescript
+// スケルトンローダー
+const SkeletonCard: React.FC = () => (
+  <div className="supplement-card animate-pulse">
+    <div className="w-full h-48 bg-gray-200 rounded-lg mb-4" />
+    <div className="h-6 bg-gray-200 rounded mb-2" />
+    <div className="h-4 bg-gray-200 rounded w-3/4 mb-4" />
+    <div className="h-8 bg-gray-200 rounded" />
+  </div>
+);
+```
 
 ## Testing Strategy
 
-### 単体テスト（Vitest + React Testing Library）
+### ビジュアルリグレッションテスト
 
 ```typescript
-// コンポーネントテスト
-describe('HeroSection', () => {
-  it('should render title and subtitle', () => {});
-  it('should handle search input', () => {});
-  it('should be accessible', () => {});
-});
+// Chromatic/Storybook設定
+export default {
+  title: 'Pages/HomePage',
+  component: HomePage,
+  parameters: {
+    layout: 'fullscreen',
+    chromatic: {
+      viewports: [375, 768, 1200],
+      delay: 1000, // アニメーション完了を待つ
+    },
+  },
+};
 
-describe('ProductCard', () => {
-  it('should display product information', () => {});
-  it('should calculate effective cost', () => {});
-  it('should handle price formatting', () => {});
-});
+export const Default = {
+  args: {
+    products: mockProducts,
+    locale: 'ja',
+    currency: 'JPY',
+  },
+};
 
-describe('HomePrimaryActions', () => {
-  it('should render all action cards', () => {});
-  it('should navigate to correct URLs', () => {});
-  it('should support keyboard navigation', () => {});
-});
+export const English = {
+  args: {
+    products: mockProducts,
+    locale: 'en',
+    currency: 'USD',
+  },
+};
 ```
 
-### 統合テスト（Playwright）
+### アクセシビリティテスト
 
 ```typescript
-// E2Eテスト
-test('Homepage user journey', async ({ page }) => {
-  // ページ読み込み
-  await page.goto('/');
-
-  // ヒーローセクション表示確認
-  await expect(page.locator('h1')).toContainText('サプティア');
-
-  // 検索機能テスト
-  await page.fill('[data-testid="search-input"]', 'ビタミンD');
-  await page.press('[data-testid="search-input"]', 'Enter');
-
-  // 主要導線テスト
-  await page.click('[data-testid="compare-cta"]');
-  await expect(page).toHaveURL('/compare');
-});
-```
-
-### アクセシビリティテスト（axe-core）
-
-```typescript
-// 自動アクセシビリティテスト
+// axe-core統合テスト
 test('Homepage accessibility', async ({ page }) => {
   await page.goto('/');
-
+  
   const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa'])
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
     .analyze();
-
+    
   expect(results.violations).toEqual([]);
+});
+
+// キーボードナビゲーションテスト
+test('Keyboard navigation', async ({ page }) => {
+  await page.goto('/');
+  
+  // Tab順序の確認
+  await page.keyboard.press('Tab'); // ヘッダーナビ
+  await page.keyboard.press('Tab'); // 検索バー
+  await page.keyboard.press('Tab'); // 商品カード1
+  
+  // フォーカス状態の確認
+  const focusedElement = await page.locator(':focus');
+  await expect(focusedElement).toBeVisible();
 });
 ```
 
-### パフォーマンステスト（Lighthouse CI）
+### パフォーマンステスト
 
-```yaml
-# lighthouserc.js
-ci:
-  collect:
-    url: ['http://localhost:3000/']
-  assert:
-    assertions:
-      'largest-contentful-paint': ['error', { maxNumericValue: 2000 }]
-      'cumulative-layout-shift': ['error', { maxNumericValue: 0.05 }]
-      'total-blocking-time': ['error', { maxNumericValue: 300 }]
+```typescript
+// Lighthouse CI設定
+module.exports = {
+  ci: {
+    collect: {
+      url: ['http://localhost:3000/'],
+      settings: {
+        chromeFlags: '--no-sandbox',
+      },
+    },
+    assert: {
+      assertions: {
+        'largest-contentful-paint': ['error', { maxNumericValue: 2000 }],
+        'cumulative-layout-shift': ['error', { maxNumericValue: 0.05 }],
+        'first-contentful-paint': ['error', { maxNumericValue: 1500 }],
+        'speed-index': ['error', { maxNumericValue: 2500 }],
+      },
+    },
+  },
+};
 ```
 
-## レスポンシブデザイン仕様
+## レスポンシブデザイン戦略
 
-### ブレークポイント戦略
+### ブレークポイント定義
 
 ```css
-/* モバイル: 0-639px */
-.mobile-layout {
-  grid-template-columns: 1fr;
-  padding: 1rem;
-  font-size: 1rem;
+/* モバイル: 0-767px */
+@media (max-width: 767px) {
+  .hero-section {
+    padding: 2rem 1rem;
+  }
+  
+  .text-hero {
+    font-size: 3rem;
+  }
+  
+  .search-bar-hero {
+    height: 3.5rem;
+  }
+  
+  .grid-responsive {
+    grid-template-columns: 1fr;
+  }
 }
 
-/* タブレット: 640-1023px */
-.tablet-layout {
-  grid-template-columns: repeat(2, 1fr);
-  padding: 1.5rem;
-  font-size: 1.125rem;
+/* タブレット: 768-1023px */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* デスクトップ: 1024px+ */
-.desktop-layout {
-  grid-template-columns: repeat(3, 1fr);
-  padding: 2rem;
-  font-size: 1.25rem;
+@media (min-width: 1024px) {
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 ```
 
 ### コンテナ戦略
 
-```typescript
-// レスポンシブコンテナ
-const containerClasses = {
-  base: 'container mx-auto px-4',
-  sm: 'sm:px-6',
-  lg: 'lg:px-8',
-  xl: 'xl:max-w-7xl',
-};
+```css
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
 
-// セクションスペーシング
-const sectionSpacing = {
-  mobile: 'py-10',
-  tablet: 'md:py-16',
-  desktop: 'lg:py-20',
-};
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+    padding: 0 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1200px;
+  }
+}
 ```
 
 ## パフォーマンス最適化
 
-### 画像最適化
+### 画像最適化戦略
 
 ```typescript
-// next/image設定
+// Next.js Image設定
 const imageConfig = {
-  sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
-  priority: false, // ヒーロー画像以外は遅延読み込み
-  placeholder: 'blur',
+  domains: ['cdn.sanity.io'],
+  formats: ['image/webp', 'image/avif'],
+  sizes: {
+    hero: '(max-width: 768px) 100vw, 50vw',
+    card: '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw',
+  },
   quality: 85,
-};
-
-// 商品画像の最適化
-const productImageSizes = {
-  small: '(max-width: 640px) 150px, 200px',
-  medium: '(max-width: 640px) 200px, 300px',
-  large: '(max-width: 640px) 300px, 400px',
+  priority: false, // ヒーロー画像以外は遅延読み込み
 };
 ```
 
-### コード分割
+### コード分割戦略
 
 ```typescript
 // 動的インポート
-const AIRecommendationSearchBar = dynamic(
-  () => import('@/components/AIRecommendationSearchBar'),
-  {
-    ssr: false,
-    loading: () => <SearchBarSkeleton />
-  }
-);
+const SearchBar = dynamic(() => import('@/components/SearchBar'), {
+  ssr: false,
+  loading: () => <SearchBarSkeleton />,
+});
 
-const PopularProductsSection = dynamic(
-  () => import('@/components/PopularProductsSection'),
+const PopularSupplementsSection = dynamic(
+  () => import('@/components/PopularSupplementsSection'),
   {
-    loading: () => <ProductsSkeleton />
+    loading: () => <SupplementsSkeleton />,
   }
 );
 ```
 
-### バンドル最適化
+### CSS最適化
 
-```javascript
-// next.config.mjs
-const nextConfig = {
-  experimental: {
-    optimizePackageImports: ['@/components', '@/lib'],
-  },
-  webpack: config => {
-    config.optimization.splitChunks.chunks = 'all';
-    return config;
-  },
-};
-```
+```css
+/* Critical CSS（インライン化） */
+.hero-section,
+.header,
+.search-bar-hero {
+  /* 重要なスタイルのみ */
+}
 
-## アクセシビリティ仕様
-
-### WCAG 2.1 AA準拠
-
-```typescript
-// フォーカス管理
-const useFocusManagement = () => {
-  const trapFocus = (element: HTMLElement) => {
-    // フォーカストラップ実装
-  };
-
-  const restoreFocus = (element: HTMLElement) => {
-    // フォーカス復元実装
-  };
-
-  return { trapFocus, restoreFocus };
-};
-
-// ARIA属性管理
-const ariaAttributes = {
-  navigation: {
-    role: 'navigation',
-    'aria-label': 'メインナビゲーション',
-  },
-  search: {
-    role: 'combobox',
-    'aria-expanded': 'false',
-    'aria-haspopup': 'listbox',
-  },
-  productGrid: {
-    role: 'grid',
-    'aria-label': '人気商品一覧',
-  },
-};
-```
-
-### キーボードナビゲーション
-
-```typescript
-// キーボードイベント処理
-const useKeyboardNavigation = () => {
-  const handleKeyDown = (event: KeyboardEvent) => {
-    switch (event.key) {
-      case 'Escape':
-        // メニュー・モーダルを閉じる
-        break;
-      case 'Tab':
-        // フォーカス移動の管理
-        break;
-      case 'Enter':
-      case ' ':
-        // アクション実行
-        break;
-      case 'ArrowUp':
-      case 'ArrowDown':
-        // リスト内ナビゲーション
-        break;
-    }
-  };
-
-  return { handleKeyDown };
-};
-```
-
-## 国際化対応
-
-### 多言語コンテンツ管理
-
-```typescript
-// 言語別コンテンツ
-const content = {
-  ja: {
-    hero: {
-      title: 'サプティア',
-      subtitle: 'あなたに最も合うサプリを最も安い価格で',
-      searchPlaceholder: 'サプリメント名や成分名で検索...',
-    },
-    actions: {
-      compare: '商品を比較する',
-      diagnosis: '診断を受ける',
-      ingredients: '成分ガイド',
-    },
-  },
-  en: {
-    hero: {
-      title: 'Suptia',
-      subtitle: 'Find the best supplements at the best prices',
-      searchPlaceholder: 'Search supplements or ingredients...',
-    },
-    actions: {
-      compare: 'Compare Products',
-      diagnosis: 'Get Diagnosis',
-      ingredients: 'Ingredient Guide',
-    },
-  },
-};
-
-// 通貨フォーマット
-const formatPrice = (amount: number, locale: string, currency: string) => {
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: currency === 'JPY' ? 0 : 2,
-  }).format(amount);
-};
-```
-
-## セキュリティ考慮事項
-
-### Content Security Policy
-
-```typescript
-// CSP設定（既存を維持）
-const cspDirectives = {
-  'default-src': ["'self'"],
-  'script-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-  'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-  'img-src': ["'self'", 'data:', 'https://cdn.sanity.io'],
-  'font-src': ["'self'", 'https://fonts.gstatic.com'],
-  'connect-src': ["'self'", 'https://api.sanity.io'],
-};
-```
-
-### 入力検証
-
-```typescript
-// 検索クエリのサニタイゼーション
-const sanitizeSearchQuery = (query: string): string => {
-  return query
-    .trim()
-    .replace(/[<>\"']/g, '') // XSS対策
-    .substring(0, 100); // 長さ制限
-};
-
-// URLパラメータの検証
-const validateUrlParams = (params: URLSearchParams) => {
-  const allowedParams = ['search', 'category', 'sort', 'page'];
-  // パラメータ検証ロジック
-};
-```
-
-## モニタリング・分析
-
-### パフォーマンス監視
-
-```typescript
-// Web Vitals収集
-const collectWebVitals = (metric: any) => {
-  switch (metric.name) {
-    case 'LCP':
-      // Largest Contentful Paint
-      analytics.track('performance.lcp', { value: metric.value });
-      break;
-    case 'CLS':
-      // Cumulative Layout Shift
-      analytics.track('performance.cls', { value: metric.value });
-      break;
-    case 'FID':
-      // First Input Delay
-      analytics.track('performance.fid', { value: metric.value });
-      break;
-  }
-};
-```
-
-### ユーザー行動分析
-
-```typescript
-// イベント追跡
-const trackUserActions = {
-  searchPerformed: (query: string) => {
-    analytics.track('search.performed', { query });
-  },
-  ctaClicked: (action: string) => {
-    analytics.track('cta.clicked', { action });
-  },
-  productViewed: (productId: string) => {
-    analytics.track('product.viewed', { productId });
-  },
-};
+/* Non-critical CSS（遅延読み込み） */
+.supplement-card,
+.ingredient-category-card,
+.footer {
+  /* 後から読み込み */
+}
 ```
 
 ## 実装フェーズ
 
-### フェーズ1: 基盤構築（1-2週間）
+### フェーズ1: 基盤構築（1週間）
+1. デザインシステム（カラー、タイポグラフィ、スペーシング）
+2. ヘッダーコンポーネント
+3. ヒーローセクション（全画面検索）
+4. 基本的なレスポンシブ対応
 
-1. ヒーローセクションの刷新
-2. 主要導線カードの実装
-3. レスポンシブレイアウトの確立
-4. 基本的なアクセシビリティ対応
+### フェーズ2: コンテンツセクション（1週間）
+1. 人気サプリ比較セクション
+2. 成分ガイドセクション
+3. フッターコンポーネント
+4. アニメーション実装
 
-### フェーズ2: 機能拡張（2-3週間）
+### フェーズ3: 品質向上（1週間）
+1. アクセシビリティ対応
+2. パフォーマンス最適化
+3. テスト実装
+4. 最終調整
 
-1. 人気商品セクションの刷新
-2. 成分カテゴリガイドの改良
-3. 信頼性指標の追加
-4. パフォーマンス最適化
-
-### フェーズ3: 品質向上（1-2週間）
-
-1. 詳細なアクセシビリティテスト
-2. 多言語対応の完成
-3. モーション・アニメーションの調整
-4. 最終的なパフォーマンスチューニング
-
-この設計により、要件定義で定めた12の要件すべてを満たし、既存システムとの互換性を保ちながら、モダンで使いやすいホームページを実現します。
+この設計により、Apple・x.aiのようなリッチで洗練されたデザインを実現し、ユーザーに強い印象を与える高品質なブランド体験を提供します。

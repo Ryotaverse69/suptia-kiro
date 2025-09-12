@@ -8,9 +8,11 @@ import { FavoriteButton } from '@/components/FavoriteButton';
 import { PriceHistoryChart } from '@/components/PriceHistoryChart';
 import { PriceComparison } from '@/components/PriceComparison';
 import { ResearchAndReviews } from '@/components/ResearchAndReviews';
+import AIProductReason from '@/components/AIProductReason';
 import { generateProductMetadata } from '@/lib/seo';
 import { generateProductJsonLd, generateBreadcrumbJsonLd } from '@/lib/seo';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { isValidSlug } from '@/lib/sanitize';
 import Image from 'next/image';
 import { headers } from 'next/headers';
@@ -780,6 +782,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
         </div>
 
+        {/* AIの推奨理由（要約） */}
+        <AIProductReason
+          productName={product.name}
+          ingredients={(product.ingredients || []).map(i => ({
+            name: i.ingredient?.name,
+            evidenceLevel: i.ingredient?.evidenceLevel,
+          }))}
+        />
+
         {/* Product Scoring System with Error Boundary */}
         <ErrorBoundary fallback={<ScoringSystemFallback />}>
           <ProductScoring product={product} />
@@ -950,12 +961,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
         {/* Back to List */}
         <div className='text-center'>
-          <a
+          <Link
             href='/products'
-            className='inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors'
+            className='inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 ease-out'
           >
             商品一覧に戻る
-          </a>
+          </Link>
         </div>
       </div>
     </>

@@ -27,19 +27,19 @@ export default function HeroSection() {
       <div className='hero-background' aria-hidden='true' />
       <div className='relative z-10 w-full'>
         <div className='text-center max-w-5xl mx-auto px-4'>
-          <div className='animate-fade-in'>
+          <div>
             <h1 className='text-hero text-gray-900 mb-2'>サプティア</h1>
             <p className='text-display text-gray-600 mb-4'>Suptia</p>
             <p className='text-body-large text-gray-500 mb-10 max-w-3xl mx-auto'>
               {t('header.tagline')}
             </p>
           </div>
-          <div className='max-w-2xl mx-auto animate-fade-in-up'>
+          <div className='max-w-2xl mx-auto'>
             <AIRecommendationSearchBar
               onSearch={q => {
                 const safe = sanitizeSearchQuery(q || '');
                 if (!safe) return;
-                window.location.href = `/products?search=${encodeURIComponent(safe)}`;
+                window.location.href = `/search?search=${encodeURIComponent(safe)}`;
               }}
               placeholder={t('search.placeholder')}
               size='large'

@@ -1,6 +1,7 @@
 // Validate environment variables at startup
 import '@/env';
 import './globals.css';
+import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
 import Script from 'next/script';
 import { getSiteUrl } from '@/lib/runtimeConfig';
@@ -9,6 +10,14 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { SkipLinks } from '@/components/SkipLinks';
 import dynamic from 'next/dynamic';
+
+// Self-hosted fonts for performance (no Google Fonts runtime)
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'optional',
+  preload: false,
+  variable: '--font-inter',
+});
 import LocaleHtmlLangSetter from '@/components/LocaleHtmlLangSetter';
 
 // パフォーマンス監視コンポーネントを動的インポート
@@ -124,28 +133,18 @@ export default function RootLayout({
   };
 
   return (
-    <html lang='ja' className='scroll-smooth'>
+    <html lang='ja' className={`scroll-smooth ${inter.variable}`}>
       <head>
         <link rel='manifest' href='/site.webmanifest' />
         <meta name='theme-color' content='#2563eb' />
 
         {/* DNS プリフェッチ */}
         <link rel='dns-prefetch' href='//cdn.sanity.io' />
-        <link rel='dns-prefetch' href='//fonts.googleapis.com' />
-        <link rel='dns-prefetch' href='//fonts.gstatic.com' />
+        {/* Removed Google Fonts runtime dependencies (using next/font) */}
 
         {/* Preconnect for performance */}
         <link rel='preconnect' href='https://cdn.sanity.io' crossOrigin='' />
-        <link
-          rel='preconnect'
-          href='https://fonts.googleapis.com'
-          crossOrigin=''
-        />
-        <link
-          rel='preconnect'
-          href='https://fonts.gstatic.com'
-          crossOrigin=''
-        />
+        {/* Fonts are self-hosted by next/font; no preconnect needed */}
 
         {/* フォントのプリロードは外部CDNに依存するため一旦無効化 */}
 

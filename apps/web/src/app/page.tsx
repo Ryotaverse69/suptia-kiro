@@ -1,6 +1,7 @@
 import { generateSEO } from '@/lib/seo-config';
 import dynamic from 'next/dynamic';
 import HeroSection from '@/components/HeroSection';
+import OnVisible from '@/components/OnVisible';
 const HomePrimaryActions = dynamic(
   () => import('@/components/HomePrimaryActions'),
   {
@@ -14,6 +15,7 @@ const HomePrimaryActions = dynamic(
 );
 const PopularProductsSection = dynamic(() => import('@/components/PopularProductsSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
 const IngredientCategoriesSection = dynamic(() => import('@/components/IngredientCategoriesSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
+const AIRecommendationSection = dynamic(() => import('@/components/AIRecommendationSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
 const TrustIndicatorsSection = dynamic(() => import('@/components/TrustIndicatorsSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
 const CTABanner = dynamic(() => import('@/components/CTABanner'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
 
@@ -81,10 +83,21 @@ export default async function Home() {
       <HeroSection />
       <HomePrimaryActions />
 
-      <PopularProductsSection products={products as any} />
-      <IngredientCategoriesSection />
-      <TrustIndicatorsSection />
-      <CTABanner />
+      <OnVisible placeholder={<div className='container mx-auto px-4 py-16' />}>
+        <PopularProductsSection products={products as any} />
+      </OnVisible>
+      <OnVisible placeholder={<div className='container mx-auto px-4 py-16' />}>
+        <IngredientCategoriesSection />
+      </OnVisible>
+      <OnVisible placeholder={<div className='container mx-auto px-4 py-16' />}>
+        <AIRecommendationSection />
+      </OnVisible>
+      <OnVisible placeholder={<div className='container mx-auto px-4 py-16' />}>
+        <TrustIndicatorsSection />
+      </OnVisible>
+      <OnVisible placeholder={<div className='container mx-auto px-4 py-16' />}>
+        <CTABanner />
+      </OnVisible>
     </div>
   );
 }

@@ -153,7 +153,7 @@ const FactorDisplay = memo(function FactorDisplay({ factor, showContribution = t
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2" role="group" aria-label="貢献度表示">
             <div
-              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+              className="bg-blue-500 h-2 rounded-full transition-all duration-200 ease-out"
               style={{ width: `${Math.min(100, contribution)}%` }}
               role="progressbar"
               aria-valuenow={Math.round(contribution * 10) / 10}

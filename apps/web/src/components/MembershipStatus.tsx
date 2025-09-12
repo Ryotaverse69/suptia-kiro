@@ -135,7 +135,7 @@ export function MembershipStatus({ onUpgrade, onManageBilling }: MembershipStatu
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                                 <div
-                                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                    className="bg-blue-600 h-2 rounded-full transition-all duration-200 ease-out"
                                     style={{
                                         width: `${getUsagePercentage(status.usage.priceAlerts.current, status.usage.priceAlerts.limit)}%`
                                     }}
@@ -152,7 +152,7 @@ export function MembershipStatus({ onUpgrade, onManageBilling }: MembershipStatu
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                                 <div
-                                    className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                                    className="bg-green-600 h-2 rounded-full transition-all duration-200 ease-out"
                                     style={{
                                         width: `${getUsagePercentage(status.usage.diagnosisHistory.current, status.usage.diagnosisHistory.limit)}%`
                                     }}
@@ -169,7 +169,7 @@ export function MembershipStatus({ onUpgrade, onManageBilling }: MembershipStatu
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                                 <div
-                                    className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                                    className="bg-purple-600 h-2 rounded-full transition-all duration-200 ease-out"
                                     style={{
                                         width: `${getUsagePercentage(status.usage.favoriteProducts.current, status.usage.favoriteProducts.limit)}%`
                                     }}

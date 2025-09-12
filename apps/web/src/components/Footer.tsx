@@ -1,4 +1,22 @@
+// import { useTranslation } from '@/contexts/LocaleContext';
+
 export function Footer() {
+    // const { t } = useTranslation();
+    // 一時的な翻訳関数
+    const t = (key: string) => {
+        const translations: Record<string, string> = {
+            'header.logo': 'サプティア',
+            'footer.about': 'サプティアとは',
+            'navigation.ingredients': '成分ガイド',
+            'navigation.compare': '比較',
+            'navigation.mypage': 'マイページ',
+            'footer.contact': 'お問い合わせ',
+            'footer.privacy': 'プライバシーポリシー',
+            'footer.terms': '利用規約',
+            'footer.disclaimer': '免責事項',
+        };
+        return translations[key] || key;
+    };
     return (
         <footer className="bg-gradient-to-b from-gray-50 to-gray-100 border-t border-black/5">
             <div className="container mx-auto px-6 py-12">
@@ -51,38 +69,38 @@ export function Footer() {
 
                     {/* サプティアについて */}
                     <div>
-                        <h3 className="font-semibold text-lg mb-4 text-gray-900">サプティアについて</h3>
+                        <h3 className="font-semibold text-lg mb-4 text-gray-900">{t('header.logo')}</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a href="/about" className="footer-link">サプティアとは</a>
+                                <a href="/about" className="footer-link">{t('footer.about')}</a>
                             </li>
                             <li>
-                                <a href="/ingredients" className="footer-link">成分ガイド</a>
+                                <a href="/ingredients" className="footer-link">{t('navigation.ingredients')}</a>
                             </li>
                             <li>
-                                <a href="/compare" className="footer-link">人気比較</a>
+                                <a href="/compare" className="footer-link">{t('navigation.compare')}</a>
                             </li>
                             <li>
-                                <a href="/mypage" className="footer-link">マイページ</a>
+                                <a href="/mypage" className="footer-link">{t('navigation.mypage')}</a>
                             </li>
                         </ul>
                     </div>
 
                     {/* サポート・法的情報 */}
                     <div>
-                        <h3 className="font-semibold text-lg mb-4 text-gray-900">サポート・法的情報</h3>
+                        <h3 className="font-semibold text-lg mb-4 text-gray-900">{t('footer.contact')}</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a href="/contact" className="footer-link">お問い合わせ</a>
+                                <a href="/contact" className="footer-link">{t('footer.contact')}</a>
                             </li>
                             <li>
-                                <a href="/legal/privacy" className="footer-link">プライバシーポリシー</a>
+                                <a href="/legal/privacy" className="footer-link">{t('footer.privacy')}</a>
                             </li>
                             <li>
-                                <a href="/legal/terms" className="footer-link">利用規約</a>
+                                <a href="/legal/terms" className="footer-link">{t('footer.terms')}</a>
                             </li>
                             <li>
-                                <a href="/legal/disclaimer" className="footer-link">免責事項</a>
+                                <a href="/legal/disclaimer" className="footer-link">{t('footer.disclaimer')}</a>
                             </li>
                         </ul>
                     </div>
