@@ -27,12 +27,10 @@ export default function HeroSection() {
       <div className='hero-background' aria-hidden='true' />
       <div className='relative z-10 w-full'>
         <div className='text-center max-w-5xl mx-auto px-4'>
-          <div>
-            <h1 className='text-hero text-gray-900 mb-2'>サプティア</h1>
-            <p className='text-display text-gray-600 mb-4'>Suptia</p>
-            <p className='text-body-large text-gray-500 mb-10 max-w-3xl mx-auto'>
-              {t('header.tagline')}
-            </p>
+          <div className='pt-8'>
+            <h1 className='text-3xl md:text-5xl font-bold tracking-tight text-gray-900 mb-6'>
+              あなたに最も合うサプリを最も安い価格で。
+            </h1>
           </div>
           <div className='max-w-2xl mx-auto'>
             <AIRecommendationSearchBar

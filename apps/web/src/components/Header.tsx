@@ -15,7 +15,6 @@ export function Header() {
   const pathname = usePathname();
   const { t } = useTranslation();
 
-  // Elevation on scroll
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 4);
     onScroll();
@@ -23,16 +22,11 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Prevent background scroll when menus are open
   useEffect(() => {
-    if (isMenuOpen || isLanguageMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    if (isMenuOpen || isLanguageMenuOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
   }, [isMenuOpen, isLanguageMenuOpen]);
 
-  // Close menus on Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -48,252 +42,76 @@ export function Header() {
     setLocale(newLocale);
     setIsLanguageMenuOpen(false);
   };
-
   const handleCurrencyChange = (newCurrency: 'JPY' | 'USD') => {
     setCurrency(newCurrency);
     setIsLanguageMenuOpen(false);
   };
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-gray-200 transition-[background-color,box-shadow] duration-200 ease-out ${isScrolled ? 'bg-white/95 shadow-sm' : 'bg-white/80'}`}
-    >
+    <header className={`fixed top-0 left-0 right-0 z-50 border-b border-gray-200 transition-[background-color,box-shadow] duration-200 ease-out ${isScrolled ? 'bg-white/95 shadow-sm' : 'bg-white'}`}>
       <div className='container mx-auto px-4'>
-        <div className='flex items-center justify-between h-16'>
-          {/* Logo - サプティア + Suptia */}
-          <Link
-            href='/'
-            className='flex items-center'
-            aria-label='サプティア ホーム'
-          >
-            <Logo variant='full' size='md' />
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav
-            id='navigation'
-            role='navigation'
-            aria-label='メインナビゲーション'
-            className='hidden lg:flex items-center space-x-8'
-          >
-            <Link
-              href='/about'
-              aria-current={pathname === '/about' ? 'page' : undefined}
-              className={`transition-colors duration-200 link-underline apple-hover ${pathname === '/about' ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
-            >
-              {t('navigation.about')}
+        <div className='grid grid-cols-3 items-center h-16'>
+          <div className='hidden md:block' />
+          <div className='flex justify-center'>
+            <Link href='/' aria-label='サプティア ホーム' className='flex items-center'>
+              <Logo variant='full' size='md' />
             </Link>
-            <Link
-              href='/ingredients'
-              aria-current={
-                pathname?.startsWith('/ingredients') ? 'page' : undefined
-              }
-              className={`transition-colors duration-200 link-underline apple-hover ${pathname?.startsWith('/ingredients') ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
-            >
-              {t('navigation.ingredients')}
-            </Link>
-            <Link
-              href='/compare'
-              aria-current={pathname === '/compare' ? 'page' : undefined}
-              className={`transition-colors duration-200 link-underline apple-hover ${pathname === '/compare' ? 'text-primary-700' : 'text-gray-800 hover:text-blue-600'}`}
-            >
-              {t('navigation.compare')}
-            </Link>
-          </nav>
+          </div>
+          <div className='flex justify-end'>
+            <div className='flex items-center gap-6 text-gray-800'>
+              <Link href='/mypage/favorites' className='inline-flex items-center gap-2 hover:text-gray-900'>
+                <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364l-7.682-7.682a4.5 4.5 0 010-6.364z' /></svg>
+                <span className='hidden sm:inline text-sm'>お気に入り</span>
+              </Link>
 
-          {/* Language/Currency Switcher & Mobile Menu */}
-          <div className='flex items-center space-x-4'>
-            {/* Language/Currency Switcher */}
-            <div className='relative'>
-              <button
-                onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-                className='flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200'
-                aria-label='言語・通貨切替'
-                aria-expanded={isLanguageMenuOpen}
-                aria-haspopup='menu'
-                aria-controls='lang-currency-menu'
-              >
-                <span className='text-sm font-medium text-gray-700'>
-                  {locale === 'ja' ? '日本語' : 'English'}
-                </span>
-                <span className='text-xs text-gray-500'>
-                  {currency === 'JPY' ? '¥' : '$'}
-                </span>
-                <svg
-                  className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
-                    isLanguageMenuOpen ? 'rotate-180' : ''
-                  }`}
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M19 9l-7 7-7-7'
-                  />
-                </svg>
-              </button>
-
-              {/* Language/Currency Dropdown */}
-              {isLanguageMenuOpen && (
-                <div
-                  id='lang-currency-menu'
-                  role='menu'
-                  className='absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50'
-                >
-                  <div className='px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100'>
-                    言語・通貨
+              <div className='relative'>
+                <button onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)} className='inline-flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-gray-100' aria-label='言語・通貨切替' aria-expanded={isLanguageMenuOpen} aria-haspopup='menu' aria-controls='lang-currency-menu'>
+                  <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 3c4.97 0 9 4.03 9 9s-4.03 9-9 9-9-4.03-9-9 4.03-9 9-9zm0 0v18m9-9H3' /></svg>
+                  <span className='hidden sm:inline text-sm'>{locale === 'ja' ? 'JA' : 'EN'}・{currency === 'JPY' ? '¥' : '$'}</span>
+                </button>
+                {isLanguageMenuOpen && (
+                  <div id='lang-currency-menu' role='menu' className='absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50'>
+                    <div className='px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100'>言語・通貨</div>
+                    <button onClick={() => { handleLocaleChange('ja'); handleCurrencyChange('JPY'); }} className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${locale==='ja'?'text-blue-600 bg-blue-50':'text-gray-700'}`}>
+                      <div className='flex items-center justify-between'><span>日本語</span><span className='text-xs text-gray-500'>¥ JPY</span></div>
+                    </button>
+                    <button onClick={() => { handleLocaleChange('en'); handleCurrencyChange('USD'); }} className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${locale==='en'?'text-blue-600 bg-blue-50':'text-gray-700'}`}>
+                      <div className='flex items-center justify-between'><span>English</span><span className='text-xs text-gray-500'>$ USD</span></div>
+                    </button>
                   </div>
-                  <button
-                    onClick={() => {
-                      handleLocaleChange('ja');
-                      handleCurrencyChange('JPY');
-                    }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors duration-200 ${
-                      locale === 'ja'
-                        ? 'text-blue-600 bg-blue-50'
-                        : 'text-gray-700'
-                    }`}
-                  >
-                    <div className='flex items-center justify-between'>
-                      <span>日本語</span>
-                      <span className='text-xs text-gray-500'>¥ JPY</span>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleLocaleChange('en');
-                      handleCurrencyChange('USD');
-                    }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors duration-200 ${
-                      locale === 'en'
-                        ? 'text-blue-600 bg-blue-50'
-                        : 'text-gray-700'
-                    }`}
-                  >
-                    <div className='flex items-center justify-between'>
-                      <span>English</span>
-                      <span className='text-xs text-gray-500'>$ USD</span>
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Search Shortcut */}
-            <Link
-              href='/products'
-              className='hidden lg:inline-flex p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200'
-              aria-label='検索ショートカット'
-            >
-              <svg className='w-5 h-5 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' />
-              </svg>
-            </Link>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className='lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200'
-              aria-label='メニューを開く'
-              aria-controls='mobile-menu'
-              aria-expanded={isMenuOpen}
-            >
-              <svg
-                className='w-6 h-6 text-gray-700'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                {isMenuOpen ? (
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M6 18L18 6M6 6l12 12'
-                  />
-                ) : (
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M4 6h16M4 12h16M4 18h16'
-                  />
                 )}
-              </svg>
-            </button>
+              </div>
+
+              <Link href='/mypage' className='inline-flex items-center gap-2 hover:text-gray-900'>
+                <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5.121 17.804A9 9 0 1112 21a8.963 8.963 0 01-6.879-3.196z' /></svg>
+                <span className='hidden sm:inline text-sm'>ログイン</span>
+              </Link>
+
+              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className='inline-flex items-center gap-2 hover:text-gray-900' aria-label='メニューを開く' aria-controls='mobile-menu' aria-expanded={isMenuOpen}>
+                <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  {isMenuOpen ? (<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />) : (<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 6h16M4 12h16M4 18h16' />)}
+                </svg>
+                <span className='hidden sm:inline text-sm'>メニュー</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isMenuOpen && (
           <div className='lg:hidden py-4 border-t border-gray-200'>
-            <nav
-              id='mobile-menu'
-              role='navigation'
-              aria-label='モバイルナビゲーション'
-              className='flex flex-col space-y-4'
-            >
-              <Link
-                href='/'
-                aria-current={pathname === '/' ? 'page' : undefined}
-                className={`font-medium transition-colors duration-200 py-2 ${pathname === '/' ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('navigation.home')}
-              </Link>
-              <Link
-                href='/about'
-                aria-current={pathname === '/about' ? 'page' : undefined}
-                className={`font-medium transition-colors duration-200 py-2 ${pathname === '/about' ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('navigation.about')}
-              </Link>
-              <Link
-                href='/ingredients'
-                aria-current={
-                  pathname?.startsWith('/ingredients') ? 'page' : undefined
-                }
-                className={`font-medium transition-colors duration-200 py-2 ${pathname?.startsWith('/ingredients') ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('navigation.ingredients')}
-              </Link>
-              <Link
-                href='/compare'
-                aria-current={pathname === '/compare' ? 'page' : undefined}
-                className={`font-medium transition-colors duration-200 py-2 ${pathname === '/compare' ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('navigation.compare')}
-              </Link>
-              <Link
-                href='/mypage'
-                aria-current={
-                  pathname?.startsWith('/mypage') ? 'page' : undefined
-                }
-                className={`font-medium transition-colors duration-200 py-2 ${pathname?.startsWith('/mypage') ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('navigation.mypage')}
-              </Link>
+            <nav id='mobile-menu' role='navigation' aria-label='モバイルナビゲーション' className='flex flex-col space-y-4'>
+              <Link href='/' aria-current={pathname === '/' ? 'page' : undefined} className={`font-medium transition-colors duration-200 py-2 ${pathname === '/' ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`} onClick={() => setIsMenuOpen(false)}>{t('navigation.home')}</Link>
+              <Link href='/about' aria-current={pathname === '/about' ? 'page' : undefined} className={`font-medium transition-colors duration-200 py-2 ${pathname === '/about' ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`} onClick={() => setIsMenuOpen(false)}>{t('navigation.about')}</Link>
+              <Link href='/ingredients' aria-current={pathname?.startsWith('/ingredients') ? 'page' : undefined} className={`font-medium transition-colors duration-200 py-2 ${pathname?.startsWith('/ingredients') ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`} onClick={() => setIsMenuOpen(false)}>{t('navigation.ingredients')}</Link>
+              <Link href='/compare' aria-current={pathname === '/compare' ? 'page' : undefined} className={`font-medium transition-colors duration-200 py-2 ${pathname === '/compare' ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`} onClick={() => setIsMenuOpen(false)}>{t('navigation.compare')}</Link>
+              <Link href='/mypage' aria-current={pathname?.startsWith('/mypage') ? 'page' : undefined} className={`font-medium transition-colors duration-200 py-2 ${pathname?.startsWith('/mypage') ? 'text-primary-700' : 'text-gray-700 hover:text-blue-600'}`} onClick={() => setIsMenuOpen(false)}>{t('navigation.mypage')}</Link>
             </nav>
           </div>
         )}
       </div>
 
-      {/* Backdrop for dropdowns */}
       {(isLanguageMenuOpen || isMenuOpen) && (
-        <div
-          className='fixed inset-0 z-40'
-          onClick={() => {
-            setIsLanguageMenuOpen(false);
-            setIsMenuOpen(false);
-          }}
-        />
+        <div className='fixed inset-0 z-40' onClick={() => { setIsLanguageMenuOpen(false); setIsMenuOpen(false); }} />
       )}
     </header>
   );

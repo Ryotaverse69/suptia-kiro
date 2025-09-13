@@ -205,11 +205,14 @@ export function SearchBar({
           className={`
             ${styles.input}
             w-full
-            ${variant === 'glass' ? 'rounded-full bg-white/90 backdrop-blur-xl border-2 border-blue-500/10 shadow-xl focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10' : 'rounded-2xl bg-white border-2 border-gray-200 shadow-lg focus:border-primary-500 focus:ring-4 focus:ring-primary-100'}
+            ${
+              variant === 'glass'
+                ? 'rounded-full bg-gray-50 border border-gray-200 shadow-[0_2px_10px_rgba(0,0,0,0.06)] focus:border-emerald-500 focus:ring-4 focus:ring-emerald-400/20'
+                : 'rounded-2xl bg-white border-2 border-gray-200 shadow-lg focus:border-primary-500 focus:ring-4 focus:ring-primary-100'
+            }
             focus:outline-none
             transition-all duration-200
             placeholder-gray-400
-            ${isFocused ? 'shadow-xl' : ''}
           `}
         />
 
@@ -224,19 +227,22 @@ export function SearchBar({
             right-2
             top-1/2
             -translate-y-1/2
-            ${variant === 'glass' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-primary-600 hover:bg-primary-700'}
+            ${
+              variant === 'glass'
+                ? 'bg-emerald-500 hover:bg-emerald-600 ring-1 ring-emerald-900/20'
+                : 'bg-primary-600 hover:bg-primary-700'
+            }
             disabled:bg-gray-300
             disabled:cursor-not-allowed
             text-white
             font-semibold
-            ${variant === 'glass' ? 'rounded-full' : 'rounded-xl'}
+            ${variant === 'glass' ? 'rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.12)]' : 'rounded-xl'}
             transition-all
             duration-200
-            shadow-md
             hover:shadow-lg
             focus:outline-none
             focus:ring-2
-            ${variant === 'glass' ? 'focus:ring-blue-500' : 'focus:ring-primary-500'}
+            ${variant === 'glass' ? 'focus:ring-emerald-500' : 'focus:ring-primary-500'}
             focus:ring-offset-2
           `}
         >
