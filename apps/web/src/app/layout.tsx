@@ -180,9 +180,11 @@ export default function RootLayout({
           {/* Header */}
           <Header />
 
-          {/* Main Content */}
+          {/* Main Content (site width fixed to 1280px) */}
           <main id='main-content' role='main' className='pt-16 min-h-screen'>
-            {children}
+            <div className='max-w-[1280px] mx-auto px-4'>
+              {children}
+            </div>
           </main>
 
           {/* Footer */}
