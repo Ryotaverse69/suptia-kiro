@@ -49,14 +49,14 @@ export function Header() {
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 border-b border-gray-200 transition-[background-color,box-shadow] duration-200 ease-out ${isScrolled ? 'bg-white/95 shadow-sm' : 'bg-white'}`}>
-      <div className='container mx-auto px-4'>
-        <div className='grid grid-cols-3 items-center h-16'>
-          <div className='hidden md:block' />
-          <div className='flex justify-center'>
-            <Link href='/' aria-label='サプティア ホーム' className='flex items-center'>
-              <Logo variant='full' size='md' />
-            </Link>
-          </div>
+      <div className='max-w-[1280px] mx-auto px-4'>
+        <div className='flex items-center justify-between h-16'>
+          {/* Left: Brand */}
+          <Link href='/' aria-label='サプティア ホーム' className='flex items-center gap-2'>
+            <span className='text-xl md:text-2xl font-bold tracking-tight text-gray-900'>サプティア</span>
+          </Link>
+
+          {/* Right: Icons + labels */}
           <div className='flex justify-end'>
             <div className='flex items-center gap-6 text-gray-800'>
               <Link href='/mypage/favorites' className='inline-flex items-center gap-2 hover:text-gray-900'>
