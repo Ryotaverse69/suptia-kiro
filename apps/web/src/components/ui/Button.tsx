@@ -1,94 +1,79 @@
-import React from 'react';
+import * as React from 'react';
+import { Slot } from '@radix-ui/react-slot';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'apple-blue';
-    size?: 'sm' | 'md' | 'lg';
-    children: React.ReactNode;
-    loading?: boolean;
-    loadingText?: string;
-    leftIcon?: React.ReactNode;
-    rightIcon?: React.ReactNode;
+/**
+ * Apple/xAI風Buttonコンポーネント
+ * デザイントークン: #2563EB、白基調、Inter + Noto Sans JP
+ */
+const buttonVariants = cva(
+  'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  {
+    variants: {
+      variant: {
+        // プライマリ: Apple風ブルー (#2563EB)
+        primary:
+          'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 shadow-soft hover:shadow-medium',
+
+        // セカンダリ: 白基調
+        secondary:
+          'bg-white text-gray-900 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-soft hover:shadow-medium',
+
+        // アウトライン: Apple風ボーダー
+        outline:
+          'border border-primary-600 text-primary-600 hover:bg-primary-50 hover:text-primary-700',
+
+        // ゴースト: 最小限のスタイル
+        ghost: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
+
+        // リンク: テキストのみ
+        link: 'text-primary-600 underline-offset-4 hover:underline',
+
+        // 破壊的アクション
+        destructive:
+          'bg-red-500 text-white hover:bg-red-600 active:bg-red-700 shadow-soft hover:shadow-medium',
+      },
+      size: {
+        sm: 'h-9 px-3 text-xs',
+        md: 'h-10 px-4 py-2',
+        lg: 'h-12 px-6 py-3 text-base',
+        xl: 'h-14 px-8 py-4 text-lg',
+        icon: 'h-10 w-10',
+      },
+      // Apple風のホバー効果
+      hover: {
+        none: '',
+        lift: 'hover:-translate-y-0.5',
+        scale: 'hover:scale-[1.02] active:scale-[0.98]',
+      },
+    },
+    defaultVariants: {
+      variant: 'primary',
+      size: 'md',
+      hover: 'lift',
+    },
+  }
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
 }
 
-const buttonVariants = {
-    primary: 'bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white shadow-lg hover:shadow-xl',
-    secondary: 'bg-gradient-to-r from-secondary-500 to-secondary-600 hover:from-secondary-600 hover:to-secondary-700 text-white shadow-lg hover:shadow-xl',
-    outline: 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm hover:shadow-md',
-    ghost: 'bg-transparent hover:bg-gray-100 text-gray-700',
-    // Apple/xAI風シンプルブルー
-    'apple-blue': 'bg-primary-600 hover:bg-primary-700 text-white shadow-soft hover:shadow-medium'
-};
-
-const buttonSizes = {
-    sm: 'py-2 px-4 text-sm rounded-lg',
-    md: 'py-3 px-6 text-base rounded-xl',
-    lg: 'py-4 px-8 text-lg rounded-xl'
-};
-
-export const Button: React.FC<ButtonProps> = ({
-    variant = 'primary',
-    size = 'md',
-    className,
-    children,
-    disabled,
-    loading = false,
-    loadingText = '読み込み中...',
-    leftIcon,
-    rightIcon,
-    ...props
-}) => {
-    const isDisabled = disabled || loading;
-
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, hover, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : 'button';
     return (
-        <button
-            className={cn(
-                'font-semibold transition-all duration-200 ease-apple transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none inline-flex items-center justify-center gap-2',
-                buttonVariants[variant],
-                buttonSizes[size],
-                className
-            )}
-            disabled={isDisabled}
-            aria-busy={loading}
-            aria-disabled={isDisabled}
-            {...props}
-        >
-            {loading && (
-                <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                >
-                    <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                    />
-                    <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                </svg>
-            )}
-            {!loading && leftIcon && (
-                <span className="flex-shrink-0" aria-hidden="true">
-                    {leftIcon}
-                </span>
-            )}
-            <span>
-                {loading ? loadingText : children}
-            </span>
-            {!loading && rightIcon && (
-                <span className="flex-shrink-0" aria-hidden="true">
-                    {rightIcon}
-                </span>
-            )}
-        </button>
+      <Comp
+        className={cn(buttonVariants({ variant, size, hover, className }))}
+        ref={ref}
+        {...props}
+      />
     );
-};
+  }
+);
+Button.displayName = 'Button';
+
+export { Button, buttonVariants };

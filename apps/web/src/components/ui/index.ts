@@ -1,9 +1,23 @@
-// UI コンポーネントエクスポート
-export { Button } from './Button';
-export { Card, CardHeader, CardContent, CardFooter } from './Card';
-export { Badge } from './Badge';
+/**
+ * Apple/xAI風デザインシステム - 共通UIコンポーネント
+ * デザイントークン: #2563EB、白基調、Inter + Noto Sans JP
+ */
 
-// 型エクスポート
-export type { ButtonProps } from './Button';
-export type { CardProps, CardHeaderProps, CardContentProps, CardFooterProps } from './Card';
-export type { BadgeProps } from './Badge';
+export { Button, buttonVariants, type ButtonProps } from './Button';
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  cardVariants,
+  type CardProps,
+} from './Card';
+export {
+  Badge,
+  EvidenceBadge,
+  ScoreBadge,
+  badgeVariants,
+  type BadgeProps,
+} from './Badge';

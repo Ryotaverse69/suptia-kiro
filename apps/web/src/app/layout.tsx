@@ -22,7 +22,10 @@ import LocaleHtmlLangSetter from '@/components/LocaleHtmlLangSetter';
 
 // パフォーマンス監視コンポーネントを動的インポート
 const PerformanceMonitor = dynamic(
-  () => import('@/components/PerformanceMonitor'),
+  () =>
+    import('@/components/WebVitalsMonitor').then(mod => ({
+      default: mod.PerformanceMonitor,
+    })),
   { ssr: false }
 );
 const WebVitalsClient = dynamic(() => import('@/components/WebVitalsClient'), {
@@ -182,18 +185,14 @@ export default function RootLayout({
 
           {/* Main Content (site width fixed to 1280px) */}
           <main id='main-content' role='main' className='pt-16 min-h-screen'>
-            <div className='max-w-[1280px] mx-auto px-4'>
-              {children}
-            </div>
+            <div className='max-w-[1280px] mx-auto px-4'>{children}</div>
           </main>
 
           {/* Footer */}
           <Footer />
 
-          {/* パフォーマンス監視（開発環境のみ） */}
-          {process.env.NODE_ENV === 'development' && (
-            <PerformanceMonitor enableLogging={true} />
-          )}
+          {/* パフォーマンス監視 */}
+          <PerformanceMonitor />
           <WebVitalsClient />
         </LocaleProvider>
       </body>

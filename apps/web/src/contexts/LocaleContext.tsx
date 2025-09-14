@@ -8,7 +8,7 @@ import React, {
   ReactNode,
 } from 'react';
 import { BASE_CURRENCY, convertFromJPY } from '@/lib/exchange';
-import { useRouter, usePathname } from 'next/navigation';
+// import { useRouter, usePathname } from 'next/navigation';
 import jaMessages from '@/messages/ja.json';
 import enMessages from '@/messages/en.json';
 // 簡素化されたロケール設定
@@ -45,8 +45,8 @@ export function LocaleProvider({
   const [currency, setCurrencyState] = useState<string>(
     currencies[initialLocale]
   );
-  const router = useRouter();
-  const pathname = usePathname();
+  // const router = useRouter();
+  // const pathname = usePathname();
 
   // ローカルストレージから設定を復元
   useEffect(() => {

@@ -4,6 +4,11 @@
 
 /* Apple/xAI design tokens */
 :root {
+  /* タスク要求のCSS変数 */
+  --brand: #2563eb;         /* Apple/xAI風ブランドカラー (#2563EB) */
+  --radius: 1rem;           /* Apple風角丸 (16px) */
+  --shadow-soft: 0 8px 30px rgba(0,0,0,0.06); /* Apple風極薄影 */
+
   /* Base colors */
   --bg-primary: #ffffff;
   --ink: #0A0A0A;           /* 本文濃灰 */

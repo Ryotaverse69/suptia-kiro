@@ -1,196 +1,115 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import LanguageCurrencySelector from '../LanguageCurrencySelector';
+import { LanguageCurrencySelector } from '../LanguageCurrencySelector';
 import { LocaleProvider } from '@/contexts/LocaleContext';
 
-// Next.js router のモック
-const mockPush = vi.fn();
-const mockPathname = '/';
-
-vi.mock('next/navigation', () => ({
-    useRouter: () => ({
-        push: mockPush,
-    }),
-    usePathname: () => mockPathname,
-}));
-
-// LocalStorage のモック
-const localStorageMock = {
-    getItem: vi.fn(),
-    setItem: vi.fn(),
-    removeItem: vi.fn(),
-    clear: vi.fn(),
-};
-
-Object.defineProperty(window, 'localStorage', {
-    value: localStorageMock,
-});
-
-const renderWithProvider = (component: React.ReactElement) => {
-    return render(
-        <LocaleProvider initialLocale="ja">
-            {component}
-        </LocaleProvider>
-    );
-};
+// LocaleProviderでラップしたテストコンポーネント
+const TestComponent = () => (
+  <LocaleProvider>
+    <LanguageCurrencySelector />
+  </LocaleProvider>
+);
 
 describe('LanguageCurrencySelector', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-        localStorageMock.getItem.mockReturnValue(null);
+  beforeEach(() => {
+    // LocalStorageをクリア
+    localStorage.clear();
+  });
+
+  it('デフォルトで日本語/JPYが表示される', () => {
+    render(<TestComponent />);
+
+    const button = screen.getByRole('button', { name: '言語・通貨切替' });
+    expect(button).toHaveTextContent('日本語 / JPY ¥');
+  });
+
+  it('ドロップダウンが開閉する', async () => {
+    render(<TestComponent />);
+
+    const button = screen.getByRole('button', { name: '言語・通貨切替' });
+
+    // ドロップダウンを開く
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByRole('menu')).toBeInTheDocument();
+      expect(screen.getByText('日本語')).toBeInTheDocument();
+      expect(screen.getByText('English')).toBeInTheDocument();
+    });
+  });
+
+  it('言語・通貨切替が正しく動作する', async () => {
+    render(<TestComponent />);
+
+    const button = screen.getByRole('button', { name: '言語・通貨切替' });
+
+    // ドロップダウンを開く
+    fireEvent.click(button);
+
+    // Englishを選択
+    const englishOption = screen.getByRole('menuitem', { name: /English/ });
+    fireEvent.click(englishOption);
+
+    await waitFor(() => {
+      expect(button).toHaveTextContent('English / USD $');
+    });
+  });
+
+  it('Escapeキーでドロップダウンが閉じる', async () => {
+    render(<TestComponent />);
+
+    const button = screen.getByRole('button', { name: '言語・通貨切替' });
+
+    // ドロップダウンを開く
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByRole('menu')).toBeInTheDocument();
     });
 
-    it('should render language and currency selector button', () => {
-        renderWithProvider(<LanguageCurrencySelector />);
+    // Escapeキーを押す
+    fireEvent.keyDown(document, { key: 'Escape' });
 
-        const button = screen.getByRole('button', { name: /言語・通貨設定/ });
-        expect(button).toBeInTheDocument();
-        expect(button).toHaveTextContent('日本語');
-        expect(button).toHaveTextContent('¥');
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+  });
+
+  it('外部クリックでドロップダウンが閉じる', async () => {
+    render(
+      <div>
+        <TestComponent />
+        <div data-testid='outside'>Outside element</div>
+      </div>
+    );
+
+    const button = screen.getByRole('button', { name: '言語・通貨切替' });
+
+    // ドロップダウンを開く
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByRole('menu')).toBeInTheDocument();
     });
 
-    it('should open dropdown menu when button is clicked', async () => {
-        renderWithProvider(<LanguageCurrencySelector />);
+    // 外部要素をクリック
+    fireEvent.mouseDown(screen.getByTestId('outside'));
 
-        const button = screen.getByRole('button', { name: /言語・通貨設定/ });
-        fireEvent.click(button);
-
-        await waitFor(() => {
-            expect(screen.getByText('言語 / Language')).toBeInTheDocument();
-            expect(screen.getByText('通貨 / Currency')).toBeInTheDocument();
-        });
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
+  });
 
-    it('should display language options in dropdown', async () => {
-        renderWithProvider(<LanguageCurrencySelector />);
+  it('選択された言語・通貨がハイライトされる', async () => {
+    render(<TestComponent />);
 
-        const button = screen.getByRole('button', { name: /言語・通貨設定/ });
-        fireEvent.click(button);
+    const button = screen.getByRole('button', { name: '言語・通貨切替' });
 
-        await waitFor(() => {
-            expect(screen.getByRole('menuitem', { name: /日本語/ })).toBeInTheDocument();
-            expect(screen.getByRole('menuitem', { name: /English/ })).toBeInTheDocument();
-        });
+    // ドロップダウンを開く
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      const japaneseOption = screen.getByRole('menuitem', { name: /日本語/ });
+      expect(japaneseOption).toHaveClass('text-blue-600', 'bg-blue-50/50');
     });
-
-    it('should display currency options in dropdown', async () => {
-        renderWithProvider(<LanguageCurrencySelector />);
-
-        const button = screen.getByRole('button', { name: /言語・通貨設定/ });
-        fireEvent.click(button);
-
-        await waitFor(() => {
-            expect(screen.getAllByText('¥')).toHaveLength(2); // ボタン内とドロップダウン内
-            expect(screen.getByText('円')).toBeInTheDocument();
-            expect(screen.getByText('$')).toBeInTheDocument();
-            expect(screen.getByText('Dollar')).toBeInTheDocument();
-        });
-    });
-
-    it('should show current locale as selected', async () => {
-        renderWithProvider(<LanguageCurrencySelector />);
-
-        const button = screen.getByRole('button', { name: /言語・通貨設定/ });
-        fireEvent.click(button);
-
-        await waitFor(() => {
-            const japaneseOption = screen.getByRole('menuitem', { name: /日本語/ });
-            expect(japaneseOption).toHaveClass('bg-primary-50', 'text-primary-700');
-        });
-    });
-
-    it('should change language when language option is clicked', async () => {
-        renderWithProvider(<LanguageCurrencySelector />);
-
-        const button = screen.getByRole('button', { name: /言語・通貨設定/ });
-        fireEvent.click(button);
-
-        await waitFor(() => {
-            const englishOption = screen.getByRole('menuitem', { name: /English/ });
-            fireEvent.click(englishOption);
-        });
-
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('suptia-locale', 'en');
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('suptia-currency', 'USD');
-        expect(mockPush).toHaveBeenCalled();
-    });
-
-    it('should change currency when currency option is clicked', async () => {
-        renderWithProvider(<LanguageCurrencySelector />);
-
-        const button = screen.getByRole('button', { name: /言語・通貨設定/ });
-        fireEvent.click(button);
-
-        await waitFor(() => {
-            const dollarOption = screen.getByRole('menuitem', { name: /\$ Dollar/ });
-            fireEvent.click(dollarOption);
-        });
-
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('suptia-currency', 'USD');
-    });
-
-    it('should close dropdown when overlay is clicked', async () => {
-        renderWithProvider(<LanguageCurrencySelector />);
-
-        const button = screen.getByRole('button', { name: /言語・通貨設定/ });
-        fireEvent.click(button);
-
-        await waitFor(() => {
-            expect(screen.getByText('言語 / Language')).toBeInTheDocument();
-        });
-
-        // オーバーレイをクリック
-        const overlay = document.querySelector('.fixed.inset-0');
-        expect(overlay).toBeInTheDocument();
-        fireEvent.click(overlay!);
-
-        await waitFor(() => {
-            expect(screen.queryByText('言語 / Language')).not.toBeInTheDocument();
-        });
-    });
-
-    it('should have proper ARIA attributes', () => {
-        renderWithProvider(<LanguageCurrencySelector />);
-
-        const button = screen.getByRole('button', { name: /言語・通貨設定/ });
-        expect(button).toHaveAttribute('aria-expanded', 'false');
-        expect(button).toHaveAttribute('aria-haspopup', 'true');
-        expect(button).toHaveAttribute('aria-label', '言語・通貨設定');
-    });
-
-    it('should update ARIA expanded state when dropdown is opened', async () => {
-        renderWithProvider(<LanguageCurrencySelector />);
-
-        const button = screen.getByRole('button', { name: /言語・通貨設定/ });
-        fireEvent.click(button);
-
-        await waitFor(() => {
-            expect(button).toHaveAttribute('aria-expanded', 'true');
-        });
-    });
-
-    it('should apply custom className', () => {
-        const customClass = 'custom-test-class';
-        renderWithProvider(<LanguageCurrencySelector className={customClass} />);
-
-        const container = document.querySelector(`.${customClass}`);
-        expect(container).toBeInTheDocument();
-    });
-
-    it('should handle keyboard navigation', async () => {
-        renderWithProvider(<LanguageCurrencySelector />);
-
-        const button = screen.getByRole('button', { name: /言語・通貨設定/ });
-
-        // フォーカスを当てる
-        button.focus();
-        expect(button).toHaveFocus();
-
-        // クリックでドロップダウンを開く
-        fireEvent.click(button);
-
-        await waitFor(() => {
-            expect(screen.getByText('言語 / Language')).toBeInTheDocument();
-        });
-    });
+  });
 });

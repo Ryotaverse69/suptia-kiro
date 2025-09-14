@@ -1,79 +1,55 @@
-# サプティア デザインシステム
+# Apple/xAI風デザインシステム
 
-サプティアのフロントエンドで使用する共通UIコンポーネントライブラリです。
-
-## 概要
-
-このデザインシステムは、一貫性のあるユーザーインターフェースを提供し、開発効率を向上させることを目的としています。近未来的でスタイリッシュなデザインを基調とし、アクセシビリティとユーザビリティを重視しています。
+サプティアのフロントエンドUI/UX刷新のための共通UIコンポーネントライブラリです。
 
 ## デザイン原則
 
-### 1. 近未来的でスタイリッシュ
-- グラデーションとシャドウを効果的に使用
-- 滑らかなアニメーションとトランジション
-- モダンなタイポグラフィ
+- **色**: 白基調、アクセント#2563EB
+- **フォント**: Inter + Noto Sans JP（Apple寄りのタイポ）
+- **角丸**: lg～xl（過度でない範囲）
+- **余白**: 広めに設定（Apple風）
+- **影**: 極薄（shadow-sm/md程度）
+- **モーション**: フェード/スライドは100–200ms
 
-### 2. アクセシビリティ重視
-- WCAG 2.1 AA準拠
-- キーボードナビゲーション対応
-- 適切なカラーコントラスト
+## CSS変数
 
-### 3. レスポンシブデザイン
-- モバイルファーストアプローチ
-- 柔軟なレイアウトシステム
-- タッチフレンドリーなインターフェース
+デザインシステムの基盤となるCSS変数：
 
-## カラーパレット
-
-### プライマリカラー（近未来的ブルー）
 ```css
-primary-50: #eff6ff
-primary-500: #3b82f6
-primary-600: #2563eb
-primary-700: #1d4ed8
+:root {
+  --brand: #2563eb; /* Apple/xAI風ブランドカラー */
+  --radius: 1rem; /* Apple風角丸 */
+  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.06); /* Apple風極薄影 */
+}
 ```
 
-### セカンダリカラー（アクセント用）
-```css
-secondary-500: #10b981
-secondary-600: #059669
+## ユーティリティ関数
+
+### cn() - クラス統制システム
+
+clsx + tailwind-mergeを組み合わせたユーティリティ関数：
+
+```typescript
+import { cn } from '@/lib/utils';
+
+// 使用例
+const className = cn(
+  'base-classes',
+  condition && 'conditional-classes',
+  props.className
+);
 ```
-
-### ステータスカラー
-```css
-success: #10b981
-warning: #f59e0b
-error: #ef4444
-info: #3b82f6
-```
-
-## タイポグラフィ
-
-### フォントファミリー
-```css
-font-family: 'Inter', 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif
-```
-
-### フォントサイズ
-- `text-xs`: 12px
-- `text-sm`: 14px
-- `text-base`: 16px
-- `text-lg`: 18px
-- `text-xl`: 20px
-- `text-2xl`: 24px
-- `text-3xl`: 30px
-- `text-4xl`: 36px
 
 ## コンポーネント
 
 ### Button
 
-基本的なボタンコンポーネント。4つのバリアントと3つのサイズを提供。
+Apple/xAI風のボタンコンポーネント：
 
 ```tsx
-import { Button } from '@/components/ui';
+import { Button } from "@/components/ui"
 
-// 基本的な使用法
+// 基本的な使用
 <Button>クリック</Button>
 
 // バリアント
@@ -81,189 +57,129 @@ import { Button } from '@/components/ui';
 <Button variant="secondary">セカンダリ</Button>
 <Button variant="outline">アウトライン</Button>
 <Button variant="ghost">ゴースト</Button>
-<Button variant="apple-blue">Appleブルー</Button>
 
 // サイズ
 <Button size="sm">小</Button>
 <Button size="md">中</Button>
 <Button size="lg">大</Button>
+<Button size="xl">特大</Button>
 
-// 無効状態
-<Button disabled>無効</Button>
+// ホバー効果
+<Button hover="lift">リフト</Button>
+<Button hover="scale">スケール</Button>
 ```
-
-#### Props
-- `variant`: 'primary' | 'secondary' | 'outline' | 'ghost' | 'apple-blue'
-- `size`: 'sm' | 'md' | 'lg'
-- `disabled`: boolean
-- `className`: string
-- その他のHTMLButtonElement属性
 
 ### Card
 
-コンテンツをグループ化するためのカードコンポーネント。
+Apple風の洗練されたカードコンポーネント：
 
 ```tsx
-import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui"
 
 <Card>
   <CardHeader>
-    <h2>タイトル</h2>
+    <CardTitle>タイトル</CardTitle>
+    <CardDescription>説明文</CardDescription>
   </CardHeader>
   <CardContent>
-    <p>コンテンツ</p>
+    メインコンテンツ
   </CardContent>
-  <CardFooter>
-    <Button>アクション</Button>
-  </CardFooter>
 </Card>
 
 // バリアント
-<Card variant="default">デフォルト</Card>
-<Card variant="elevated">エレベート</Card>
-<Card variant="outlined">アウトライン</Card>
+<Card variant="elevated">エレベーテッド</Card>
+<Card variant="glass">ガラス効果</Card>
+<Card variant="hero">ヒーロー</Card>
 
 // ホバー効果
-<Card hover>ホバー効果付き</Card>
+<Card hover="lift">リフト</Card>
+<Card hover="scale">スケール</Card>
+<Card hover="glow">グロー</Card>
 ```
-
-#### Props
-- `variant`: 'default' | 'elevated' | 'outlined'
-- `hover`: boolean
-- `className`: string
 
 ### Badge
 
-ステータスや分類を表示するためのバッジコンポーネント。
+成分バッジ、エビデンス強度表示用のコンポーネント：
 
 ```tsx
-import { Badge } from '@/components/ui';
+import { Badge, EvidenceBadge, ScoreBadge } from "@/components/ui"
 
-// スコア用バリアント
-<Badge variant="high">高スコア</Badge>
-<Badge variant="medium">中スコア</Badge>
-<Badge variant="low">低スコア</Badge>
-
-// ステータス用バリアント
+// 基本的なバッジ
+<Badge>デフォルト</Badge>
+<Badge variant="primary">プライマリ</Badge>
 <Badge variant="success">成功</Badge>
-<Badge variant="danger">危険</Badge>
-<Badge variant="info">情報</Badge>
+<Badge variant="warning">警告</Badge>
+<Badge variant="error">エラー</Badge>
 
-// サイズ
-<Badge size="sm">小</Badge>
-<Badge size="md">中</Badge>
-<Badge size="lg">大</Badge>
+// エビデンス強度バッジ
+<EvidenceBadge level="A" />  // エビデンス A
+<EvidenceBadge level="B" />  // エビデンス B
+<EvidenceBadge level="C" />  // エビデンス C
+
+// スコアバッジ（自動的に色が決まる）
+<ScoreBadge score={85} />    // 高スコア（緑）
+<ScoreBadge score={70} />    // 中スコア（黄）
+<ScoreBadge score={45} />    // 低スコア（赤）
 ```
 
-#### Props
-- `variant`: 'high' | 'medium' | 'low' | 'danger' | 'success' | 'info'
-- `size`: 'sm' | 'md' | 'lg'
-- `className`: string
+## アクセシビリティ
 
-## ユーティリティ関数
+すべてのコンポーネントはWCAG 2.1 AA準拠：
 
-### cn (className utility)
-Tailwind CSSクラスを結合し、競合を解決します。
+- キーボードナビゲーション対応
+- フォーカス管理
+- 適切なARIA属性
+- カラーコントラスト AA準拠
 
-```tsx
-import { cn } from '@/lib/utils';
+## テスト
 
-const className = cn(
-  'base-class',
-  condition && 'conditional-class',
-  'p-4 p-6' // p-6が適用される
-);
-```
+各コンポーネントには包括的なテストが含まれています：
 
-### formatPrice
-価格をロケールに応じてフォーマットします。
-
-```tsx
-import { formatPrice } from '@/lib/utils';
-
-formatPrice(1000); // "¥1,000"
-formatPrice(1000, 'USD', 'en-US'); // "$1,000"
-```
-
-### getScoreBadgeVariant
-スコアに基づいて適切なバッジバリアントを返します。
-
-```tsx
-import { getScoreBadgeVariant } from '@/lib/utils';
-
-const variant = getScoreBadgeVariant(85); // "high"
+```bash
+# UIコンポーネントのテスト実行
+pnpm test src/components/ui/__tests__
 ```
 
 ## 使用例
 
-### 商品カード
 ```tsx
-import { Card, CardHeader, CardContent, CardFooter, Button, Badge } from '@/components/ui';
-import { getScoreBadgeVariant, formatPrice } from '@/lib/utils';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  Badge,
+} from '@/components/ui';
 
 function ProductCard({ product }) {
   return (
-    <Card hover className="max-w-sm">
+    <Card hover='lift' className='max-w-sm'>
       <CardHeader>
-        <div className="flex justify-between items-start">
-          <h3 className="text-lg font-semibold">{product.name}</h3>
-          <Badge variant={getScoreBadgeVariant(product.score)}>
-            {product.score}点
-          </Badge>
+        <div className='flex items-center justify-between'>
+          <CardTitle>{product.name}</CardTitle>
+          <Badge variant='success'>評価 {product.rating}</Badge>
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-gray-600">{product.description}</p>
-        <p className="text-2xl font-bold text-primary-600 mt-4">
-          {formatPrice(product.price)}
-        </p>
+        <p className='text-gray-600 mb-4'>{product.description}</p>
+        <div className='flex gap-2 mb-4'>
+          {product.ingredients.map(ingredient => (
+            <Badge key={ingredient} variant='outline'>
+              {ingredient}
+            </Badge>
+          ))}
+        </div>
+        <Button className='w-full'>詳細を見る</Button>
       </CardContent>
-      <CardFooter>
-        <Button className="w-full">詳細を見る</Button>
-      </CardFooter>
     </Card>
   );
 }
 ```
 
-## 開発ガイドライン
+## パフォーマンス
 
-### 新しいコンポーネントの追加
-1. `src/components/ui/` ディレクトリに新しいコンポーネントファイルを作成
-2. TypeScriptインターフェースを定義
-3. `src/components/ui/index.ts` にエクスポートを追加
-4. テストファイルを `__tests__/` ディレクトリに作成
-5. このREADMEにドキュメントを追加
-
-### スタイリング規則
-- Tailwind CSSクラスを使用
-- カスタムCSSは最小限に抑制
-- `cn()` ユーティリティを使用してクラスを結合
-- レスポンシブデザインを考慮
-
-### アクセシビリティ
-- 適切なARIA属性を使用
-- キーボードナビゲーションをサポート
-- カラーコントラストを確保
-- スクリーンリーダー対応
-
-## テスト
-
-```bash
-# UIコンポーネントのテストを実行
-pnpm test src/components/ui
-
-# 特定のコンポーネントのテスト
-pnpm test Button.test.tsx
-```
-
-## 今後の拡張予定
-
-- [ ] Input コンポーネント
-- [ ] Select コンポーネント
-- [ ] Modal コンポーネント
-- [ ] Toast 通知システム
-- [ ] Loading スピナー
-- [ ] Tooltip コンポーネント
-- [ ] Accordion コンポーネント
-- [ ] Tab コンポーネント
+- Tree-shaking対応
+- CSS-in-JSを避けTailwindを使用
+- 最小限のJavaScript
+- GPU加速対応のアニメーション

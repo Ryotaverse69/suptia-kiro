@@ -1,0 +1,8 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#F0F9FF"/>
+  <rect x="1" y="1" width="298" height="198" stroke="#BAE6FD" stroke-width="2" stroke-dasharray="6 6"/>
+  <circle cx="150" cy="80" r="30" fill="#7DD3FC"/>
+  <rect x="120" y="130" width="60" height="6" rx="3" fill="#38BDF8"/>
+  <rect x="130" y="145" width="40" height="4" rx="2" fill="#7DD3FC"/>
+  <text x="150" y="175" text-anchor="middle" fill="#0369A1" font-family="system-ui" font-size="12">Ingredient</text>
+</svg>

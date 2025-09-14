@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { sanitizeSearchQuery } from '@/lib/validate';
+import TrivagoLikeSearchBar from '@/components/TrivagoLikeSearchBar';
 
 const AIRecommendationSearchBar = dynamic(
   () =>
@@ -32,20 +33,8 @@ export default function HeroSection() {
               あなたに最も合うサプリを最も安い価格で。
             </h1>
           </div>
-          <div className='max-w-2xl mx-auto'>
-            <AIRecommendationSearchBar
-              onSearch={q => {
-                const safe = sanitizeSearchQuery(q || '');
-                if (!safe) return;
-                window.location.href = `/search?search=${encodeURIComponent(safe)}`;
-              }}
-              placeholder={t('search.placeholder')}
-              size='large'
-              className='shadow-strong'
-              variant='glass'
-              enablePopularOnFocus
-              maxRecommendations={5}
-            />
+          <div className='max-w-3xl mx-auto'>
+            <TrivagoLikeSearchBar />
           </div>
         </div>
       </div>

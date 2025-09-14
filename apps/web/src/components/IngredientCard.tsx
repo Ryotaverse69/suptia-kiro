@@ -1,91 +1,186 @@
 'use client';
 
 import { Ingredient } from '@/lib/ingredient-data';
+import { IngredientImage } from './ui/OptimizedImage';
 
 interface IngredientCardProps {
-    ingredient: Ingredient;
-    onClick?: () => void;
+  ingredient: Ingredient;
+  onClick?: () => void;
 }
 
-export default function IngredientCard({ ingredient, onClick }: IngredientCardProps) {
-    const getEvidenceLevelColor = (level: string) => {
-        switch (level) {
-            case 'high':
-                return 'bg-green-100 text-green-800';
-            case 'medium':
-                return 'bg-yellow-100 text-yellow-800';
-            case 'low':
-                return 'bg-red-100 text-red-800';
-            default:
-                return 'bg-gray-100 text-gray-800';
+export default function IngredientCard({
+  ingredient,
+  onClick,
+}: IngredientCardProps) {
+  // エビデンス強度のA/B/C表示とカラー
+  const getEvidenceLevelDisplay = (level: string) => {
+    switch (level) {
+      case 'high':
+        return { label: 'A', color: 'bg-green-500 text-white' };
+      case 'medium':
+        return { label: 'B', color: 'bg-yellow-500 text-white' };
+      case 'low':
+        return { label: 'C', color: 'bg-red-500 text-white' };
+      default:
+        return { label: '?', color: 'bg-gray-500 text-white' };
+    }
+  };
+
+  // カテゴリ別カラーコーディング
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'vitamins':
+        return 'bg-orange-50 border-orange-200';
+      case 'minerals':
+        return 'bg-blue-50 border-blue-200';
+      case 'herbs':
+        return 'bg-green-50 border-green-200';
+      case 'amino-acids':
+        return 'bg-purple-50 border-purple-200';
+      case 'probiotics':
+        return 'bg-pink-50 border-pink-200';
+      default:
+        return 'bg-gray-50 border-gray-200';
+    }
+  };
+
+  const evidenceDisplay = getEvidenceLevelDisplay(ingredient.evidenceLevel);
+  const categoryColor = getCategoryColor(ingredient.category);
+
+  return (
+    <article
+      className={`bg-white rounded-2xl p-4 sm:p-6 lg:p-8 border-2 ${categoryColor} cursor-pointer 
+                       transition-all duration-400 hover:shadow-2xl hover:-translate-y-2 
+                       hover:scale-[1.02] group apple-hover`}
+      onClick={onClick}
+      role='article'
+      aria-labelledby={`ingredient-name-${ingredient.id}`}
+      aria-describedby={`ingredient-description-${ingredient.id}`}
+      tabIndex={0}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
         }
-    };
-
-    const getEvidenceLevelText = (level: string) => {
-        switch (level) {
-            case 'high':
-                return '高';
-            case 'medium':
-                return '中';
-            case 'low':
-                return '低';
-            default:
-                return '不明';
-        }
-    };
-
-    return (
-        <div
-            className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-gray-200 cursor-pointer"
-            onClick={onClick}
-        >
-            <div className="p-6">
-                <div className="flex items-start justify-between mb-3">
-                    <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                            {ingredient.name}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                            {ingredient.nameEn}
-                        </p>
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getEvidenceLevelColor(ingredient.evidenceLevel)}`}>
-                        エビデンス: {getEvidenceLevelText(ingredient.evidenceLevel)}
-                    </span>
-                </div>
-
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                    {ingredient.description}
-                </p>
-
-                <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">主な効果:</h4>
-                    <div className="flex flex-wrap gap-1">
-                        {ingredient.benefits.slice(0, 3).map((benefit, index) => (
-                            <span
-                                key={index}
-                                className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full"
-                            >
-                                {benefit}
-                            </span>
-                        ))}
-                        {ingredient.benefits.length > 3 && (
-                            <span className="px-2 py-1 bg-gray-50 text-gray-600 text-xs rounded-full">
-                                +{ingredient.benefits.length - 3}個
-                            </span>
-                        )}
-                    </div>
-                </div>
-
-                <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">
-                        推奨摂取量: {ingredient.recommendedDosage}
-                    </span>
-                    <button className="text-blue-600 hover:text-blue-700 font-medium">
-                        詳細を見る →
-                    </button>
-                </div>
-            </div>
+      }}
+    >
+      {/* 成分画像 */}
+      <div className='mb-4 sm:mb-6 flex justify-center'>
+        <div className='w-12 h-12 sm:w-16 sm:h-16 relative rounded-xl overflow-hidden'>
+          <IngredientImage
+            src={
+              ingredient.imageUrl || '/placeholders/ingredient-placeholder.svg'
+            }
+            alt={`${ingredient.name}の成分画像`}
+            className='w-full h-full object-cover'
+          />
         </div>
-    );
+      </div>
+
+      {/* エビデンス強度バッジ */}
+      <div className='flex items-center justify-between mb-4 sm:mb-6'>
+        <div
+          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${evidenceDisplay.color} 
+                               flex items-center justify-center font-bold text-base sm:text-lg shadow-lg`}
+          role='img'
+          aria-label={`エビデンス強度 ${evidenceDisplay.label}ランク`}
+        >
+          {evidenceDisplay.label}
+        </div>
+        <div className='text-right'>
+          <div className='text-xs sm:text-sm text-gray-500'>月額平均</div>
+          <div
+            className='text-base sm:text-lg font-semibold text-primary-600'
+            aria-label={`月額平均価格 ${ingredient.averagePrice.toLocaleString()}円`}
+          >
+            ¥{ingredient.averagePrice.toLocaleString()}
+          </div>
+        </div>
+      </div>
+
+      {/* 成分名 */}
+      <div className='mb-4 sm:mb-6'>
+        <h3
+          id={`ingredient-name-${ingredient.id}`}
+          className='text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-1 sm:mb-2 
+                              group-hover:text-primary-600 transition-colors duration-300 leading-tight'
+        >
+          {ingredient.name}
+        </h3>
+        <p className='text-xs sm:text-sm text-gray-500 font-light'>
+          {ingredient.nameEn}
+        </p>
+      </div>
+
+      {/* 説明文 */}
+      <p
+        id={`ingredient-description-${ingredient.id}`}
+        className='text-gray-600 text-sm mb-6 leading-relaxed line-clamp-3'
+      >
+        {ingredient.description}
+      </p>
+
+      {/* 効能バッジ */}
+      <div className='mb-6'>
+        <div className='flex flex-wrap gap-2' role='list' aria-label='効能一覧'>
+          {ingredient.benefits.slice(0, 3).map((benefit, index) => (
+            <span
+              key={index}
+              role='listitem'
+              className='px-3 py-1 bg-primary-100 text-primary-700 text-xs 
+                                     rounded-full font-medium hover:bg-primary-200 
+                                     transition-colors duration-200'
+            >
+              {benefit}
+            </span>
+          ))}
+          {ingredient.benefits.length > 3 && (
+            <span
+              role='listitem'
+              className='px-3 py-1 bg-gray-100 text-gray-600 text-xs 
+                                       rounded-full font-medium'
+              aria-label={`他${ingredient.benefits.length - 3}個の効能`}
+            >
+              +{ingredient.benefits.length - 3}個
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* 人気度インジケーター */}
+      <div className='mb-6' role='region' aria-label='人気度'>
+        <div className='flex items-center justify-between text-sm mb-2'>
+          <span className='text-gray-500'>人気度</span>
+          <span className='font-medium text-gray-700'>
+            {ingredient.popularity}%
+          </span>
+        </div>
+        <div
+          className='w-full bg-gray-200 rounded-full h-2'
+          role='progressbar'
+          aria-valuenow={ingredient.popularity}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`人気度 ${ingredient.popularity}%`}
+        >
+          <div
+            className='bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full 
+                                 transition-all duration-500 ease-out'
+            style={{ width: `${ingredient.popularity}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Apple風CTAボタン */}
+      <button
+        className='w-full bg-primary-600 text-white py-3 sm:py-4 rounded-xl font-medium text-sm sm:text-base
+                             hover:bg-primary-700 transition-all duration-300 
+                             hover:scale-105 active:scale-95 shadow-lg 
+                             hover:shadow-xl group-hover:shadow-primary-500/25'
+        aria-label={`${ingredient.name}の詳細を見る`}
+      >
+        詳細を見る
+      </button>
+    </article>
+  );
 }

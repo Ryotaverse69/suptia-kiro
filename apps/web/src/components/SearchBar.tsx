@@ -22,6 +22,13 @@ const SearchIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+export interface AISuggestion {
+  id: string;
+  text: string;
+  intent: 'purpose' | 'ingredient' | 'condition';
+  confidence: number;
+}
+
 export interface Recommendation {
   id: string;
   title: string;
@@ -31,15 +38,17 @@ export interface Recommendation {
 
 export interface SearchBarProps {
   onSearch: (query: string) => void;
+  aiSuggestions?: AISuggestion[];
   aiRecommendations?: Recommendation[];
   placeholder?: string;
   size?: 'small' | 'large';
   className?: string;
-  variant?: 'default' | 'glass';
+  variant?: 'default' | 'glass' | 'apple';
 }
 
 export function SearchBar({
   onSearch,
+  aiSuggestions = [],
   aiRecommendations = [],
   placeholder = 'サプリメントを検索...',
   size = 'large',
@@ -48,10 +57,12 @@ export function SearchBar({
 }: SearchBarProps) {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const suggestionRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const recommendationRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const { announce } = useAnnouncer();
 
@@ -64,8 +75,8 @@ export function SearchBar({
       button: 'h-12 px-6 text-sm',
     },
     large: {
-      container: 'max-w-2xl',
-      input: 'h-16 text-lg px-6 pl-16',
+      container: 'max-w-4xl',
+      input: 'h-16 text-lg px-8 pl-16',
       icon: 'w-6 h-6 left-6',
       button: 'h-16 px-8 text-base',
     },
@@ -129,22 +140,36 @@ export function SearchBar({
   // フォーカス管理
   const handleFocus = () => {
     setIsFocused(true);
+    if (aiSuggestions.length > 0) {
+      setShowSuggestions(true);
+      announce(
+        `${aiSuggestions.length}件のAIサジェストが利用可能です。矢印キーで選択できます。`
+      );
+    }
     if (aiRecommendations.length > 0) {
       setShowRecommendations(true);
-      announce(
-        `${aiRecommendations.length}件のAIレコメンドが利用可能です。矢印キーで選択できます。`
-      );
     }
   };
 
   const handleBlur = (e: React.FocusEvent) => {
-    // フォーカスがレコメンド内に移動した場合は閉じない
+    // フォーカスがサジェスト/レコメンド内に移動した場合は閉じない
     if (containerRef.current?.contains(e.relatedTarget as Node)) {
       return;
     }
     setIsFocused(false);
+    setShowSuggestions(false);
     setShowRecommendations(false);
     setSelectedIndex(-1);
+  };
+
+  // サジェスト選択
+  const handleSuggestionClick = (suggestion: AISuggestion) => {
+    setQuery(suggestion.text);
+    onSearch(suggestion.text);
+    setShowSuggestions(false);
+    setSelectedIndex(-1);
+    announce(`${suggestion.text}を選択しました`);
+    inputRef.current?.focus();
   };
 
   // レコメンド選択
@@ -157,13 +182,14 @@ export function SearchBar({
     inputRef.current?.focus();
   };
 
-  // 外部クリックでレコメンドを閉じる
+  // 外部クリックでサジェスト/レコメンドを閉じる
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         containerRef.current &&
         !containerRef.current.contains(event.target as Node)
       ) {
+        setShowSuggestions(false);
         setShowRecommendations(false);
       }
     };

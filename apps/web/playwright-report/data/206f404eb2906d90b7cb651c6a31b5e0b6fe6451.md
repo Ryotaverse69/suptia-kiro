@@ -1,0 +1,102 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+    - generic [ref=e2]:
+        - link "メインコンテンツにスキップ" [ref=e3] [cursor=pointer]:
+            - /url: '#main-content'
+        - link "ナビゲーションにスキップ" [ref=e4] [cursor=pointer]:
+            - /url: '#navigation'
+    - banner [ref=e5]:
+        - generic [ref=e7]:
+            - link "サプティア ホーム" [ref=e8] [cursor=pointer]:
+                - /url: /
+                - generic "Suptia" [ref=e9] [cursor=pointer]:
+                    - generic [ref=e11] [cursor=pointer]: S
+                    - generic [ref=e12] [cursor=pointer]:
+                        - generic [ref=e13] [cursor=pointer]: サプティア
+                        - generic [ref=e14] [cursor=pointer]: Suptia
+            - navigation "メインナビゲーション" [ref=e15]:
+                - link "サプティアとは" [ref=e16] [cursor=pointer]:
+                    - /url: /about
+                - link "成分ガイド" [ref=e17] [cursor=pointer]:
+                    - /url: /ingredients
+                - link "比較" [ref=e18] [cursor=pointer]:
+                    - /url: /compare
+            - generic [ref=e19]:
+                - button "言語・通貨切替" [ref=e21]:
+                    - generic [ref=e22]: 日本語
+                    - generic [ref=e23]: ¥
+                    - img [ref=e24]
+                - link "検索ショートカット" [ref=e26] [cursor=pointer]:
+                    - /url: /products
+                    - img [ref=e27] [cursor=pointer]
+                - button "メニューを開く" [ref=e29]:
+                    - img
+    - main [ref=e31]:
+        - generic [ref=e33]:
+            - generic [ref=e37]:
+                - heading "サプティア" [level=1] [ref=e38]
+                - paragraph [ref=e39]: Suptia
+                - paragraph [ref=e40]: あなたに最も合うサプリを最も安い価格で。
+            - link "compare" [ref=e42] [cursor=pointer]:
+                - /url: /compare
+    - contentinfo [ref=e43]:
+        - generic [ref=e44]:
+            - generic [ref=e45]:
+                - generic [ref=e46]:
+                    - generic [ref=e47]:
+                        - generic [ref=e49]: S
+                        - generic [ref=e50]:
+                            - generic [ref=e51]: サプティア
+                            - generic [ref=e52]: Suptia
+                    - paragraph [ref=e53]: あなたに最も合うサプリを最も安い価格で。科学的根拠に基づいた分析で、安全で効果的なサプリメント選択をサポートします。
+                    - generic [ref=e54]:
+                        - link "メールでお問い合わせ" [ref=e55] [cursor=pointer]:
+                            - /url: mailto:contact@suptia.com
+                            - img [ref=e56] [cursor=pointer]
+                        - link "Twitter" [ref=e59] [cursor=pointer]:
+                            - /url: '#'
+                            - img [ref=e60] [cursor=pointer]
+                        - link "Instagram" [ref=e62] [cursor=pointer]:
+                            - /url: '#'
+                            - img [ref=e63] [cursor=pointer]
+                - generic [ref=e65]:
+                    - heading "サプティア" [level=3] [ref=e66]
+                    - list [ref=e67]:
+                        - listitem [ref=e68]:
+                            - link "サプティアとは" [ref=e69] [cursor=pointer]:
+                                - /url: /about
+                        - listitem [ref=e70]:
+                            - link "成分ガイド" [ref=e71] [cursor=pointer]:
+                                - /url: /ingredients
+                        - listitem [ref=e72]:
+                            - link "比較" [ref=e73] [cursor=pointer]:
+                                - /url: /compare
+                        - listitem [ref=e74]:
+                            - link "マイページ" [ref=e75] [cursor=pointer]:
+                                - /url: /mypage
+                - generic [ref=e76]:
+                    - heading "お問い合わせ" [level=3] [ref=e77]
+                    - list [ref=e78]:
+                        - listitem [ref=e79]:
+                            - link "お問い合わせ" [ref=e80] [cursor=pointer]:
+                                - /url: /contact
+                        - listitem [ref=e81]:
+                            - link "プライバシーポリシー" [ref=e82] [cursor=pointer]:
+                                - /url: /legal/privacy
+                        - listitem [ref=e83]:
+                            - link "利用規約" [ref=e84] [cursor=pointer]:
+                                - /url: /legal/terms
+                        - listitem [ref=e85]:
+                            - link "免責事項" [ref=e86] [cursor=pointer]:
+                                - /url: /legal/disclaimer
+            - generic [ref=e88]:
+                - generic [ref=e89]:
+                    - paragraph [ref=e90]: © 2025 サプティア (Suptia). All rights reserved.
+                    - paragraph [ref=e91]: 本サービスは医療アドバイスを提供するものではありません
+                - generic [ref=e92]:
+                    - generic [ref=e93]: Made with
+                    - generic [ref=e94]: ❤️
+                    - generic [ref=e95]: for better health decisions
+```

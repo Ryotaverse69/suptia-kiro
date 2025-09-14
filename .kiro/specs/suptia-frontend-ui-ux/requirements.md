@@ -2,16 +2,21 @@
 
 ## Introduction
 
-サプティアのフロントエンドUI/UX再設計：**Trivago構造 + Apple/xAIテイスト**を実装する機能です。
+**Codename: suptia-frontend-refresh**
+
+サプティアのフロントエンドUI/UX刷新：**Trivagoの情報設計を踏襲しつつ、Apple/xAIのミニマルで高級感あるUIへ刷新**
 
 **🎯 ゴール**
-- 構造は Trivago をほぼ踏襲（検索→結果比較→絞り込み→詳細）
-- ビジュアルと所作は Apple/xAI（余白広め、洗練、静かなモーション、未来的トーン）
-- 1st View は 検索主導。以降は人気比較/成分ガイド/AIおすすめの順で下層に展開
+
+- 情報設計：Trivago の検索→結果比較→絞り込み→詳細フローを踏襲
+- ビジュアル：Apple/xAI の余白広め、洗練、静かなモーション、近未来的トーン
+- 優先度：まずトップと比較セクションを完成度高く実装
+- 品質：Lighthouse Performance/Best Practices/Accessibility 90+（モバイル）
 
 **🚫 NG（はっきり禁止）**
-- 濃色テーマ/ダーク背景（今回は白基調固定）
-- ド派手なモーション、過度なグラデ、ギミックの入れ過ぎ
+
+- 濃色テーマ/ダーク背景（白基調固定）
+- 過度なモーション、グラデーション、ギミック
 - 1st Viewに情報を詰め込みすぎる
 - デザインの「軽さ/安っぽさ」を徹底的に排除
 
@@ -24,34 +29,46 @@
 - Sanity CMS 3.99.0 (GROQクエリ)
 - Vitest / Playwright / ESLint / Prettier
 
-### デザイン要件
+### レイアウト・デザイン要件
 
-**🎨 デザイントークン（Tailwind）**
-- **色**: --primary: #2563EB（blue-600 ベース、hover: blue-700）
-- **テキスト**: --ink: #0A0A0A（本文濃灰） / --muted: #6B7280
-- **背景**: 常に白 #FFFFFF
-- **フォント**: Inter + Noto Sans JP（字間や行間はApple寄りに広め）
-- **角丸/影**: rounded-2xl / shadow-[0_8px_30px_rgba(0,0,0,0.06)]
-- **モーション**: transition-all duration-200 ease-out
-- **余白**: セクション上下 py-16 md:py-24、グリッド gap-6 md:gap-8
+**📐 Layout**
 
-**📱 レスポンシブ**
-- **モバイル**: 検索＞比較＞詳細の 1カラム優先、トレイは下固定
-- **タブレット**: 2カラム（フィルター開閉）
-- **デスクトップ**: 3カラム/比較テーブル横スクロール
+- **コンテナ幅**: 1280px（xl）基準、最大1440px
+- **左右余白**: モバイル16px / タブレット24px / デスクトップ32px
+- **セクション間隔**: 8/12/16の階層で統一
+
+**🎨 Visual Design**
+
+- **色**: 白基調、アクセント#2563EB、極薄影
+- **フォント**: Inter + Noto Sans JP（Apple寄りのタイポ）
+- **角丸**: lg～xl（過度でない範囲）
+- **余白**: 広めに設定（Apple風）
+- **影**: 極薄（shadow-sm/md程度）
+
+**🎬 Motion**
+
+- **トランジション**: フェード/スライドは100–200ms
+- **イージング**: 標準カーブ使用
+- **制限**: パララックス等は抑制
+
+**📱 Responsive**
+
+- **カード列**: sm:1→md:2→lg:3
+- **Hero**: モバイルは縦積み
+- **ナビ**: モバイルはハンバーガー
 
 ## Requirements
 
 ### Requirement 1
 
-**User Story:** サイト訪問者として、Trivago風の検索主導インターフェースでサプリメントを効率的に発見したい
+**User Story:** サイト訪問者として、フルスクリーンHeroで検索主導の体験を得たい
 
 #### Acceptance Criteria
 
-1. WHEN ユーザーがトップページにアクセス THEN HeroSearch（フルビューポート、中央に大型検索＋AIサジェスト）が表示される
-2. WHEN ユーザーが検索窓にフォーカス THEN AIサジェスト（意図推定の例文）がドロップダウン表示される
-3. WHEN ユーザーがスクロール THEN PopularComparison（人気サプリの比較一覧＋主要指標）が表示される
-4. WHEN ユーザーがさらにスクロール THEN IngredientGuide（成分カードグリッド）とAIRecommendation（「あなた向け」パーソナライズ枠）が表示される
+1. WHEN ユーザーがトップページにアクセス THEN Hero（min-height: 100dvh）が1画面で完結し、スクロールしないと次セクションが見えない
+2. WHEN ユーザーがHeroを確認 THEN 中央に大型検索バー（AIレコメンドON）と下部にカテゴリ/キーワードチップが表示される
+3. WHEN ユーザーが検索窓にフォーカス THEN AIサジェスト（意図推定の例文）がドロップダウン表示される
+4. WHEN ユーザーがスクロール THEN Popular Comparisons セクション → 成分ガイド セクション（カード3列）が順次表示される
 
 ### Requirement 2
 
@@ -103,44 +120,65 @@
 
 #### Acceptance Criteria
 
-1. WHEN ユーザーがHeaderを確認 THEN 左：ロゴ「サプティア / Suptia」、中：グロナビ（サプティアとは / 成分ガイド / 比較）、右：言語・通貨切替（モーダル）、検索ショートカットが表示される
-2. WHEN ユーザーがFooterを確認 THEN サプティアとは / プライバシー / 免責 / 利用規約 / お問い合わせが表示される
-3. WHEN ユーザーがページ遷移 THEN セクション表示時 animate-[fadeIn_.5s_ease-out]が適用される
+1. WHEN ユーザーがHeaderを確認 THEN 左：「サプティア / Suptia」ロゴ（近未来ライティング表現）、右：グロナビ（製品比較・成分ガイド・価格アラート・サプティアとは）と言語/通貨スイッチャが表示される
+2. WHEN ユーザーがFooterを確認 THEN ヘッダー同項目＋「サプティアとは」「プライバシー」「免責」「利用規約」「お問い合わせ」が表示される
+3. WHEN ユーザーが1280px時にサイトを確認 THEN 主コンテナが中央、左右余白が均等、コンポーネントの間隔が8/12/16の階層で統一される
 4. WHEN ユーザーがインタラクション THEN ホバーで影・微拡大（Apple寄り：上品で短い）が適用される
 
 ### Requirement 7
 
-**User Story:** 開発者として、Tailwindユーティリティを統制し、高品質なコードベースを維持したい
+**User Story:** 開発者として、高品質なコードベースとアクセシビリティを維持したい
 
 #### Acceptance Criteria
 
-1. WHEN コンポーネントを実装 THEN Tailwindユーティリティは冗長禁止：clsx + tailwind-mergeで統制される
-2. WHEN 文言を表示 THEN 日本語/英語は i18n 対応（言語切替が視認・即反映）される
-3. WHEN デザインを適用 THEN 余白・行間・影が過剰でなく高級感がある（安っぽさNG）
-4. WHEN パフォーマンスを測定 THEN Lighthouse/Next Best Practices 満たす（CLS<0.1, LCP<2.5s 目標）
+1. WHEN コンポーネントを実装 THEN Tailwindプリセット＋globals.cssにCSS変数（--brand, --radius, --shadow-soft）が定義される
+2. WHEN アクセシビリティを確認 THEN コントラスト AA、キーボード操作、フォーカスリング明示、画像alt必須、ariaラベル完備される
+3. WHEN 言語/通貨を切替 THEN ja/en・JPY/USD切替でテキスト/価格表示が切り替わる（モック可）
+4. WHEN パフォーマンスを測定 THEN Lighthouse Performance/Best Practices/Accessibility 90+（モバイル）を達成する
 
 ### Requirement 8
 
-**User Story:** サイト運営者として、薬機法に準拠した安全なコンテンツ配信と高いパフォーマンスを維持したい
+**User Story:** ユーザーとして、キーボードのみでサイト全体を操作できるアクセシブルな体験を得たい
 
 #### Acceptance Criteria
 
-1. WHEN コンテンツが表示される THEN 薬機法チェック済みの表現のみがSanityから配信される
-2. WHEN ユーザーがサイトを利用 THEN コンテンツサニタイズとCSP設定により安全性が確保される
-3. WHEN サイトのパフォーマンスを測定 THEN Core Web Vitals合格基準を満たす（CLS<0.1, LCP<2.5s 目標）
+1. WHEN ユーザーがキーボードのみで操作 THEN 検索→比較→詳細カードCTAまで到達できる
+2. WHEN ユーザーがフォーカス移動 THEN フォーカス管理/aria属性/skip-linkが適切に機能する
+3. WHEN ユーザーがaxeでアクセシビリティチェック THEN 重大違反がない
 4. WHEN ユーザーがサイト全体を利用 THEN Trivago構造 + Apple/xAI風の高級感あるデザインが一貫して適用される
 
-## 🧪 サンプル実装の期待（最低限）
+## 🚀 Build Phase 1 (Deliverables)
 
-1. **apps/web/app/(home)/page.tsx** に HeroSearch, PopularComparison, IngredientGuide, AIRecommendation を配置
-2. **/search** 結果テンプレ：フィルターサイドバー＋カード一覧＋比較トレイ
-3. **/compare** 比較テーブルの土台と4件までのカラム切替
-4. すべて **仮データでOK**（Sanity接続は後工程）
+### Pages
 
-## 🚀 実装順の提案（小さく成功）
+- **/** : Hero（検索バー＋タグチップ）→ Popular Comparisons セクション → 成分ガイド セクション（カード3列）
 
-1. Header / Footer（共通レイアウト）
-2. HeroSearch（100vh＋AIサジェスト）
-3. /search（フィルター＋カード＋比較トレイ）
-4. /compare（テーブルの外枠 → 行項目の設計）
-5. 成分ガイドと製品詳細の最小要素
+### Components
+
+- **Header, Footer, SearchBar, SuggestChips, CompareCard, SectionHeader, LangCurrencySwitcher**
+
+### Styles
+
+- **Tailwindプリセット＋globals.cssにCSS変数（--brand, --radius, --shadow-soft）**
+
+### Accessibility
+
+- **フォーカス管理/aria属性/skip-link**
+
+### Placeholder
+
+- **ロゴ**: SVGダミー（後で置換しやすい構造）
+- **画像**: Next/Imageでダミー（/public/placeholders/\*）
+
+### Tests
+
+- **vitest**: SearchBarの表示/入力/サジェスト表示
+- **playwright**: Home初期描画、タブ移動、言語切替UI反映
+
+## ✅ Definition of Done
+
+- 仕様差分がdocsに反映
+- Homeトップ＆比較セクションが完成、Lighthouse 90+（モバイル）
+- A11yチェック（axe）に重大違反なし
+- i18n/通貨はモックで切替動作
+- PR作成・automerge有効、Vercel Previewで確認URLをPRに掲示

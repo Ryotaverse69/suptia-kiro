@@ -15,10 +15,7 @@
     },
     "preserveOutput": "always",
     "reporter": [
-      [
-        "html",
-        null
-      ],
+      ["html", null],
       [
         "json",
         {
@@ -49,9 +46,7 @@
         "name": "chromium",
         "testDir": "/Users/ryota/suptia-kiro/apps/web/src/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
-        ],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
         "timeout": 30000
       },
       {
@@ -65,9 +60,7 @@
         "name": "firefox",
         "testDir": "/Users/ryota/suptia-kiro/apps/web/src/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
-        ],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
         "timeout": 30000
       },
       {
@@ -81,9 +74,7 @@
         "name": "webkit",
         "testDir": "/Users/ryota/suptia-kiro/apps/web/src/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
-        ],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
         "timeout": 30000
       },
       {
@@ -97,9 +88,7 @@
         "name": "Mobile Chrome",
         "testDir": "/Users/ryota/suptia-kiro/apps/web/src/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
-        ],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
         "timeout": 30000
       },
       {
@@ -113,9 +102,7 @@
         "name": "Mobile Safari",
         "testDir": "/Users/ryota/suptia-kiro/apps/web/src/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
-        ],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
         "timeout": 30000
       },
       {
@@ -129,9 +116,7 @@
         "name": "Tablet",
         "testDir": "/Users/ryota/suptia-kiro/apps/web/src/e2e",
         "testIgnore": [],
-        "testMatch": [
-          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
-        ],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
         "timeout": 30000
       }
     ],
@@ -149,221 +134,470 @@
   },
   "suites": [
     {
-      "title": "responsive-qa.spec.ts",
-      "file": "responsive-qa.spec.ts",
+      "title": "suptia-frontend-ui-ux.spec.ts",
+      "file": "suptia-frontend-ui-ux.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "レスポンシブQA",
-          "file": "responsive-qa.spec.ts",
-          "line": 9,
+          "title": "サプティアフロントエンドUI/UX E2Eテスト",
+          "file": "suptia-frontend-ui-ux.spec.ts",
+          "line": 8,
           "column": 6,
-          "specs": [
+          "specs": [],
+          "suites": [
             {
-              "title": "モバイル/タブレット/デスクトップでナビゲーション表示が適切",
-              "ok": true,
-              "tags": [],
-              "tests": [
+              "title": "Home初期描画",
+              "file": "suptia-frontend-ui-ux.spec.ts",
+              "line": 14,
+              "column": 8,
+              "specs": [
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
+                  "title": "Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 377,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-12T12:52:23.904Z",
+                      "timeout": 30000,
                       "annotations": [],
-                      "attachments": []
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 1385,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m84\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m84\u001b[39m\n    at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25",
+                            "location": {
+                              "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                              "column": 25,
+                              "line": 53
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 51 |\u001b[39m         \u001b[36mif\u001b[39m (box) {\n \u001b[90m 52 |\u001b[39m           \u001b[90m// 要素の上端がビューポートの下端より下にあれば見えない\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m           expect(box\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThan(viewportHeight)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m         }\n \u001b[90m 55 |\u001b[39m       }\n \u001b[90m 56 |\u001b[39m       \u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                                "column": 25,
+                                "line": 53
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m84\u001b[39m\n\n\u001b[0m \u001b[90m 51 |\u001b[39m         \u001b[36mif\u001b[39m (box) {\n \u001b[90m 52 |\u001b[39m           \u001b[90m// 要素の上端がビューポートの下端より下にあれば見えない\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m           expect(box\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThan(viewportHeight)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m         }\n \u001b[90m 55 |\u001b[39m       }\n \u001b[90m 56 |\u001b[39m       \u001b[0m\n\u001b[2m    at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-14T14:17:51.825Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-chromium/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-chromium/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-chromium/error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                            "column": 25,
+                            "line": 53
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
                     }
                   ],
-                  "status": "expected"
-                }
-              ],
-              "id": "871fc4c9d2a3f4f49578-d0e4bb4d06abcad971b1",
-              "file": "responsive-qa.spec.ts",
-              "line": 10,
-              "column": 7
-            },
-            {
-              "title": "モバイル/タブレット/デスクトップでナビゲーション表示が適切",
-              "ok": true,
-              "tags": [],
-              "tests": [
+                  "id": "1711d52282cc0b9800a3-c8476119654f269b3940",
+                  "file": "suptia-frontend-ui-ux.spec.ts",
+                  "line": 32,
+                  "column": 9
+                },
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "firefox",
-                  "projectName": "firefox",
-                  "results": [
+                  "title": "Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 1159,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-12T12:52:23.913Z",
+                      "timeout": 30000,
                       "annotations": [],
-                      "attachments": []
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 1,
+                          "status": "failed",
+                          "duration": 2102,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m85.5\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m85.5\u001b[39m\n    at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25",
+                            "location": {
+                              "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                              "column": 25,
+                              "line": 53
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 51 |\u001b[39m         \u001b[36mif\u001b[39m (box) {\n \u001b[90m 52 |\u001b[39m           \u001b[90m// 要素の上端がビューポートの下端より下にあれば見えない\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m           expect(box\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThan(viewportHeight)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m         }\n \u001b[90m 55 |\u001b[39m       }\n \u001b[90m 56 |\u001b[39m       \u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                                "column": 25,
+                                "line": 53
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m85.5\u001b[39m\n\n\u001b[0m \u001b[90m 51 |\u001b[39m         \u001b[36mif\u001b[39m (box) {\n \u001b[90m 52 |\u001b[39m           \u001b[90m// 要素の上端がビューポートの下端より下にあれば見えない\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m           expect(box\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThan(viewportHeight)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m         }\n \u001b[90m 55 |\u001b[39m       }\n \u001b[90m 56 |\u001b[39m       \u001b[0m\n\u001b[2m    at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-14T14:17:51.806Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-firefox/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-firefox/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-firefox/error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                            "column": 25,
+                            "line": 53
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
                     }
                   ],
-                  "status": "expected"
-                }
-              ],
-              "id": "871fc4c9d2a3f4f49578-a3cb57d1a163ddb465d1",
-              "file": "responsive-qa.spec.ts",
-              "line": 10,
-              "column": 7
-            },
-            {
-              "title": "モバイル/タブレット/デスクトップでナビゲーション表示が適切",
-              "ok": true,
-              "tags": [],
-              "tests": [
+                  "id": "1711d52282cc0b9800a3-ad134baa4eae71ddbc76",
+                  "file": "suptia-frontend-ui-ux.spec.ts",
+                  "line": 32,
+                  "column": 9
+                },
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
-                  "results": [
+                  "title": "Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
-                      "status": "passed",
-                      "duration": 794,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-12T12:52:23.903Z",
+                      "timeout": 30000,
                       "annotations": [],
-                      "attachments": []
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 2,
+                          "status": "failed",
+                          "duration": 2145,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m83\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m83\u001b[39m\n    at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25",
+                            "location": {
+                              "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                              "column": 25,
+                              "line": 53
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 51 |\u001b[39m         \u001b[36mif\u001b[39m (box) {\n \u001b[90m 52 |\u001b[39m           \u001b[90m// 要素の上端がビューポートの下端より下にあれば見えない\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m           expect(box\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThan(viewportHeight)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m         }\n \u001b[90m 55 |\u001b[39m       }\n \u001b[90m 56 |\u001b[39m       \u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                                "column": 25,
+                                "line": 53
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m83\u001b[39m\n\n\u001b[0m \u001b[90m 51 |\u001b[39m         \u001b[36mif\u001b[39m (box) {\n \u001b[90m 52 |\u001b[39m           \u001b[90m// 要素の上端がビューポートの下端より下にあれば見えない\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m           expect(box\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThan(viewportHeight)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m         }\n \u001b[90m 55 |\u001b[39m       }\n \u001b[90m 56 |\u001b[39m       \u001b[0m\n\u001b[2m    at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-14T14:17:51.818Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-webkit/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-webkit/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-webkit/error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                            "column": 25,
+                            "line": 53
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
                     }
                   ],
-                  "status": "expected"
-                }
-              ],
-              "id": "871fc4c9d2a3f4f49578-1acb04ebcce581dd07fc",
-              "file": "responsive-qa.spec.ts",
-              "line": 10,
-              "column": 7
-            },
-            {
-              "title": "モバイル/タブレット/デスクトップでナビゲーション表示が適切",
-              "ok": true,
-              "tags": [],
-              "tests": [
+                  "id": "1711d52282cc0b9800a3-c82873476ea15f5af5c7",
+                  "file": "suptia-frontend-ui-ux.spec.ts",
+                  "line": 32,
+                  "column": 9
+                },
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [
+                  "title": "Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
                     {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
-                      "status": "passed",
-                      "duration": 395,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-12T12:52:23.896Z",
+                      "timeout": 30000,
                       "annotations": [],
-                      "attachments": []
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [
+                        {
+                          "workerIndex": 3,
+                          "parallelIndex": 3,
+                          "status": "failed",
+                          "duration": 1427,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m84\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m84\u001b[39m\n    at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25",
+                            "location": {
+                              "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                              "column": 25,
+                              "line": 53
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 51 |\u001b[39m         \u001b[36mif\u001b[39m (box) {\n \u001b[90m 52 |\u001b[39m           \u001b[90m// 要素の上端がビューポートの下端より下にあれば見えない\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m           expect(box\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThan(viewportHeight)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m         }\n \u001b[90m 55 |\u001b[39m       }\n \u001b[90m 56 |\u001b[39m       \u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                                "column": 25,
+                                "line": 53
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m84\u001b[39m\n\n\u001b[0m \u001b[90m 51 |\u001b[39m         \u001b[36mif\u001b[39m (box) {\n \u001b[90m 52 |\u001b[39m           \u001b[90m// 要素の上端がビューポートの下端より下にあれば見えない\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m           expect(box\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThan(viewportHeight)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m         }\n \u001b[90m 55 |\u001b[39m       }\n \u001b[90m 56 |\u001b[39m       \u001b[0m\n\u001b[2m    at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-14T14:17:51.803Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Chrome/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Chrome/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Chrome/error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                            "column": 25,
+                            "line": 53
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
                     }
                   ],
-                  "status": "expected"
-                }
-              ],
-              "id": "871fc4c9d2a3f4f49578-33504fac5ef9c97bb4ba",
-              "file": "responsive-qa.spec.ts",
-              "line": 10,
-              "column": 7
-            },
-            {
-              "title": "モバイル/タブレット/デスクトップでナビゲーション表示が適切",
-              "ok": true,
-              "tags": [],
-              "tests": [
+                  "id": "1711d52282cc0b9800a3-3f9f39b56d6e172207f4",
+                  "file": "suptia-frontend-ui-ux.spec.ts",
+                  "line": 32,
+                  "column": 9
+                },
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
-                  "results": [
+                  "title": "Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 4,
-                      "status": "passed",
-                      "duration": 810,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-12T12:52:23.894Z",
+                      "timeout": 30000,
                       "annotations": [],
-                      "attachments": []
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Safari",
+                      "projectName": "Mobile Safari",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 4,
+                          "status": "failed",
+                          "duration": 2261,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m83\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m83\u001b[39m\n    at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25",
+                            "location": {
+                              "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                              "column": 25,
+                              "line": 53
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 51 |\u001b[39m         \u001b[36mif\u001b[39m (box) {\n \u001b[90m 52 |\u001b[39m           \u001b[90m// 要素の上端がビューポートの下端より下にあれば見えない\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m           expect(box\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThan(viewportHeight)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m         }\n \u001b[90m 55 |\u001b[39m       }\n \u001b[90m 56 |\u001b[39m       \u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                                "column": 25,
+                                "line": 53
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m83\u001b[39m\n\n\u001b[0m \u001b[90m 51 |\u001b[39m         \u001b[36mif\u001b[39m (box) {\n \u001b[90m 52 |\u001b[39m           \u001b[90m// 要素の上端がビューポートの下端より下にあれば見えない\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m           expect(box\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThan(viewportHeight)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m         }\n \u001b[90m 55 |\u001b[39m       }\n \u001b[90m 56 |\u001b[39m       \u001b[0m\n\u001b[2m    at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-14T14:17:51.798Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Safari/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Safari/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Safari/error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                            "column": 25,
+                            "line": 53
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
                     }
                   ],
-                  "status": "expected"
-                }
-              ],
-              "id": "871fc4c9d2a3f4f49578-b6c330b3530005c79a1a",
-              "file": "responsive-qa.spec.ts",
-              "line": 10,
-              "column": 7
-            },
-            {
-              "title": "モバイル/タブレット/デスクトップでナビゲーション表示が適切",
-              "ok": true,
-              "tags": [],
-              "tests": [
+                  "id": "1711d52282cc0b9800a3-485e9059cd36bc00b5f8",
+                  "file": "suptia-frontend-ui-ux.spec.ts",
+                  "line": 32,
+                  "column": 9
+                },
                 {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Tablet",
-                  "projectName": "Tablet",
-                  "results": [
+                  "title": "Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 339,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-12T12:52:24.669Z",
+                      "timeout": 30000,
                       "annotations": [],
-                      "attachments": []
+                      "expectedStatus": "passed",
+                      "projectId": "Tablet",
+                      "projectName": "Tablet",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 2,
+                          "status": "failed",
+                          "duration": 1068,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m84\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m84\u001b[39m\n    at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25",
+                            "location": {
+                              "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                              "column": 25,
+                              "line": 53
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 51 |\u001b[39m         \u001b[36mif\u001b[39m (box) {\n \u001b[90m 52 |\u001b[39m           \u001b[90m// 要素の上端がビューポートの下端より下にあれば見えない\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m           expect(box\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThan(viewportHeight)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m         }\n \u001b[90m 55 |\u001b[39m       }\n \u001b[90m 56 |\u001b[39m       \u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                                "column": 25,
+                                "line": 53
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m800\u001b[39m\nReceived:   \u001b[31m84\u001b[39m\n\n\u001b[0m \u001b[90m 51 |\u001b[39m         \u001b[36mif\u001b[39m (box) {\n \u001b[90m 52 |\u001b[39m           \u001b[90m// 要素の上端がビューポートの下端より下にあれば見えない\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m           expect(box\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThan(viewportHeight)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m         }\n \u001b[90m 55 |\u001b[39m       }\n \u001b[90m 56 |\u001b[39m       \u001b[0m\n\u001b[2m    at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-09-14T14:17:54.713Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Tablet/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Tablet/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/ryota/suptia-kiro/apps/web/test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Tablet/error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts",
+                            "column": 25,
+                            "line": 53
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
                     }
                   ],
-                  "status": "expected"
+                  "id": "1711d52282cc0b9800a3-c4937a6922aaa2db17bb",
+                  "file": "suptia-frontend-ui-ux.spec.ts",
+                  "line": 32,
+                  "column": 9
                 }
-              ],
-              "id": "871fc4c9d2a3f4f49578-4b259fd83c9081727da2",
-              "file": "responsive-qa.spec.ts",
-              "line": 10,
-              "column": 7
+              ]
             }
           ]
         }
@@ -372,11 +606,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-09-12T12:52:22.580Z",
-    "duration": 4143.909000000001,
-    "expected": 6,
+    "startTime": "2025-09-14T14:17:50.423Z",
+    "duration": 5713.431,
+    "expected": 0,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 6,
     "flaky": 0
   }
 }

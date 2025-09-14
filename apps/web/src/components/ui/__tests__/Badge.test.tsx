@@ -1,83 +1,74 @@
 import { render, screen } from '@testing-library/react';
-import { Badge } from '../Badge';
+import { Badge, EvidenceBadge, ScoreBadge } from '../Badge';
 
 describe('Badge', () => {
-    it('デフォルトのinfoバッジをレンダリングする', () => {
-        render(<Badge>デフォルトバッジ</Badge>);
-        const badge = screen.getByText('デフォルトバッジ');
-        expect(badge).toBeInTheDocument();
-        expect(badge).toHaveClass('bg-blue-100', 'text-blue-800', 'border-blue-200');
-    });
+  it('デフォルトのバッジが正しくレンダリングされる', () => {
+    render(<Badge>テストバッジ</Badge>);
 
-    it('highバリアントを正しく適用する', () => {
-        render(<Badge variant="high">高スコア</Badge>);
-        const badge = screen.getByText('高スコア');
-        expect(badge).toHaveClass('bg-green-100', 'text-green-800', 'border-green-200');
-    });
+    const badge = screen.getByText('テストバッジ');
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveClass('bg-gray-100');
+  });
 
-    it('mediumバリアントを正しく適用する', () => {
-        render(<Badge variant="medium">中スコア</Badge>);
-        const badge = screen.getByText('中スコア');
-        expect(badge).toHaveClass('bg-yellow-100', 'text-yellow-800', 'border-yellow-200');
-    });
+  it('プライマリバリアントが正しく適用される', () => {
+    render(<Badge variant='primary'>プライマリバッジ</Badge>);
 
-    it('lowバリアントを正しく適用する', () => {
-        render(<Badge variant="low">低スコア</Badge>);
-        const badge = screen.getByText('低スコア');
-        expect(badge).toHaveClass('bg-red-100', 'text-red-800', 'border-red-200');
-    });
+    const badge = screen.getByText('プライマリバッジ');
+    expect(badge).toHaveClass('bg-primary-100');
+  });
 
-    it('dangerバリアントを正しく適用する', () => {
-        render(<Badge variant="danger">危険</Badge>);
-        const badge = screen.getByText('危険');
-        expect(badge).toHaveClass('bg-red-100', 'text-red-800', 'border-red-200');
-    });
+  it('成功バリアントが正しく適用される', () => {
+    render(<Badge variant='success'>成功バッジ</Badge>);
 
-    it('successバリアントを正しく適用する', () => {
-        render(<Badge variant="success">成功</Badge>);
-        const badge = screen.getByText('成功');
-        expect(badge).toHaveClass('bg-green-100', 'text-green-800', 'border-green-200');
-    });
+    const badge = screen.getByText('成功バッジ');
+    expect(badge).toHaveClass('bg-green-500');
+  });
+});
 
-    it('小さいサイズを正しく適用する', () => {
-        render(<Badge size="sm">小バッジ</Badge>);
-        const badge = screen.getByText('小バッジ');
-        expect(badge).toHaveClass('px-2', 'py-1', 'text-xs');
-    });
+describe('EvidenceBadge', () => {
+  it('エビデンスAバッジが正しくレンダリングされる', () => {
+    render(<EvidenceBadge level='A' />);
 
-    it('中サイズを正しく適用する', () => {
-        render(<Badge size="md">中バッジ</Badge>);
-        const badge = screen.getByText('中バッジ');
-        expect(badge).toHaveClass('px-3', 'py-1', 'text-sm');
-    });
+    const badge = screen.getByText('エビデンス A');
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveClass('bg-gradient-to-r');
+    expect(badge).toHaveClass('from-green-500');
+  });
 
-    it('大きいサイズを正しく適用する', () => {
-        render(<Badge size="lg">大バッジ</Badge>);
-        const badge = screen.getByText('大バッジ');
-        expect(badge).toHaveClass('px-4', 'py-2', 'text-base');
-    });
+  it('エビデンスBバッジが正しくレンダリングされる', () => {
+    render(<EvidenceBadge level='B' />);
 
-    it('カスタムクラス名を適用する', () => {
-        render(<Badge className="custom-badge">カスタムバッジ</Badge>);
-        const badge = screen.getByText('カスタムバッジ');
-        expect(badge).toHaveClass('custom-badge');
-    });
+    const badge = screen.getByText('エビデンス B');
+    expect(badge).toHaveClass('from-yellow-500');
+  });
 
-    it('基本的なスタイルを常に適用する', () => {
-        render(<Badge>基本バッジ</Badge>);
-        const badge = screen.getByText('基本バッジ');
-        expect(badge).toHaveClass(
-            'inline-flex',
-            'items-center',
-            'font-medium',
-            'rounded-full',
-            'border'
-        );
-    });
+  it('エビデンスCバッジが正しくレンダリングされる', () => {
+    render(<EvidenceBadge level='C' />);
 
-    it('HTMLプロパティを正しく渡す', () => {
-        render(<Badge data-testid="test-badge" title="テストタイトル">テストバッジ</Badge>);
-        const badge = screen.getByTestId('test-badge');
-        expect(badge).toHaveAttribute('title', 'テストタイトル');
-    });
+    const badge = screen.getByText('エビデンス C');
+    expect(badge).toHaveClass('from-red-500');
+  });
+});
+
+describe('ScoreBadge', () => {
+  it('高スコア（80以上）で成功バリアントが適用される', () => {
+    render(<ScoreBadge score={85} />);
+
+    const badge = screen.getByText('スコア 85');
+    expect(badge).toHaveClass('bg-green-500');
+  });
+
+  it('中スコア（60-79）で警告バリアントが適用される', () => {
+    render(<ScoreBadge score={70} />);
+
+    const badge = screen.getByText('スコア 70');
+    expect(badge).toHaveClass('bg-yellow-500');
+  });
+
+  it('低スコア（60未満）でエラーバリアントが適用される', () => {
+    render(<ScoreBadge score={45} />);
+
+    const badge = screen.getByText('スコア 45');
+    expect(badge).toHaveClass('bg-red-500');
+  });
 });

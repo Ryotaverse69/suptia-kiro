@@ -9,9 +9,12 @@ module.exports = {
     extend: {
       transitionTimingFunction: {
         // Apple-like easing curve
-        'apple': 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        apple: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
       },
       colors: {
+        // CSS変数を参照するブランドカラー
+        brand: 'var(--brand)',
+
         // 近未来的なブルー系プライマリカラー
         primary: {
           50: '#eff6ff',
@@ -20,7 +23,7 @@ module.exports = {
           300: '#93c5fd',
           400: '#60a5fa',
           500: '#3b82f6',
-          600: '#2563eb',
+          600: 'var(--brand)', // CSS変数を参照
           700: '#1d4ed8',
           800: '#1e40af',
           900: '#1e3a8a',
@@ -60,10 +63,16 @@ module.exports = {
           50: '#eff6ff',
           500: '#3b82f6',
           600: '#2563eb',
-        }
+        },
       },
       fontFamily: {
-        sans: ['Inter', 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'sans-serif'],
+        sans: [
+          'Inter',
+          'Noto Sans JP',
+          'Hiragino Sans',
+          'Hiragino Kaku Gothic ProN',
+          'sans-serif',
+        ],
       },
       container: {
         center: true,
@@ -81,11 +90,11 @@ module.exports = {
         },
       },
       fontSize: {
-        'xs': ['0.75rem', { lineHeight: '1rem' }],
-        'sm': ['0.875rem', { lineHeight: '1.25rem' }],
-        'base': ['1rem', { lineHeight: '1.5rem' }],
-        'lg': ['1.125rem', { lineHeight: '1.75rem' }],
-        'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+        xs: ['0.75rem', { lineHeight: '1rem' }],
+        sm: ['0.875rem', { lineHeight: '1.25rem' }],
+        base: ['1rem', { lineHeight: '1.5rem' }],
+        lg: ['1.125rem', { lineHeight: '1.75rem' }],
+        xl: ['1.25rem', { lineHeight: '1.75rem' }],
         '2xl': ['1.5rem', { lineHeight: '2rem' }],
         '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
         '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
@@ -93,9 +102,9 @@ module.exports = {
         '6xl': ['3.75rem', { lineHeight: '1' }],
       },
       spacing: {
-        '18': '4.5rem',
-        '88': '22rem',
-        '128': '32rem',
+        18: '4.5rem',
+        88: '22rem',
+        128: '32rem',
         // Section spacing (Apple-like generous rhythm)
         'section-sm': '3rem',
         'section-md': '4rem',
@@ -140,12 +149,15 @@ module.exports = {
           '50%': { backgroundPosition: '100% 50%' },
         },
       },
+      borderRadius: {
+        brand: 'var(--radius)', // CSS変数を参照
+      },
       boxShadow: {
-        'soft': '0 8px 30px rgba(0,0,0,0.06)',
-        'medium': '0 12px 40px rgba(0,0,0,0.08)',
-        'strong': '0 16px 60px rgba(0,0,0,0.10)',
+        soft: 'var(--shadow-soft)', // CSS変数を参照
+        medium: '0 12px 40px rgba(0,0,0,0.08)',
+        strong: '0 16px 60px rgba(0,0,0,0.10)',
       },
     },
   },
   plugins: [],
-}
+};

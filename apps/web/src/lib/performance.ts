@@ -1,294 +1,351 @@
 /**
- * パフォーマンス最適化ユーティリティ
- * Core Web Vitalsの改善とバンドルサイズ最適化のためのヘルパー関数
+ * Core Web Vitals最適化のためのパフォーマンスユーティリティ
  */
 
-// 画像の遅延読み込み設定
-export const imageOptimizationConfig = {
-  // Next.js Imageコンポーネントのデフォルト設定
-  defaultProps: {
-    loading: 'lazy' as const,
-    placeholder: 'blur' as const,
-    quality: 85,
-    sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
+// Web Vitals メトリクス型定義
+export interface WebVitalsMetric {
+  id: string;
+  name: 'CLS' | 'FCP' | 'INP' | 'LCP' | 'TTFB';
+  value: number;
+  delta: number;
+  rating: 'good' | 'needs-improvement' | 'poor';
+}
+
+// パフォーマンス閾値
+export const PERFORMANCE_THRESHOLDS = {
+  LCP: {
+    good: 2500,
+    needsImprovement: 4000,
   },
-  
-  // レスポンシブ画像のサイズ設定
-  responsiveSizes: {
-    mobile: '(max-width: 640px) 100vw',
-    tablet: '(max-width: 1024px) 50vw',
-    desktop: '33vw',
+  INP: {
+    good: 200,
+    needsImprovement: 500,
   },
-  
-  // 画像品質設定（用途別）
-  qualitySettings: {
-    thumbnail: 60,
-    card: 75,
-    hero: 90,
-    detail: 95,
+  CLS: {
+    good: 0.1,
+    needsImprovement: 0.25,
   },
-};
+  FCP: {
+    good: 1800,
+    needsImprovement: 3000,
+  },
+  TTFB: {
+    good: 800,
+    needsImprovement: 1800,
+  },
+} as const;
 
-// レイアウトシフト防止のためのプレースホルダー生成
-export function generateBlurDataURL(width: number, height: number): string {
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return '';
-  
-  // グラデーション背景を作成
-  const gradient = ctx.createLinearGradient(0, 0, width, height);
-  gradient.addColorStop(0, '#f3f4f6');
-  gradient.addColorStop(1, '#e5e7eb');
-  
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
-  
-  return canvas.toDataURL('image/jpeg', 0.1);
-}
+/**
+ * メトリクスの評価を取得
+ */
+export function getMetricRating(
+  name: WebVitalsMetric['name'],
+  value: number
+): WebVitalsMetric['rating'] {
+  const thresholds = PERFORMANCE_THRESHOLDS[name];
 
-// 重要なリソースのプリロード
-export function preloadCriticalResources() {
-  if (typeof window === 'undefined') return;
-  
-  const criticalResources = [
-    // フォント
-    { href: '/fonts/inter-var.woff2', as: 'font', type: 'font/woff2' },
-    // 重要なCSS
-    { href: '/styles/critical.css', as: 'style' },
-    // 重要な画像
-    { href: '/images/logo.webp', as: 'image' },
-  ];
-  
-  criticalResources.forEach(resource => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.href = resource.href;
-    link.as = resource.as;
-    if (resource.type) link.type = resource.type;
-    if (resource.as === 'font') link.crossOrigin = 'anonymous';
-    
-    document.head.appendChild(link);
-  });
-}
-
-// DNS プリフェッチ
-export function setupDNSPrefetch() {
-  if (typeof window === 'undefined') return;
-  
-  const domains = [
-    'cdn.sanity.io',
-    'fonts.googleapis.com',
-    'fonts.gstatic.com',
-  ];
-  
-  domains.forEach(domain => {
-    const link = document.createElement('link');
-    link.rel = 'dns-prefetch';
-    link.href = `//${domain}`;
-    document.head.appendChild(link);
-  });
-}
-
-// 遅延実行のためのデバウンス
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout;
-  
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-}
-
-// スロットリング（パフォーマンス重視のイベント処理）
-export function throttle<T extends (...args: any[]) => any>(
-  func: T,
-  limit: number
-): (...args: Parameters<T>) => void {
-  let inThrottle: boolean;
-  
-  return (...args: Parameters<T>) => {
-    if (!inThrottle) {
-      func(...args);
-      inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
-    }
-  };
-}
-
-// Intersection Observer を使った遅延読み込み
-export function createLazyLoader(
-  callback: (entries: IntersectionObserverEntry[]) => void,
-  options: IntersectionObserverInit = {}
-): IntersectionObserver | null {
-  if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
-    return null;
+  if (value <= thresholds.good) {
+    return 'good';
+  } else if (value <= thresholds.needsImprovement) {
+    return 'needs-improvement';
+  } else {
+    return 'poor';
   }
-  
-  const defaultOptions: IntersectionObserverInit = {
-    root: null,
-    rootMargin: '50px',
-    threshold: 0.1,
-    ...options,
-  };
-  
-  return new IntersectionObserver(callback, defaultOptions);
 }
 
-// メモリ使用量の監視
-export function monitorMemoryUsage(): void {
-  if (typeof window === 'undefined' || !('performance' in window)) return;
-  
-  const memory = (performance as any).memory;
-  if (!memory) return;
-  
-  const memoryInfo = {
-    usedJSHeapSize: memory.usedJSHeapSize,
-    totalJSHeapSize: memory.totalJSHeapSize,
-    jsHeapSizeLimit: memory.jsHeapSizeLimit,
-    usagePercentage: (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100,
-  };
-  
-  // メモリ使用量が80%を超えた場合の警告
-  if (memoryInfo.usagePercentage > 80) {
-    console.warn('高いメモリ使用量が検出されました:', memoryInfo);
-  }
-  
-  // 開発環境でのログ出力
+/**
+ * Web Vitalsメトリクスを送信
+ */
+export function sendToAnalytics(metric: WebVitalsMetric) {
+  // 開発環境ではコンソールに出力
   if (process.env.NODE_ENV === 'development') {
-    console.log('Memory Usage:', memoryInfo);
-  }
-}
-
-// バンドルサイズ分析のためのチャンク情報取得
-export function getBundleInfo(): Promise<any> {
-  if (typeof window === 'undefined') {
-    return Promise.resolve(null);
-  }
-  
-  return new Promise((resolve) => {
-    // Next.js のチャンク情報を取得
-    const chunks = (window as any).__NEXT_DATA__?.chunks || [];
-    const buildId = (window as any).__NEXT_DATA__?.buildId;
-    
-    resolve({
-      chunks,
-      buildId,
-      timestamp: Date.now(),
-    });
-  });
-}
-
-// Critical Rendering Path の最適化
-export function optimizeCriticalRenderingPath(): void {
-  if (typeof window === 'undefined') return;
-  
-  // Above-the-fold コンテンツの優先読み込み
-  const criticalElements = document.querySelectorAll('[data-critical]');
-  criticalElements.forEach(element => {
-    element.setAttribute('loading', 'eager');
-  });
-  
-  // Below-the-fold コンテンツの遅延読み込み
-  const lazyElements = document.querySelectorAll('[data-lazy]');
-  const lazyLoader = createLazyLoader((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const element = entry.target as HTMLElement;
-        element.removeAttribute('data-lazy');
-        lazyLoader?.unobserve(element);
-      }
-    });
-  });
-  
-  if (lazyLoader) {
-    lazyElements.forEach(element => lazyLoader.observe(element));
-  }
-}
-
-// Service Worker の登録（キャッシュ戦略）
-export async function registerServiceWorker(): Promise<void> {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+    console.log('Web Vitals:', metric);
     return;
   }
-  
-  try {
-    const registration = await navigator.serviceWorker.register('/sw.js');
-    console.log('Service Worker registered:', registration);
-    
-    // アップデート確認
-    registration.addEventListener('updatefound', () => {
-      const newWorker = registration.installing;
-      if (newWorker) {
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // 新しいバージョンが利用可能
-            console.log('新しいバージョンが利用可能です');
-          }
-        });
-      }
+
+  // 本番環境では分析サービスに送信
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', metric.name, {
+      event_category: 'Web Vitals',
+      event_label: metric.id,
+      value: Math.round(
+        metric.name === 'CLS' ? metric.value * 1000 : metric.value
+      ),
+      non_interaction: true,
     });
-  } catch (error) {
-    console.error('Service Worker registration failed:', error);
+  }
+
+  // カスタム分析エンドポイントに送信（オプション）
+  if (process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT) {
+    fetch(process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'web-vitals',
+        metric,
+        timestamp: Date.now(),
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+      }),
+    }).catch(console.error);
   }
 }
 
-// パフォーマンス最適化の設定を適用
-export function applyPerformanceOptimizations(): void {
+/**
+ * LCP最適化のためのリソースヒント
+ */
+export function preloadCriticalResources() {
   if (typeof window === 'undefined') return;
-  
-  // DNS プリフェッチ
-  setupDNSPrefetch();
-  
-  // 重要なリソースのプリロード
-  preloadCriticalResources();
-  
-  // Critical Rendering Path の最適化
-  optimizeCriticalRenderingPath();
-  
-  // メモリ監視の開始
-  setInterval(monitorMemoryUsage, 30000); // 30秒ごと
-  
-  // Service Worker の登録
-  registerServiceWorker();
-}
 
-// パフォーマンス測定結果の型定義
-export interface PerformanceMetrics {
-  lcp: number;
-  fid: number;
-  cls: number;
-  fcp: number;
-  ttfb: number;
-  loadTime: number;
-  domContentLoaded: number;
-}
+  // 重要なフォントをプリロード
+  const fontLinks = ['/fonts/inter-var.woff2', '/fonts/noto-sans-jp-var.woff2'];
 
-// パフォーマンス測定の実行
-export function measurePerformance(): Promise<PerformanceMetrics> {
-  return new Promise((resolve) => {
-    if (typeof window === 'undefined') {
-      resolve({} as PerformanceMetrics);
-      return;
-    }
-    
-    const metrics: Partial<PerformanceMetrics> = {};
-    
-    // Navigation Timing API
-    const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-    if (navigation) {
-      metrics.loadTime = navigation.loadEventEnd - navigation.loadEventStart;
-      metrics.domContentLoaded = navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart;
-      metrics.ttfb = navigation.responseStart - navigation.requestStart;
-    }
-    
-    // Web Vitals の測定は PerformanceMonitor コンポーネントで実行
-    
-    resolve(metrics as PerformanceMetrics);
+  fontLinks.forEach(href => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'font';
+    link.type = 'font/woff2';
+    link.crossOrigin = 'anonymous';
+    link.href = href;
+    document.head.appendChild(link);
   });
+
+  // 重要な画像をプリロード
+  const criticalImages = ['/placeholders/hero-background.svg'];
+
+  criticalImages.forEach(src => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = src;
+    document.head.appendChild(link);
+  });
+}
+
+/**
+ * CLS最適化のためのレイアウトシフト防止
+ */
+export function preventLayoutShift() {
+  // 画像のアスペクト比を維持するCSS
+  const style = document.createElement('style');
+  style.textContent = `
+    .aspect-ratio-container {
+      position: relative;
+      width: 100%;
+    }
+    
+    .aspect-ratio-container::before {
+      content: '';
+      display: block;
+      padding-top: var(--aspect-ratio, 75%);
+    }
+    
+    .aspect-ratio-container > * {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+/**
+ * FID最適化のためのメインスレッド負荷軽減
+ */
+export function optimizeMainThread() {
+  // 重い処理を分割して実行
+  function yieldToMain() {
+    return new Promise(resolve => {
+      setTimeout(resolve, 0);
+    });
+  }
+
+  // 大きなタスクを小さなチャンクに分割
+  async function processInChunks<T>(
+    items: T[],
+    processor: (item: T) => void,
+    chunkSize: number = 5
+  ) {
+    for (let i = 0; i < items.length; i += chunkSize) {
+      const chunk = items.slice(i, i + chunkSize);
+      chunk.forEach(processor);
+
+      // メインスレッドに制御を戻す
+      if (i + chunkSize < items.length) {
+        await yieldToMain();
+      }
+    }
+  }
+
+  return { yieldToMain, processInChunks };
+}
+
+/**
+ * リソースローディングの最適化
+ */
+export function optimizeResourceLoading() {
+  if (typeof window === 'undefined') return;
+
+  // 重要でないリソースの遅延読み込み
+  const deferredResources = document.querySelectorAll('[data-defer]');
+
+  const observer = new IntersectionObserver(
+    entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const element = entry.target as HTMLElement;
+          const src = element.dataset.defer;
+
+          if (src) {
+            if (element.tagName === 'IMG') {
+              (element as HTMLImageElement).src = src;
+            } else if (element.tagName === 'IFRAME') {
+              (element as HTMLIFrameElement).src = src;
+            }
+
+            element.removeAttribute('data-defer');
+            observer.unobserve(element);
+          }
+        }
+      });
+    },
+    {
+      rootMargin: '50px',
+    }
+  );
+
+  deferredResources.forEach(element => {
+    observer.observe(element);
+  });
+}
+
+/**
+ * パフォーマンス監視の初期化
+ */
+export function initPerformanceMonitoring() {
+  if (typeof window === 'undefined') return;
+
+  // リソースヒントの適用
+  preloadCriticalResources();
+
+  // レイアウトシフト防止
+  preventLayoutShift();
+
+  // リソースローディング最適化
+  optimizeResourceLoading();
+
+  // パフォーマンスオブザーバーの設定
+  if ('PerformanceObserver' in window) {
+    // Long Task の監視
+    try {
+      const longTaskObserver = new PerformanceObserver(list => {
+        list.getEntries().forEach(entry => {
+          if (entry.duration > 50) {
+            console.warn('Long Task detected:', {
+              duration: entry.duration,
+              startTime: entry.startTime,
+            });
+          }
+        });
+      });
+
+      longTaskObserver.observe({ entryTypes: ['longtask'] });
+    } catch (e) {
+      // Long Task API がサポートされていない場合は無視
+    }
+
+    // Layout Shift の監視
+    try {
+      const clsObserver = new PerformanceObserver(list => {
+        let clsValue = 0;
+
+        list.getEntries().forEach(entry => {
+          if (!(entry as any).hadRecentInput) {
+            clsValue += (entry as any).value;
+          }
+        });
+
+        if (clsValue > 0.1) {
+          console.warn('High CLS detected:', clsValue);
+        }
+      });
+
+      clsObserver.observe({ entryTypes: ['layout-shift'] });
+    } catch (e) {
+      // Layout Shift API がサポートされていない場合は無視
+    }
+  }
+}
+
+/**
+ * 画像の遅延読み込み最適化
+ */
+export function optimizeLazyLoading() {
+  if (typeof window === 'undefined') return;
+
+  // Intersection Observer を使用した遅延読み込み
+  const imageObserver = new IntersectionObserver(
+    entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target as HTMLImageElement;
+          const src = img.dataset.src;
+
+          if (src) {
+            img.src = src;
+            img.removeAttribute('data-src');
+            imageObserver.unobserve(img);
+          }
+        }
+      });
+    },
+    {
+      rootMargin: '100px', // 100px手前で読み込み開始
+    }
+  );
+
+  // data-src属性を持つ画像を監視
+  document.querySelectorAll('img[data-src]').forEach(img => {
+    imageObserver.observe(img);
+  });
+}
+
+/**
+ * フォントローディングの最適化
+ */
+export function optimizeFontLoading() {
+  if (typeof window === 'undefined') return;
+
+  // フォントの事前読み込み
+  const fonts = [
+    new FontFace('Inter', 'url(/fonts/inter-var.woff2)', {
+      display: 'swap',
+      weight: '100 900',
+    }),
+    new FontFace('Noto Sans JP', 'url(/fonts/noto-sans-jp-var.woff2)', {
+      display: 'swap',
+      weight: '100 900',
+    }),
+  ];
+
+  fonts.forEach(font => {
+    font
+      .load()
+      .then(() => {
+        document.fonts.add(font);
+      })
+      .catch(console.error);
+  });
+}
+
+// グローバル型定義の拡張
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
 }

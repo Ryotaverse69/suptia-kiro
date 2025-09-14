@@ -1,35 +1,58 @@
+'use client';
+
 import { generateSEO } from '@/lib/seo-config';
 import dynamic from 'next/dynamic';
-import HeroSection from '@/components/HeroSection';
+import HeroSearch from '@/components/HeroSearch';
 import OnVisible from '@/components/OnVisible';
+import { useOptimizedPerformance } from '@/hooks/usePerformance';
 const HomePrimaryActions = dynamic(
   () => import('@/components/HomePrimaryActions'),
   {
     ssr: false,
     loading: () => (
       <div className='container mx-auto px-4 py-16'>
-        <a href='/compare' className='text-transparent'>compare</a>
+        <a href='/compare' className='text-transparent'>
+          compare
+        </a>
       </div>
     ),
   }
 );
-const PopularProductsSection = dynamic(() => import('@/components/PopularProductsSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
-const IngredientCategoriesSection = dynamic(() => import('@/components/IngredientCategoriesSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
-const AIRecommendationSection = dynamic(() => import('@/components/AIRecommendationSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
-const TrustIndicatorsSection = dynamic(() => import('@/components/TrustIndicatorsSection'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
-const CTABanner = dynamic(() => import('@/components/CTABanner'), { ssr: false, loading: () => <div className='container mx-auto px-4 py-16' /> });
-
-export const metadata = generateSEO({
-  title: 'サプティア - あなたに最も合うサプリを最も安い価格で',
-  description:
-    'AIが分析する科学的根拠に基づいたサプリメント比較サイト。成分・価格・安全性を総合評価し、あなたに最適なサプリメントを見つけます。',
-  url: 'https://suptia.com',
-  keywords: [
-    'サプリメント', '比較', '価格比較', 'AI', '成分分析', '安全性', 'エビデンス',
-    'supplements', 'compare', 'price comparison', 'ingredient analysis'
-  ],
-  type: 'website',
+const PopularComparisonsSection = dynamic(
+  () => import('@/components/PopularComparisonsSection'),
+  {
+    ssr: false,
+    loading: () => <div className='container mx-auto px-4 py-16' />,
+  }
+);
+const IngredientGuideSection = dynamic(
+  () => import('@/components/IngredientGuideSection'),
+  {
+    ssr: false,
+    loading: () => <div className='container mx-auto px-4 py-16' />,
+  }
+);
+const AIRecommendationSection = dynamic(
+  () => import('@/components/AIRecommendationSection'),
+  {
+    ssr: false,
+    loading: () => <div className='container mx-auto px-4 py-16' />,
+  }
+);
+const TrustIndicatorsSection = dynamic(
+  () => import('@/components/TrustIndicatorsSection'),
+  {
+    ssr: false,
+    loading: () => <div className='container mx-auto px-4 py-16' />,
+  }
+);
+const CTABanner = dynamic(() => import('@/components/CTABanner'), {
+  ssr: false,
+  loading: () => <div className='container mx-auto px-4 py-16' />,
 });
+
+// Client Componentなのでmetadataは使用できません
+// SEOは別の方法で実装する必要があります
 
 interface Product {
   name: string;
@@ -41,7 +64,7 @@ interface Product {
   };
 }
 
-async function getProducts(): Promise<Product[]> {
+function getProducts(): Product[] {
   // デモ用のサンプルデータを返す（Sanity接続エラーを回避）
   return [
     {
@@ -75,29 +98,57 @@ async function getProducts(): Promise<Product[]> {
   ];
 }
 
-export default async function Home() {
-  const products = await getProducts();
+export default function Home() {
+  const products = getProducts();
+  const { containerRef } = useOptimizedPerformance();
+
+  const handleSearch = (query: string) => {
+    // 検索処理の実装（例：検索ページへのリダイレクト）
+    console.log('検索クエリ:', query);
+    // TODO: 検索ページへのナビゲーション実装
+  };
 
   return (
-    <div className='min-h-screen scroll-smooth'>
-      <HeroSection />
-      <HomePrimaryActions />
+    <>
+      {/* Heroセクションは全画面表示のため、mainコンテナの外に配置 */}
+      <div className='fixed inset-0 z-10'>
+        <HeroSearch onSearch={handleSearch} />
+      </div>
 
-      <OnVisible placeholder={<div className='container mx-auto px-4 py-16' />}>
-        <PopularProductsSection products={products as any} />
-      </OnVisible>
-      <OnVisible placeholder={<div className='container mx-auto px-4 py-16' />}>
-        <IngredientCategoriesSection />
-      </OnVisible>
-      <OnVisible placeholder={<div className='container mx-auto px-4 py-16' />}>
-        <AIRecommendationSection />
-      </OnVisible>
-      <OnVisible placeholder={<div className='container mx-auto px-4 py-16' />}>
-        <TrustIndicatorsSection />
-      </OnVisible>
-      <OnVisible placeholder={<div className='container mx-auto px-4 py-16' />}>
-        <CTABanner />
-      </OnVisible>
-    </div>
+      {/* 他のセクションは通常のコンテナ内に配置、Heroの下に配置 */}
+      <div
+        ref={containerRef}
+        className='relative z-20 min-h-screen scroll-smooth'
+        style={{ marginTop: '100vh' }}
+      >
+        <HomePrimaryActions />
+
+        <OnVisible
+          placeholder={<div className='container mx-auto px-4 py-16' />}
+        >
+          <PopularComparisonsSection />
+        </OnVisible>
+        <OnVisible
+          placeholder={<div className='container mx-auto px-4 py-16' />}
+        >
+          <IngredientGuideSection />
+        </OnVisible>
+        <OnVisible
+          placeholder={<div className='container mx-auto px-4 py-16' />}
+        >
+          <AIRecommendationSection />
+        </OnVisible>
+        <OnVisible
+          placeholder={<div className='container mx-auto px-4 py-16' />}
+        >
+          <TrustIndicatorsSection />
+        </OnVisible>
+        <OnVisible
+          placeholder={<div className='container mx-auto px-4 py-16' />}
+        >
+          <CTABanner />
+        </OnVisible>
+      </div>
+    </>
   );
 }
