@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/Button';
 import { ProductImage } from './ui/OptimizedImage';
+import { useLocale, useTranslation } from '@/contexts/LocaleContext';
 
 interface ProductBadge {
   label: string;
@@ -16,7 +17,6 @@ interface CompareCardProps {
   brand: string;
   price: number;
   pricePerDay: number;
-  currency?: string;
   rating?: number;
   reviewCount?: number;
   mainIngredients: string[];
@@ -40,7 +40,6 @@ export default function CompareCard({
   brand,
   price,
   pricePerDay,
-  currency = '¥',
   rating,
   reviewCount,
   mainIngredients,
@@ -52,10 +51,20 @@ export default function CompareCard({
   className,
 }: CompareCardProps) {
   const [isFavorited, setIsFavorited] = useState(false);
+  const { formatPrice } = useLocale();
+  const { t } = useTranslation();
 
   const handleViewDetails = () => {
     if (onViewDetails) {
       onViewDetails(id);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Enterキーまたはスペースキーで詳細を表示
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleViewDetails();
     }
   };
 
@@ -79,25 +88,29 @@ export default function CompareCard({
   return (
     <article
       className={cn(
-        'bg-white rounded-2xl p-4 sm:p-6 lg:p-8 shadow-soft transition-all duration-300 group',
-        'hover:shadow-lg hover:-translate-y-1 apple-hover',
+        'bg-white rounded-xl p-4 sm:p-6 lg:p-8 shadow-soft transition-all duration-300 group',
+        'hover:shadow-md hover:-translate-y-1 apple-hover',
         className
       )}
       role='article'
       aria-labelledby={`product-name-${id}`}
       aria-describedby={`product-description-${id}`}
     >
-      {/* ヘッダー部分：スコアバッジとお気に入りボタン */}
-      <div className='flex items-center justify-between mb-4 sm:mb-6'>
+      {/* ヘッダー部分：スコアバッジとお気に入りボタン - Apple風広めの余白 */}
+      <div className='flex items-center justify-between mb-component-lg'>
         {totalScore && (
           <div className='px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full text-xs sm:text-sm font-medium'>
-            総合スコア {totalScore}
+            {t('diagnosis.totalScore')} {totalScore}
           </div>
         )}
         <button
           onClick={handleAddToFavorites}
-          className='text-gray-400 hover:text-red-500 transition-colors p-1.5 sm:p-2 rounded-full hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
-          aria-label={isFavorited ? 'お気に入りから削除' : 'お気に入りに追加'}
+          className='text-gray-400 hover:text-red-500 transition-colors p-3 rounded-full hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 min-w-[44px] min-h-[44px] flex items-center justify-center'
+          aria-label={
+            isFavorited
+              ? t('product.removeFromFavorites')
+              : t('product.addToFavorites')
+          }
         >
           <svg
             className='w-5 h-5 sm:w-6 sm:h-6'
@@ -115,35 +128,35 @@ export default function CompareCard({
         </button>
       </div>
 
-      {/* 商品画像 */}
-      <div className='mb-4 sm:mb-6 flex justify-center'>
-        <div className='w-20 h-20 sm:w-24 sm:h-24 relative rounded-xl overflow-hidden'>
+      {/* 商品画像 - より大きく目立つサイズに変更 */}
+      <div className='mb-component-lg flex justify-center'>
+        <div className='w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 relative rounded-xl overflow-hidden bg-gray-50 group-hover:shadow-sm transition-shadow duration-300'>
           <ProductImage
             src={imageUrl || '/placeholders/product-placeholder.svg'}
             alt={`${name}の商品画像`}
-            className='w-full h-full object-cover'
+            className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
           />
         </div>
       </div>
 
-      {/* 商品情報 */}
-      <div className='mb-4 sm:mb-6'>
+      {/* 商品情報 - Apple風広めの余白 */}
+      <div className='mb-component-lg'>
         <h3
           id={`product-name-${id}`}
-          className='text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors leading-tight'
+          className='text-lg sm:text-xl lg:text-2xl font-semibold-apple text-gray-900 mb-component-xs group-hover:text-primary-600 transition-colors leading-tight font-apple tracking-apple-normal'
         >
           {name}
         </h3>
         <p
           id={`product-description-${id}`}
-          className='text-sm sm:text-base text-gray-600 mb-3 sm:mb-4'
+          className='text-sm sm:text-base text-gray-600 mb-component-md font-apple font-normal-apple'
         >
           {brand}
         </p>
 
-        {/* 評価 */}
+        {/* 評価 - Apple風広めの余白 */}
         {rating && (
-          <div className='flex items-center mb-4'>
+          <div className='flex items-center mb-component-md'>
             <div
               className='flex items-center'
               role='img'
@@ -164,16 +177,16 @@ export default function CompareCard({
                 </svg>
               ))}
             </div>
-            <span className='ml-2 text-sm text-gray-600'>
+            <span className='ml-component-sm text-sm text-gray-600'>
               {rating.toFixed(1)}{' '}
-              {reviewCount && `(${reviewCount}件のレビュー)`}
+              {reviewCount && `(${reviewCount}${t('product.reviews')})`}
             </span>
           </div>
         )}
 
-        {/* 主要成分バッジ */}
+        {/* 主要成分バッジ - Apple風デザイン強化 */}
         <div
-          className='flex flex-wrap gap-2 mb-4'
+          className='flex flex-wrap gap-component-sm mb-component-md'
           role='list'
           aria-label='主要成分'
         >
@@ -181,7 +194,7 @@ export default function CompareCard({
             <span
               key={index}
               role='listitem'
-              className='px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs'
+              className='px-3 py-1.5 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200/50 hover:border-primary-200 hover:bg-gradient-to-r hover:from-primary-50 hover:to-primary-100 hover:text-primary-700 transition-all duration-200'
             >
               {ingredient}
             </span>
@@ -189,7 +202,7 @@ export default function CompareCard({
           {mainIngredients.length > 3 && (
             <span
               role='listitem'
-              className='px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs'
+              className='px-3 py-1.5 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200/50'
               aria-label={`他${mainIngredients.length - 3}種類の成分`}
             >
               +{mainIngredients.length - 3}
@@ -197,9 +210,9 @@ export default function CompareCard({
           )}
         </div>
 
-        {/* 追加バッジ */}
+        {/* 追加バッジ - Apple風広めの余白 */}
         {badges.length > 0 && (
-          <div className='flex flex-wrap gap-2 mb-4'>
+          <div className='flex flex-wrap gap-component-sm mb-component-md'>
             {badges.map((badge, index) => (
               <span
                 key={index}
@@ -215,45 +228,73 @@ export default function CompareCard({
         )}
       </div>
 
-      {/* 価格情報 */}
+      {/* 価格情報 - 最安値を明示 */}
       <div
-        className='flex items-center justify-between mb-4 sm:mb-6'
+        className='flex items-center justify-between mb-component-lg'
         role='region'
         aria-label='価格情報'
       >
         <div>
+          <div className='flex items-center gap-2 mb-1'>
+            <span className='px-2 py-0.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full text-xs font-medium'>
+              最安値
+            </span>
+          </div>
           <span
-            className='text-xl sm:text-2xl lg:text-3xl font-bold text-primary-600'
-            aria-label={`価格 ${currency}${price.toLocaleString()}円`}
+            className='text-xl sm:text-2xl lg:text-3xl font-semibold-apple text-primary-600 font-apple tracking-apple-normal'
+            aria-label={`最安値 ${formatPrice(price)}`}
           >
-            {currency}
-            {price.toLocaleString()}
+            {formatPrice(price)}
           </span>
-          <span className='text-xs sm:text-sm text-gray-500 ml-1 sm:ml-2'>
+          <span className='text-xs sm:text-sm text-gray-500 ml-component-xs sm:ml-component-sm font-apple'>
             30日分
           </span>
         </div>
         <div className='text-right'>
           <div
-            className='text-base sm:text-lg font-semibold text-gray-900'
-            aria-label={`1日あたり ${currency}${Math.round(pricePerDay)}円`}
+            className='text-base sm:text-lg font-semibold-apple text-gray-900 font-apple tracking-apple-normal'
+            aria-label={`1日あたり ${formatPrice(pricePerDay)}`}
           >
-            {currency}
-            {Math.round(pricePerDay)}
+            {formatPrice(pricePerDay)}
           </div>
-          <div className='text-xs sm:text-sm text-gray-500'>1日あたり</div>
+          <div className='text-xs sm:text-sm text-gray-500 font-apple'>
+            1日あたり
+          </div>
         </div>
       </div>
 
-      {/* CTAボタン */}
-      <Button
-        onClick={handleViewDetails}
-        className='w-full'
-        size='lg'
-        hover='scale'
-      >
-        詳細を見る
-      </Button>
+      {/* Apple風CTAボタン - より目立つデザイン */}
+      <div className='flex gap-3'>
+        <Button
+          onClick={handleViewDetails}
+          onKeyDown={handleKeyDown}
+          className='flex-1 bg-primary-600 hover:bg-primary-700 text-white font-medium py-4 rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl'
+          size='lg'
+          hover='scale'
+          aria-describedby={`product-description-${id}`}
+        >
+          {t('product.details')}
+        </Button>
+        <button
+          className='px-4 py-4 border-2 border-primary-600 text-primary-600 rounded-xl font-medium hover:bg-primary-600 hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 min-w-[60px] flex items-center justify-center'
+          aria-label='比較に追加'
+          title='比較に追加'
+        >
+          <svg
+            className='w-5 h-5'
+            fill='none'
+            stroke='currentColor'
+            viewBox='0 0 24 24'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth={2}
+              d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+            />
+          </svg>
+        </button>
+      </div>
     </article>
   );
 }

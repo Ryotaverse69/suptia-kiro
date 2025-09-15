@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import CompareCard from '../CompareCard';
+import { LocaleProvider } from '@/contexts/LocaleContext';
 
 const mockProduct = {
   id: '1',
@@ -14,32 +15,43 @@ const mockProduct = {
   totalScore: 85,
 };
 
+// テスト用のラッパーコンポーネント
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <LocaleProvider>{children}</LocaleProvider>
+);
+
 describe('CompareCard', () => {
   it('基本的な商品情報を表示する', () => {
-    render(<CompareCard {...mockProduct} />);
+    render(<CompareCard {...mockProduct} />, { wrapper: TestWrapper });
 
     expect(screen.getByText('ビタミンD3 2000IU')).toBeInTheDocument();
     expect(screen.getByText('Nature Made')).toBeInTheDocument();
-    expect(screen.getByText('¥1,980')).toBeInTheDocument();
-    expect(screen.getByText('¥66')).toBeInTheDocument();
+    expect(screen.getByText(/1,980/)).toBeInTheDocument();
+    expect(screen.getByText(/66/)).toBeInTheDocument();
     expect(screen.getByText('1日あたり')).toBeInTheDocument();
   });
 
+  it('最安値バッジを表示する', () => {
+    render(<CompareCard {...mockProduct} />, { wrapper: TestWrapper });
+
+    expect(screen.getByText('最安値')).toBeInTheDocument();
+  });
+
   it('総合スコアを表示する', () => {
-    render(<CompareCard {...mockProduct} />);
+    render(<CompareCard {...mockProduct} />, { wrapper: TestWrapper });
 
     expect(screen.getByText('総合スコア 85')).toBeInTheDocument();
   });
 
   it('評価と レビュー数を表示する', () => {
-    render(<CompareCard {...mockProduct} />);
+    render(<CompareCard {...mockProduct} />, { wrapper: TestWrapper });
 
     expect(screen.getByText(/4\.8/)).toBeInTheDocument();
-    expect(screen.getByText(/256件のレビュー/)).toBeInTheDocument();
+    expect(screen.getByText(/256.*口コミ/)).toBeInTheDocument();
   });
 
   it('主要成分バッジを表示する', () => {
-    render(<CompareCard {...mockProduct} />);
+    render(<CompareCard {...mockProduct} />, { wrapper: TestWrapper });
 
     expect(screen.getByText('ビタミンD3')).toBeInTheDocument();
     expect(screen.getByText('高吸収')).toBeInTheDocument();
@@ -58,7 +70,9 @@ describe('CompareCard', () => {
       ],
     };
 
-    render(<CompareCard {...productWithManyIngredients} />);
+    render(<CompareCard {...productWithManyIngredients} />, {
+      wrapper: TestWrapper,
+    });
 
     expect(screen.getByText('ビタミンD3')).toBeInTheDocument();
     expect(screen.getByText('高吸収')).toBeInTheDocument();
@@ -72,7 +86,9 @@ describe('CompareCard', () => {
       { label: '人気', variant: 'info' as const },
     ];
 
-    render(<CompareCard {...mockProduct} badges={badges} />);
+    render(<CompareCard {...mockProduct} badges={badges} />, {
+      wrapper: TestWrapper,
+    });
 
     expect(screen.getByText('高品質')).toBeInTheDocument();
     expect(screen.getByText('人気')).toBeInTheDocument();
@@ -80,18 +96,28 @@ describe('CompareCard', () => {
 
   it('詳細を見るボタンをクリックしたときにコールバックが呼ばれる', () => {
     const onViewDetails = vi.fn();
-    render(<CompareCard {...mockProduct} onViewDetails={onViewDetails} />);
+    render(<CompareCard {...mockProduct} onViewDetails={onViewDetails} />, {
+      wrapper: TestWrapper,
+    });
 
-    const detailsButton = screen.getByRole('button', { name: '詳細を見る' });
+    const detailsButton = screen.getByRole('button', { name: '商品詳細' });
     fireEvent.click(detailsButton);
 
     expect(onViewDetails).toHaveBeenCalledWith('1');
   });
 
+  it('比較に追加ボタンが表示される', () => {
+    render(<CompareCard {...mockProduct} />, { wrapper: TestWrapper });
+
+    const compareButton = screen.getByLabelText('比較に追加');
+    expect(compareButton).toBeInTheDocument();
+  });
+
   it('お気に入りボタンをクリックしたときにコールバックが呼ばれる', () => {
     const onAddToFavorites = vi.fn();
     render(
-      <CompareCard {...mockProduct} onAddToFavorites={onAddToFavorites} />
+      <CompareCard {...mockProduct} onAddToFavorites={onAddToFavorites} />,
+      { wrapper: TestWrapper }
     );
 
     const favoriteButton = screen.getByLabelText('お気に入りに追加');
@@ -101,19 +127,12 @@ describe('CompareCard', () => {
   });
 
   it('お気に入りボタンの状態が切り替わる', () => {
-    render(<CompareCard {...mockProduct} />);
+    render(<CompareCard {...mockProduct} />, { wrapper: TestWrapper });
 
     const favoriteButton = screen.getByLabelText('お気に入りに追加');
     fireEvent.click(favoriteButton);
 
     expect(screen.getByLabelText('お気に入りから削除')).toBeInTheDocument();
-  });
-
-  it('カスタム通貨を表示する', () => {
-    render(<CompareCard {...mockProduct} currency='$' />);
-
-    expect(screen.getByText('$1,980')).toBeInTheDocument();
-    expect(screen.getByText('$66')).toBeInTheDocument();
   });
 
   it('評価がない場合は評価を表示しない', () => {
@@ -123,7 +142,7 @@ describe('CompareCard', () => {
       reviewCount: undefined,
     };
 
-    render(<CompareCard {...productWithoutRating} />);
+    render(<CompareCard {...productWithoutRating} />, { wrapper: TestWrapper });
 
     expect(screen.queryByText(/4.8/)).not.toBeInTheDocument();
   });
@@ -134,23 +153,26 @@ describe('CompareCard', () => {
       totalScore: undefined,
     };
 
-    render(<CompareCard {...productWithoutScore} />);
+    render(<CompareCard {...productWithoutScore} />, { wrapper: TestWrapper });
 
     expect(screen.queryByText(/総合スコア/)).not.toBeInTheDocument();
   });
 
   it('Apple風のホバー効果クラスが適用される', () => {
-    const { container } = render(<CompareCard {...mockProduct} />);
+    const { container } = render(<CompareCard {...mockProduct} />, {
+      wrapper: TestWrapper,
+    });
 
     const card = container.firstChild as HTMLElement;
     expect(card).toHaveClass('apple-hover');
-    expect(card).toHaveClass('hover:shadow-lg');
+    expect(card).toHaveClass('hover:shadow-md');
     expect(card).toHaveClass('hover:-translate-y-1');
   });
 
   it('カスタムクラス名が適用される', () => {
     const { container } = render(
-      <CompareCard {...mockProduct} className='custom-class' />
+      <CompareCard {...mockProduct} className='custom-class' />,
+      { wrapper: TestWrapper }
     );
 
     const card = container.firstChild as HTMLElement;
@@ -165,7 +187,9 @@ describe('CompareCard', () => {
       { label: '情報', variant: 'info' as const },
     ];
 
-    render(<CompareCard {...mockProduct} badges={badges} />);
+    render(<CompareCard {...mockProduct} badges={badges} />, {
+      wrapper: TestWrapper,
+    });
 
     const highBadge = screen.getByText('高品質');
     const mediumBadge = screen.getByText('中品質');
