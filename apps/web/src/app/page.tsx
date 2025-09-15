@@ -4,13 +4,15 @@ import { generateSEO } from '@/lib/seo-config';
 import dynamic from 'next/dynamic';
 import HeroSearch from '@/components/HeroSearch';
 import OnVisible from '@/components/OnVisible';
+import SkipLinks from '@/components/SkipLinks';
 import { useOptimizedPerformance } from '@/hooks/usePerformance';
+import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 const HomePrimaryActions = dynamic(
   () => import('@/components/HomePrimaryActions'),
   {
     ssr: false,
     loading: () => (
-      <div className='container mx-auto px-4 py-16'>
+      <div className='container mx-auto container-padding py-section-md'>
         <a href='/compare' className='text-transparent'>
           compare
         </a>
@@ -22,33 +24,33 @@ const PopularComparisonsSection = dynamic(
   () => import('@/components/PopularComparisonsSection'),
   {
     ssr: false,
-    loading: () => <div className='container mx-auto px-4 py-16' />,
+    loading: () => <div className='container mx-auto container-padding py-section-md' />,
   }
 );
 const IngredientGuideSection = dynamic(
   () => import('@/components/IngredientGuideSection'),
   {
     ssr: false,
-    loading: () => <div className='container mx-auto px-4 py-16' />,
+    loading: () => <div className='container mx-auto container-padding py-section-md' />,
   }
 );
 const AIRecommendationSection = dynamic(
   () => import('@/components/AIRecommendationSection'),
   {
     ssr: false,
-    loading: () => <div className='container mx-auto px-4 py-16' />,
+    loading: () => <div className='container mx-auto container-padding py-section-md' />,
   }
 );
 const TrustIndicatorsSection = dynamic(
   () => import('@/components/TrustIndicatorsSection'),
   {
     ssr: false,
-    loading: () => <div className='container mx-auto px-4 py-16' />,
+    loading: () => <div className='container mx-auto container-padding py-section-md' />,
   }
 );
 const CTABanner = dynamic(() => import('@/components/CTABanner'), {
   ssr: false,
-  loading: () => <div className='container mx-auto px-4 py-16' />,
+  loading: () => <div className='container mx-auto container-padding py-section-md' />,
 });
 
 // Client Componentなのでmetadataは使用できません
@@ -101,54 +103,60 @@ function getProducts(): Product[] {
 export default function Home() {
   const products = getProducts();
   const { containerRef } = useOptimizedPerformance();
+  const { navigateToComparisons } = useKeyboardNavigation();
 
   const handleSearch = (query: string) => {
     // 検索処理の実装（例：検索ページへのリダイレクト）
     console.log('検索クエリ:', query);
-    // TODO: 検索ページへのナビゲーション実装
+    // 検索実行後、比較セクションにナビゲート
+    setTimeout(() => {
+      navigateToComparisons();
+    }, 100);
   };
 
   return (
     <>
-      {/* Heroセクションは全画面表示のため、mainコンテナの外に配置 */}
-      <div className='fixed inset-0 z-10'>
-        <HeroSearch onSearch={handleSearch} />
-      </div>
+      {/* スキップリンク */}
+      <SkipLinks />
 
-      {/* 他のセクションは通常のコンテナ内に配置、Heroの下に配置 */}
-      <div
+      {/* Heroセクション */}
+      <HeroSearch onSearch={handleSearch} />
+
+      {/* 他のセクション */}
+      <main
+        id="main-content"
         ref={containerRef}
-        className='relative z-20 min-h-screen scroll-smooth'
-        style={{ marginTop: '100vh' }}
+        className='relative min-h-screen scroll-smooth'
+        tabIndex={-1}
+        role="main"
+        aria-label="メインコンテンツ"
       >
         <HomePrimaryActions />
 
+        {/* 比較セクションは常に表示（OnVisibleを使わない） */}
+        <PopularComparisonsSection />
+
         <OnVisible
-          placeholder={<div className='container mx-auto px-4 py-16' />}
-        >
-          <PopularComparisonsSection />
-        </OnVisible>
-        <OnVisible
-          placeholder={<div className='container mx-auto px-4 py-16' />}
+          placeholder={<div className='container mx-auto container-padding py-section-md' />}
         >
           <IngredientGuideSection />
         </OnVisible>
         <OnVisible
-          placeholder={<div className='container mx-auto px-4 py-16' />}
+          placeholder={<div className='container mx-auto container-padding py-section-md' />}
         >
           <AIRecommendationSection />
         </OnVisible>
         <OnVisible
-          placeholder={<div className='container mx-auto px-4 py-16' />}
+          placeholder={<div className='container mx-auto container-padding py-section-md' />}
         >
           <TrustIndicatorsSection />
         </OnVisible>
         <OnVisible
-          placeholder={<div className='container mx-auto px-4 py-16' />}
+          placeholder={<div className='container mx-auto container-padding py-section-md' />}
         >
           <CTABanner />
         </OnVisible>
-      </div>
+      </main>
     </>
   );
 }

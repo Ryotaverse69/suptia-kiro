@@ -16,7 +16,11 @@
     "sort": "並び替え",
     "clear": "クリア",
     "apply": "適用",
-    "reset": "リセット"
+    "reset": "リセット",
+    "all": "すべて",
+    "menu": "メニュー",
+    "openMenu": "メニューを開く",
+    "closeMenu": "メニューを閉じる"
   },
   "navigation": {
     "home": "ホーム",
@@ -42,7 +46,8 @@
     "contact": "お問い合わせ"
   },
   "search": {
-    "placeholder": "サプリメントを検索...",
+    "placeholder": "サプリメントを検索（例：ビタミンD、疲労回復、美容）",
+    "placeholderShort": "サプリメントを検索...",
     "aiRecommendation": "AIレコメンド",
     "popularSupplements": "人気のサプリメント",
     "noResults": "検索結果が見つかりませんでした",

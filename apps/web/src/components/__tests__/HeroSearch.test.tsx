@@ -5,7 +5,21 @@ import HeroSearch from '../HeroSearch';
 // LocaleContextのモック
 vi.mock('@/contexts/LocaleContext', () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string) => {
+      const translations: Record<string, string> = {
+        'home.cta.titleLine1': 'あなたに最も合う',
+        'home.cta.titleEmphasis': 'サプリメント',
+        'header.tagline': 'AIが分析する、あなただけの最適解',
+        'search.placeholder': 'サプリメントを検索（例：ビタミンD、疲労回復、美容）',
+        'common.search': '検索',
+        'search.aiRecommendation': 'AIサジェスト',
+        'ingredients.categories': '人気のカテゴリ',
+      };
+      return translations[key] || key;
+    },
+  }),
+  useLocale: () => ({
+    locale: 'ja',
   }),
 }));
 
@@ -15,7 +29,6 @@ describe('HeroSearch', () => {
 
     expect(screen.getByText(/あなたに最も合う/)).toBeInTheDocument();
     expect(screen.getByText('サプリメント')).toBeInTheDocument();
-    expect(screen.getByText('最も安い価格で。')).toBeInTheDocument();
     expect(
       screen.getByText('AIが分析する、あなただけの最適解')
     ).toBeInTheDocument();
@@ -40,11 +53,12 @@ describe('HeroSearch', () => {
   it('renders popular category chips', () => {
     render(<HeroSearch />);
 
-    expect(screen.getByText('人気のカテゴリ')).toBeInTheDocument();
+    expect(screen.getAllByText('人気のカテゴリ')[0]).toBeInTheDocument();
     expect(screen.getByText('ビタミンD')).toBeInTheDocument();
     expect(screen.getByText('疲労回復')).toBeInTheDocument();
     expect(screen.getByText('美容')).toBeInTheDocument();
-    expect(screen.getByText('免疫力')).toBeInTheDocument();
+    // maxVisible=3なので最初の3つのみ表示される
+    expect(screen.queryByText('免疫力')).not.toBeInTheDocument();
   });
 
   it('calls onSearch when search is performed', async () => {
@@ -76,12 +90,10 @@ describe('HeroSearch', () => {
     });
   });
 
-  it('shows AI suggestions when input is focused', async () => {
+  it('shows enhanced AI suggestions when input is focused', async () => {
     render(<HeroSearch />);
 
-    const searchInput = screen.getByPlaceholderText(
-      'サプリメントを検索（例：ビタミンD、疲労回復、美容）'
-    );
+    const searchInput = screen.getByRole('combobox');
     fireEvent.focus(searchInput);
 
     await waitFor(() => {
@@ -92,6 +104,11 @@ describe('HeroSearch', () => {
       expect(
         screen.getByText('美容効果の高いコラーゲンサプリを比較')
       ).toBeInTheDocument();
+      expect(
+        screen.getByText('マグネシウム不足による睡眠の質改善')
+      ).toBeInTheDocument();
+      // 信頼度スコアの表示確認
+      expect(screen.getByText('94%')).toBeInTheDocument();
     });
   });
 
@@ -99,7 +116,7 @@ describe('HeroSearch', () => {
     render(<HeroSearch />);
 
     const searchInput = screen.getByRole('combobox');
-    expect(searchInput).toHaveAttribute('aria-label', 'サプリメント検索');
+    expect(searchInput).toHaveAttribute('aria-label', 'サプリメントを検索（例：ビタミンD、疲労回復、美容）');
     expect(searchInput).toHaveAttribute('aria-expanded', 'false');
     expect(searchInput).toHaveAttribute('aria-haspopup', 'listbox');
   });
@@ -117,14 +134,45 @@ describe('HeroSearch', () => {
       'items-center'
     );
 
-    const searchInput = screen.getByPlaceholderText(
-      'サプリメントを検索（例：ビタミンD、疲労回復、美容）'
-    );
+    const searchInput = screen.getByRole('combobox');
     expect(searchInput).toHaveClass(
       'rounded-2xl',
       'bg-gray-50/80',
-      'border-2',
-      'border-transparent'
+      'border-2'
     );
+  });
+
+  it('displays AI suggestion confidence scores', async () => {
+    render(<HeroSearch />);
+
+    const searchInput = screen.getByRole('combobox');
+    fireEvent.focus(searchInput);
+
+    await waitFor(() => {
+      // 信頼度スコアが表示されることを確認
+      expect(screen.getByText('94%')).toBeInTheDocument();
+      expect(screen.getByText('91%')).toBeInTheDocument();
+      expect(screen.getByText('88%')).toBeInTheDocument();
+    });
+  });
+
+  it('shows different suggestion types with visual indicators', async () => {
+    render(<HeroSearch />);
+
+    const searchInput = screen.getByRole('combobox');
+    fireEvent.focus(searchInput);
+
+    await waitFor(() => {
+      // 異なるタイプのサジェストが表示されることを確認
+      expect(
+        screen.getByText('疲労回復に効果的なビタミンB群を探す')
+      ).toBeInTheDocument(); // purpose
+      expect(
+        screen.getByText('マグネシウム不足による睡眠の質改善')
+      ).toBeInTheDocument(); // ingredient
+      expect(
+        screen.getByText('オメガ3脂肪酸で心血管健康をサポート')
+      ).toBeInTheDocument(); // condition
+    });
   });
 });

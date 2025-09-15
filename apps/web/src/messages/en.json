@@ -16,7 +16,11 @@
     "sort": "Sort",
     "clear": "Clear",
     "apply": "Apply",
-    "reset": "Reset"
+    "reset": "Reset",
+    "all": "All",
+    "menu": "Menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "navigation": {
     "home": "Home",
@@ -42,7 +46,8 @@
     "contact": "Contact"
   },
   "search": {
-    "placeholder": "Search supplements...",
+    "placeholder": "Search supplements (e.g., Vitamin D, fatigue, beauty)",
+    "placeholderShort": "Search supplements...",
     "aiRecommendation": "AI Recommendation",
     "popularSupplements": "Popular Supplements",
     "noResults": "No search results found",
@@ -161,11 +166,11 @@
       "guideDesc": "Learn effects and selection of vitamins, minerals, and herbs"
     },
     "popular": {
-      "title": "Popular Picks",
-      "subtitle": "Highlighted items with great cost/effectiveness balance"
+      "title": "Popular Recommendations",
+      "subtitle": "Featured products with excellent cost-effectiveness balance"
     },
     "categories": {
-      "subtitle": "Make better choices with evidence-based ingredient info",
+      "subtitle": "Make informed choices with evidence-based ingredient information",
       "vitaminsDesc": "Effects and selection of A/C/D/E/B",
       "mineralsDesc": "Iron/Zinc/Magnesium and more",
       "herbsDesc": "Ashwagandha/Ginkgo and others",
@@ -181,9 +186,9 @@
       "aiDesc": "Explainable decision making"
     },
     "cta": {
-      "titleLine1": "Find your perfect supplement",
-      "titleEmphasis": "today",
-      "subtitle": "Choose safely and effectively with evidence-based analysis. AI suggests the best options for your goals and constitution.",
+      "titleLine1": "Find the best supplements for you",
+      "titleEmphasis": "at the lowest prices",
+      "subtitle": "AI-powered analysis for your optimal solution",
       "btnCompare": "Start Comparing Now",
       "btnGuide": "Browse Ingredient Guide"
     }
