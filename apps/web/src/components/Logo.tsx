@@ -26,7 +26,7 @@ export const Logo: React.FC<LogoProps> = ({
 
   const Icon = (
     <div
-      className={`inline-flex items-center justify-center rounded-xl shadow-lg bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-500 ${s.box}`}
+      className={`inline-flex items-center justify-center rounded-xl shadow-sm bg-gradient-to-br from-primary-600 via-purple-600 to-cyan-500 ${s.box}`}
       aria-hidden='true'
     >
       <span className='text-white font-bold select-none'>S</span>
@@ -36,7 +36,7 @@ export const Logo: React.FC<LogoProps> = ({
   const Text = (
     <div className='flex flex-col ml-2'>
       <span
-        className={`font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent ${s.text}`}
+        className={`font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent ${s.text}`}
       >
         サプティア
       </span>

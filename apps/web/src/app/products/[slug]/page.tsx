@@ -97,7 +97,7 @@ function ScoringSystemFallback() {
           </svg>
         </div>
         <div className='ml-3'>
-          <p className='text-sm text-blue-800'>
+          <p className='text-sm text-primary-800'>
             スコアリングシステムを一時的に利用できません。商品の詳細情報をご確認ください。
           </p>
         </div>
@@ -137,13 +137,13 @@ interface Product {
   }>;
   warnings?: string[];
   form?:
-    | 'capsule'
-    | 'tablet'
-    | 'softgel'
-    | 'powder'
-    | 'liquid'
-    | 'gummy'
-    | string;
+  | 'capsule'
+  | 'tablet'
+  | 'softgel'
+  | 'powder'
+  | 'liquid'
+  | 'gummy'
+  | string;
   thirdPartyTested?: boolean;
 }
 
@@ -517,7 +517,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         )}
 
         {/* Hero Section */}
-        <div className='bg-gradient-to-br from-primary-50 to-secondary-50 rounded-3xl p-8 mb-8'>
+        <div className='bg-gradient-to-br from-primary-50 to-secondary-50 rounded-xl p-8 mb-8'>
           {/* Breadcrumb Navigation */}
           <nav
             className='text-sm text-gray-600 mb-6'
@@ -556,7 +556,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   🏢 {product.brand}
                 </span>
                 {product.form && (
-                  <span className='bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium'>
+                  <span className='bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium'>
                     💊{' '}
                     {product.form === 'capsule'
                       ? 'カプセル'
@@ -659,18 +659,18 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <div className='flex justify-center'>
               {product.images && product.images.length > 0 ? (
                 <div className='relative'>
-                  <div className='absolute inset-0 bg-gradient-to-r from-primary-200 to-secondary-200 rounded-2xl blur-2xl opacity-30 transform rotate-6'></div>
+                  <div className='absolute inset-0 bg-gradient-to-r from-primary-200 to-secondary-200 rounded-xl blur-2xl opacity-30 transform rotate-6'></div>
                   <Image
                     src={product.images[0].asset.url}
                     alt={product.images[0].alt || product.name}
                     width={400}
                     height={400}
-                    className='relative rounded-2xl shadow-2xl'
+                    className='relative rounded-xl shadow-sm'
                     priority
                   />
                 </div>
               ) : (
-                <div className='w-80 h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center'>
+                <div className='w-80 h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center'>
                   <span className='text-6xl'>📦</span>
                 </div>
               )}
@@ -707,10 +707,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
 
             <div className='bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4'>
-              <div className='text-sm text-blue-600 font-medium mb-1'>
+              <div className='text-sm text-primary-600 font-medium mb-1'>
                 内容量
               </div>
-              <div className='text-lg font-bold text-blue-800'>
+              <div className='text-lg font-bold text-primary-800'>
                 {product.servingsPerContainer}回分
               </div>
             </div>
@@ -775,7 +775,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 ¥
                 {Math.round(
                   (product.priceJPY / product.servingsPerContainer) *
-                    product.servingsPerDay
+                  product.servingsPerDay
                 )}
               </div>
             </div>
@@ -806,7 +806,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
               <h2 className='text-2xl font-bold text-gray-900'>成分構成</h2>
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
               {product.ingredients.map((item, index) => (
                 <div
                   key={index}
@@ -845,13 +845,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   <div className='flex flex-wrap gap-2 mt-3'>
                     {item.ingredient.evidenceLevel && (
                       <span
-                        className={`inline-block px-2 py-1 rounded-md text-xs font-medium ${
-                          item.ingredient.evidenceLevel === 'A'
-                            ? 'bg-green-100 text-green-700'
-                            : item.ingredient.evidenceLevel === 'B'
-                              ? 'bg-yellow-100 text-yellow-700'
-                              : 'bg-gray-100 text-gray-700'
-                        }`}
+                        className={`inline-block px-2 py-1 rounded-md text-xs font-medium ${item.ingredient.evidenceLevel === 'A'
+                          ? 'bg-green-100 text-green-700'
+                          : item.ingredient.evidenceLevel === 'B'
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : 'bg-gray-100 text-gray-700'
+                          }`}
                       >
                         エビデンス: {item.ingredient.evidenceLevel}
                       </span>
@@ -963,7 +962,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <div className='text-center'>
           <Link
             href='/products'
-            className='inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 ease-out'
+            className='inline-block bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors duration-200 ease-out'
           >
             商品一覧に戻る
           </Link>

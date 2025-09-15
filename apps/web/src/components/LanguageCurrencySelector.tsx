@@ -60,7 +60,7 @@ export function LanguageCurrencySelector() {
       {isOpen && (
         <div
           role='menu'
-          className='absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-gray-200/50 py-2 z-50'
+          className='absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-gray-200/50 py-2 z-50'
         >
           <div className='px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide border-b border-gray-100/50'>
             言語・通貨
@@ -68,11 +68,10 @@ export function LanguageCurrencySelector() {
 
           <button
             onClick={() => handleOptionSelect('ja', 'JPY')}
-            className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50/80 transition-colors duration-200 ${
-              locale === 'ja' && currency === 'JPY'
-                ? 'text-blue-600 bg-blue-50/50'
-                : 'text-gray-700'
-            }`}
+            className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50/80 transition-colors duration-200 ${locale === 'ja' && currency === 'JPY'
+              ? 'text-primary-600 bg-primary-50/50'
+              : 'text-gray-700'
+              }`}
             role='menuitem'
           >
             <div className='flex items-center justify-between'>
@@ -83,11 +82,10 @@ export function LanguageCurrencySelector() {
 
           <button
             onClick={() => handleOptionSelect('en', 'USD')}
-            className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50/80 transition-colors duration-200 ${
-              locale === 'en' && currency === 'USD'
-                ? 'text-blue-600 bg-blue-50/50'
-                : 'text-gray-700'
-            }`}
+            className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50/80 transition-colors duration-200 ${locale === 'en' && currency === 'USD'
+              ? 'text-primary-600 bg-primary-50/50'
+              : 'text-gray-700'
+              }`}
             role='menuitem'
           >
             <div className='flex items-center justify-between'>

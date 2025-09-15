@@ -1,22 +1,30 @@
 // Validate environment variables at startup
 import '@/env';
 import './globals.css';
-import { Inter } from 'next/font/google';
+import { Inter, Noto_Sans_JP } from 'next/font/google';
 import { headers } from 'next/headers';
 import Script from 'next/script';
 import { getSiteUrl } from '@/lib/runtimeConfig';
 import { LocaleProvider } from '@/contexts/LocaleContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { SkipLinks } from '@/components/SkipLinks';
+import SkipLinks from '@/components/SkipLinks';
 import dynamic from 'next/dynamic';
 
-// Self-hosted fonts for performance (no Google Fonts runtime)
+// Apple風フォント設定 - Inter + Noto Sans JP
 const inter = Inter({
   subsets: ['latin'],
-  display: 'optional',
-  preload: false,
+  display: 'swap',
+  preload: true,
   variable: '--font-inter',
+});
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-noto-sans-jp',
+  weight: ['300', '400', '500', '600', '700'],
 });
 import LocaleHtmlLangSetter from '@/components/LocaleHtmlLangSetter';
 
@@ -136,7 +144,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang='ja' className={`scroll-smooth ${inter.variable}`}>
+    <html lang='ja' className={`scroll-smooth ${inter.variable} ${notoSansJP.variable}`}>
       <head>
         <link rel='manifest' href='/site.webmanifest' />
         <meta name='theme-color' content='#2563eb' />

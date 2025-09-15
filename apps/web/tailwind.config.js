@@ -23,7 +23,7 @@ module.exports = {
           300: '#93c5fd',
           400: '#60a5fa',
           500: '#3b82f6',
-          600: 'var(--brand)', // CSS変数を参照
+          600: '#2563eb', // 統一されたアクセントカラー #2563EB
           700: '#1d4ed8',
           800: '#1e40af',
           900: '#1e3a8a',
@@ -67,10 +67,21 @@ module.exports = {
       },
       fontFamily: {
         sans: [
-          'Inter',
-          'Noto Sans JP',
+          'var(--font-inter)',
+          'var(--font-noto-sans-jp)',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
           'Hiragino Sans',
           'Hiragino Kaku Gothic ProN',
+          'sans-serif',
+        ],
+        // Apple風フォントスタック
+        apple: [
+          'var(--font-inter)',
+          'var(--font-noto-sans-jp)',
+          '-apple-system',
+          'BlinkMacSystemFont',
           'sans-serif',
         ],
       },
@@ -90,25 +101,60 @@ module.exports = {
         },
       },
       fontSize: {
-        xs: ['0.75rem', { lineHeight: '1rem' }],
-        sm: ['0.875rem', { lineHeight: '1.25rem' }],
-        base: ['1rem', { lineHeight: '1.5rem' }],
-        lg: ['1.125rem', { lineHeight: '1.75rem' }],
-        xl: ['1.25rem', { lineHeight: '1.75rem' }],
-        '2xl': ['1.5rem', { lineHeight: '2rem' }],
-        '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
-        '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
-        '5xl': ['3rem', { lineHeight: '1' }],
-        '6xl': ['3.75rem', { lineHeight: '1' }],
+        xs: ['0.75rem', { lineHeight: '1rem', letterSpacing: '0' }],
+        sm: ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0' }],
+        base: ['1rem', { lineHeight: '1.5rem', letterSpacing: '-0.005em' }],
+        lg: ['1.125rem', { lineHeight: '1.75rem', letterSpacing: '-0.01em' }],
+        xl: ['1.25rem', { lineHeight: '1.75rem', letterSpacing: '-0.01em' }],
+        '2xl': ['1.5rem', { lineHeight: '2rem', letterSpacing: '-0.015em' }],
+        '3xl': ['1.875rem', { lineHeight: '2.25rem', letterSpacing: '-0.02em' }],
+        '4xl': ['2.25rem', { lineHeight: '2.5rem', letterSpacing: '-0.02em' }],
+        '5xl': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.025em' }],
+        '6xl': ['3.75rem', { lineHeight: '1.1', letterSpacing: '-0.025em' }],
+        // Apple風カスタムサイズ
+        'hero': ['clamp(3rem, 8vw, 6rem)', { lineHeight: '1.1', letterSpacing: '-0.025em', fontWeight: '300' }],
+        'display': ['clamp(2rem, 5vw, 3.5rem)', { lineHeight: '1.15', letterSpacing: '-0.02em', fontWeight: '400' }],
+        'headline': ['clamp(1.5rem, 4vw, 2.25rem)', { lineHeight: '1.25', letterSpacing: '-0.015em', fontWeight: '500' }],
+      },
+      fontWeight: {
+        thin: '100',
+        extralight: '200',
+        light: '300', // Apple風ライト
+        normal: '400', // Apple風ノーマル
+        medium: '500', // Apple風ミディアム
+        semibold: '600', // Apple風セミボールド
+        bold: '700',
+        extrabold: '800',
+        black: '900',
+      },
+      letterSpacing: {
+        tighter: '-0.05em',
+        tight: '-0.025em',
+        'apple-tight': '-0.02em', // Apple風
+        'apple-normal': '-0.01em', // Apple風
+        normal: '0em',
+        wide: '0.025em',
+        wider: '0.05em',
+        widest: '0.1em',
       },
       spacing: {
         18: '4.5rem',
         88: '22rem',
         128: '32rem',
-        // Section spacing (Apple-like generous rhythm)
-        'section-sm': '3rem',
-        'section-md': '4rem',
-        'section-lg': '6rem',
+        // Apple風セクションスペーシング - 広めの余白
+        'section-xs': '2rem',    // 32px
+        'section-sm': '3rem',    // 48px
+        'section-md': '5rem',    // 80px - Apple風標準
+        'section-lg': '6rem',    // 96px
+        'section-xl': '8rem',    // 128px - Apple風特大
+        'section-2xl': '10rem',  // 160px - Apple風ヒーロー用
+        // Apple風コンポーネントスペーシング
+        'component-xs': '0.5rem',  // 8px
+        'component-sm': '1rem',    // 16px
+        'component-md': '1.5rem',  // 24px - Apple風
+        'component-lg': '2rem',    // 32px - Apple風
+        'component-xl': '3rem',    // 48px - Apple風
+        'component-2xl': '4rem',   // 64px - Apple風特大
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
@@ -154,8 +200,8 @@ module.exports = {
       },
       boxShadow: {
         soft: 'var(--shadow-soft)', // CSS変数を参照
-        medium: '0 12px 40px rgba(0,0,0,0.08)',
-        strong: '0 16px 60px rgba(0,0,0,0.10)',
+        medium: 'var(--shadow-medium)', // Apple風極薄シャドウ
+        strong: 'var(--shadow-strong)', // Apple風極薄シャドウ
       },
     },
   },

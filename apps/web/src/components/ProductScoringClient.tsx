@@ -70,7 +70,7 @@ function ScoringSystemFallback() {
           </svg>
         </div>
         <div className="ml-3">
-          <p className="text-sm text-blue-800">
+          <p className="text-sm text-primary-800">
             スコアリングシステムを一時的に利用できません。商品の詳細情報をご確認ください。
           </p>
         </div>
@@ -93,13 +93,13 @@ export interface ProductScoringClientProps {
   className?: string;
 }
 
-export function ProductScoringClient({ 
-  product, 
-  className = '' 
+export function ProductScoringClient({
+  product,
+  className = ''
 }: ProductScoringClientProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // スコア計算をキャッシュ（要件5.1, 6.4）
   const scoreResult = useMemo(() => {
     try {
@@ -139,7 +139,7 @@ export function ProductScoringClient({
   const handleRetry = useCallback(() => {
     setIsLoading(true);
     setError(null);
-    
+
     // 再計算をトリガー（依存配列の変更により自動的に再計算される）
     setTimeout(() => {
       setIsLoading(false);
@@ -149,13 +149,13 @@ export function ProductScoringClient({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* メインスコア表示 */}
-      <ScoreDisplay 
+      <ScoreDisplay
         scoreResult={scoreResult}
         isLoading={isLoading}
         error={error}
-        className="shadow-lg"
+        className="shadow-sm"
       />
-      
+
       {/* 詳細スコア分析（展開可能） */}
       {scoreResult && (
         <ScoreBreakdown
@@ -166,13 +166,13 @@ export function ProductScoringClient({
           className="shadow-sm"
         />
       )}
-      
+
       {/* エラー時の再試行ボタン */}
       {error && !isLoading && (
         <div className="text-center">
           <button
             onClick={handleRetry}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
             aria-label="スコア計算を再試行"
           >
             再試行

@@ -37,7 +37,7 @@ export default function ProductCard({
   return (
     <Link
       href={href}
-      className='glass-effect rounded-2xl p-5 block shadow-soft hover:shadow-strong transition-all duration-200 ease-out hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 interactive'
+      className='glass-effect rounded-xl p-5 block shadow-soft hover:shadow-strong transition-all duration-200 ease-out hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 interactive'
     >
       <div className='mb-3'>
         {imageUrl ? (
@@ -80,7 +80,7 @@ export default function ProductCard({
         <span className='inline-flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-md'>
           {servingsPerContainer}回分
         </span>
-        <span className='inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded-md'>
+        <span className='inline-flex items-center gap-1 bg-primary-100 text-primary-800 px-2 py-1 rounded-md'>
           1日{servingsPerDay}回
         </span>
       </div>

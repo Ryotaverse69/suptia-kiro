@@ -12,10 +12,10 @@ export default function MyPage() {
                 <h1 className="text-3xl font-bold text-gray-900 mb-8">マイページ</h1>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                         <div className="flex items-center mb-4">
                             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
                             </div>
@@ -24,12 +24,12 @@ export default function MyPage() {
                         <p className="text-gray-600 mb-4">
                             保存した商品を管理・比較できます
                         </p>
-                        <a href="/mypage/favorites" className="text-blue-600 hover:text-blue-700 font-medium">
+                        <a href="/mypage/favorites" className="text-primary-600 hover:text-primary-700 font-medium">
                             お気に入りを見る →
                         </a>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                         <div className="flex items-center mb-4">
                             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,12 +41,12 @@ export default function MyPage() {
                         <p className="text-gray-600 mb-4">
                             過去の診断結果を確認・比較できます
                         </p>
-                        <a href="/mypage/history" className="text-blue-600 hover:text-blue-700 font-medium">
+                        <a href="/mypage/history" className="text-primary-600 hover:text-primary-700 font-medium">
                             履歴を見る →
                         </a>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                         <div className="flex items-center mb-4">
                             <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
                                 <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,12 +58,12 @@ export default function MyPage() {
                         <p className="text-gray-600 mb-4">
                             商品の価格変動を通知で受け取れます
                         </p>
-                        <a href="/mypage/alerts" className="text-blue-600 hover:text-blue-700 font-medium">
+                        <a href="/mypage/alerts" className="text-primary-600 hover:text-primary-700 font-medium">
                             アラート設定 →
                         </a>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                         <div className="flex items-center mb-4">
                             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                                 <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,12 +75,12 @@ export default function MyPage() {
                         <p className="text-gray-600 mb-4">
                             個人情報と設定を管理できます
                         </p>
-                        <a href="/mypage/profile" className="text-blue-600 hover:text-blue-700 font-medium">
+                        <a href="/mypage/profile" className="text-primary-600 hover:text-primary-700 font-medium">
                             設定を見る →
                         </a>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                         <div className="flex items-center mb-4">
                             <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
                                 <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,12 +92,12 @@ export default function MyPage() {
                         <p className="text-gray-600 mb-4">
                             有料会員特典とプラン管理
                         </p>
-                        <a href="/mypage/premium" className="text-blue-600 hover:text-blue-700 font-medium">
+                        <a href="/mypage/premium" className="text-primary-600 hover:text-primary-700 font-medium">
                             特典を見る →
                         </a>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                         <div className="flex items-center mb-4">
                             <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                                 <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +110,7 @@ export default function MyPage() {
                         <p className="text-gray-600 mb-4">
                             通知設定やアカウント管理
                         </p>
-                        <a href="/mypage/settings" className="text-blue-600 hover:text-blue-700 font-medium">
+                        <a href="/mypage/settings" className="text-primary-600 hover:text-primary-700 font-medium">
                             設定を開く →
                         </a>
                     </div>

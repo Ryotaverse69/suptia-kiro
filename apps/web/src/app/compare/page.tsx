@@ -10,7 +10,7 @@ import OnVisible from '@/components/OnVisible';
 import DeferGradientSection from '@/components/DeferGradientSection';
 const ComparePageClient = dynamic(() => import('./ComparePageClient').then(m => m.ComparePageClient), {
   ssr: false,
-  loading: () => <div className='glass-effect rounded-3xl p-6 shadow-xl text-center text-gray-600'>比較UIを読み込み中...</div>,
+  loading: () => <div className='glass-effect rounded-xl p-6 shadow-sm text-center text-gray-600'>比較UIを読み込み中...</div>,
 });
 import { generateSEO } from '@/lib/seo-config';
 
@@ -257,7 +257,7 @@ export default async function ComparePage() {
 
           <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-8'>
             <div className='text-center'>
-              <div className='w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4'>
+              <div className='w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center mx-auto mb-4'>
                 <span className='text-2xl'>⚡</span>
               </div>
               <h3 className='text-lg font-semibold text-gray-900 mb-2'>
@@ -269,7 +269,7 @@ export default async function ComparePage() {
             </div>
 
             <div className='text-center'>
-              <div className='w-16 h-16 bg-secondary-100 rounded-2xl flex items-center justify-center mx-auto mb-4'>
+              <div className='w-16 h-16 bg-secondary-100 rounded-xl flex items-center justify-center mx-auto mb-4'>
                 <span className='text-2xl'>🎯</span>
               </div>
               <h3 className='text-lg font-semibold text-gray-900 mb-2'>
@@ -281,7 +281,7 @@ export default async function ComparePage() {
             </div>
 
             <div className='text-center'>
-              <div className='w-16 h-16 bg-accent-100 rounded-2xl flex items-center justify-center mx-auto mb-4'>
+              <div className='w-16 h-16 bg-accent-100 rounded-xl flex items-center justify-center mx-auto mb-4'>
                 <span className='text-2xl'>📈</span>
               </div>
               <h3 className='text-lg font-semibold text-gray-900 mb-2'>
@@ -293,7 +293,7 @@ export default async function ComparePage() {
             </div>
 
             <div className='text-center'>
-              <div className='w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4'>
+              <div className='w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center mx-auto mb-4'>
                 <span className='text-2xl'>🔒</span>
               </div>
               <h3 className='text-lg font-semibold text-gray-900 mb-2'>

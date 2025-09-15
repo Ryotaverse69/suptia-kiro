@@ -71,7 +71,7 @@ export default function IngredientDetailModal({
 
             {/* モーダルコンテンツ */}
             <div className="flex min-h-full items-center justify-center p-4">
-                <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-xl transform transition-all">
+                <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-md transform transition-all">
                     <div className="p-6">
                         <div className="flex items-start justify-between mb-6">
                             <div>
@@ -82,7 +82,7 @@ export default function IngredientDetailModal({
                             </div>
                             <button
                                 type="button"
-                                className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 onClick={onClose}
                             >
                                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -121,7 +121,7 @@ export default function IngredientDetailModal({
                             {/* 推奨摂取量 */}
                             <div>
                                 <h4 className="text-lg font-semibold text-gray-900 mb-2">推奨摂取量</h4>
-                                <p className="text-gray-600 bg-blue-50 p-3 rounded-lg">
+                                <p className="text-gray-600 bg-primary-50 p-3 rounded-lg">
                                     {ingredient.recommendedDosage}
                                 </p>
                             </div>
@@ -177,7 +177,7 @@ export default function IngredientDetailModal({
                         <div className="mt-8 flex justify-end">
                             <button
                                 type="button"
-                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                className="inline-flex justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                                 onClick={onClose}
                             >
                                 閉じる

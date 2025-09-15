@@ -59,7 +59,7 @@ function IconUsers() {
 export default function TrivagoLikeSearchBar() {
   return (
     <div className='w-full'>
-      <div className='rounded-[999px] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.12)] ring-1 ring-black/5 overflow-hidden'>
+      <div className='rounded-[999px] bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] ring-1 ring-black/5 overflow-hidden'>
         <div className='flex items-stretch'>
           {/* left segment */}
           <div className='flex-1 min-w-0 flex items-center gap-3 px-5 py-3'>
@@ -104,7 +104,7 @@ export default function TrivagoLikeSearchBar() {
 
           {/* search button */}
           <div className='pl-2 pr-3 py-3 flex items-center'>
-            <button className='h-12 px-6 rounded-full bg-[#0a66b7] text-white font-bold shadow-[0_2px_10px_rgba(0,0,0,0.15)] hover:brightness-110'>
+            <button className='h-12 px-6 rounded-full bg-[#0a66b7] text-white font-bold shadow-[0_1px_6px_rgba(0,0,0,0.08)] hover:brightness-110'>
               検索
             </button>
           </div>

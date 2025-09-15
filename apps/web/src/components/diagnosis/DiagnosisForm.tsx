@@ -273,7 +273,7 @@ export default function DiagnosisForm() {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-200 ease-out"
+                        className="bg-primary-600 h-2 rounded-full transition-all duration-200 ease-out"
                         style={{ width: `${progress}%` }}
                     />
                 </div>
@@ -295,12 +295,12 @@ export default function DiagnosisForm() {
                                 key={index}
                                 onClick={() => handleAnswer(currentQuestion.id, option, isMultiple)}
                                 className={`w-full p-4 text-left rounded-lg border-2 transition-all duration-200 ${isSelected
-                                    ? 'border-blue-500 bg-blue-50 text-blue-900'
+                                    ? 'border-primary-600 bg-primary-50 text-primary-900'
                                     : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                                     }`}
                             >
                                 <div className="flex items-center">
-                                    <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                                    <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${isSelected ? 'border-primary-600 bg-primary-600' : 'border-gray-300'
                                         }`}>
                                         {isSelected && (
                                             <div className="w-2 h-2 bg-white rounded-full" />

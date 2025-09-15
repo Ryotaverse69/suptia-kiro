@@ -21,7 +21,7 @@ export default function AboutPage() {
                 </div>
 
                 {/* Mission Section */}
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 mb-12">
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8 mb-12">
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">私たちのミッション</h2>
                     <p className="text-lg text-gray-700 leading-relaxed">
                         サプリメント市場は情報が複雑で、消費者が最適な選択をするのは困難です。
@@ -34,9 +34,9 @@ export default function AboutPage() {
                 <div className="mb-12">
                     <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">サプティアの特徴</h2>
                     <div className="grid md:grid-cols-2 gap-8">
-                        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                        <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                                 </svg>
                             </div>
@@ -46,7 +46,7 @@ export default function AboutPage() {
                             </p>
                         </div>
 
-                        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                        <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
                                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -58,7 +58,7 @@ export default function AboutPage() {
                             </p>
                         </div>
 
-                        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                        <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
                                 <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -70,7 +70,7 @@ export default function AboutPage() {
                             </p>
                         </div>
 
-                        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                        <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                             <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
                                 <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -89,7 +89,7 @@ export default function AboutPage() {
                     <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">サプティアの使い方</h2>
                     <div className="space-y-8">
                         <div className="flex items-start space-x-4">
-                            <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                            <div className="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
                                 1
                             </div>
                             <div>
@@ -101,7 +101,7 @@ export default function AboutPage() {
                         </div>
 
                         <div className="flex items-start space-x-4">
-                            <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                            <div className="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
                                 2
                             </div>
                             <div>
@@ -113,7 +113,7 @@ export default function AboutPage() {
                         </div>
 
                         <div className="flex items-start space-x-4">
-                            <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                            <div className="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
                                 3
                             </div>
                             <div>
@@ -127,7 +127,7 @@ export default function AboutPage() {
                 </div>
 
                 {/* CTA Section */}
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-center text-white">
+                <div className="bg-gradient-to-r from-primary-600 to-purple-600 rounded-xl p-8 text-center text-white">
                     <h2 className="text-2xl font-bold mb-4">今すぐ始めてみませんか？</h2>
                     <p className="text-lg mb-6 opacity-90">
                         無料診断で、あなたに最適なサプリメントを見つけましょう
@@ -135,13 +135,13 @@ export default function AboutPage() {
                     <div className="space-x-4">
                         <a
                             href="/diagnosis"
-                            className="inline-block bg-white text-blue-600 font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                            className="inline-block bg-white text-primary-600 font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors duration-200"
                         >
                             無料診断を始める
                         </a>
                         <a
                             href="/compare"
-                            className="inline-block border-2 border-white text-white font-semibold px-6 py-3 rounded-lg hover:bg-white hover:text-blue-600 transition-colors duration-200"
+                            className="inline-block border-2 border-white text-white font-semibold px-6 py-3 rounded-lg hover:bg-white hover:text-primary-600 transition-colors duration-200"
                         >
                             商品を比較する
                         </a>

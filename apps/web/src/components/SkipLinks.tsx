@@ -1,131 +1,127 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+/**
+ * スキップリンクコンポーネント
+ * キーボードユーザーがメインコンテンツに直接ジャンプできるようにする
+ * Requirements: 8.1, 8.2 - アクセシビリティ対応
+ */
 
-interface SkipLinkProps {
-  href: string;
-  children: React.ReactNode;
+interface SkipLinksProps {
   className?: string;
 }
 
-function SkipLink({ href, children, className = '' }: SkipLinkProps) {
-  return (
-    <a
-      href={href}
-      className={`
-        absolute left-4 top-4 z-[9999] px-4 py-2 bg-blue-600 text-white rounded-lg
-        font-medium text-sm shadow-lg transform -translate-y-full opacity-0
-        focus:translate-y-0 focus:opacity-100 transition-all duration-200
-        focus:outline-none focus:ring-4 focus:ring-blue-100
-        ${className}
-      `}
-      onFocus={e => {
-        // スキップリンクがフォーカスされた時の処理
-        if (e.currentTarget.scrollIntoView) {
-          e.currentTarget.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-          });
+export default function SkipLinks({ className = '' }: SkipLinksProps) {
+  const handleSkipToMain = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+      mainContent.focus();
+      mainContent.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleSkipToSearch = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const searchInput = document.querySelector('input[type="text"][role="combobox"]') as HTMLElement;
+    if (searchInput) {
+      searchInput.focus();
+      searchInput.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleSkipToComparisons = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const comparisonsSection = document.getElementById('popular-comparisons-section');
+    if (comparisonsSection) {
+      comparisonsSection.scrollIntoView({ behavior: 'smooth' });
+      // 最初の比較カードにフォーカス
+      setTimeout(() => {
+        const firstCard = comparisonsSection.querySelector('[role="article"] button') as HTMLElement;
+        if (firstCard) {
+          firstCard.focus();
         }
-      }}
-    >
-      {children}
-    </a>
-  );
-}
-
-export function SkipLinks() {
-  const skipLinksRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // ページ読み込み時にスキップリンクにフォーカスを設定する機能
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Alt + S でスキップリンクにフォーカス
-      if (e.altKey && e.key === 's') {
-        e.preventDefault();
-        const firstSkipLink = skipLinksRef.current?.querySelector(
-          'a'
-        ) as HTMLAnchorElement;
-        firstSkipLink?.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+      }, 300);
+    }
+  };
 
   return (
-    <div ref={skipLinksRef} className='sr-only focus-within:not-sr-only'>
-      <SkipLink href='#main-content'>メインコンテンツへスキップ</SkipLink>
-      <SkipLink href='#navigation' className='left-48'>
-        ナビゲーションへスキップ
-      </SkipLink>
-      <SkipLink href='#search' className='left-96'>
-        検索へスキップ
-      </SkipLink>
+    <div className={`skip-links ${className}`}>
+      <a
+        href="#main-content"
+        onClick={handleSkipToMain}
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 
+                   bg-primary-600 text-white px-4 py-2 rounded-md z-[9999] 
+                   focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+                   transition-all duration-200 pointer-events-auto"
+      >
+        メインコンテンツにスキップ
+      </a>
+      <a
+        href="#search"
+        onClick={handleSkipToSearch}
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-40
+                   bg-primary-600 text-white px-4 py-2 rounded-md z-[9999]
+                   focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+                   transition-all duration-200 pointer-events-auto"
+      >
+        検索にスキップ
+      </a>
+      <a
+        href="#popular-comparisons-section"
+        onClick={handleSkipToComparisons}
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-64
+                   bg-primary-600 text-white px-4 py-2 rounded-md z-[9999]
+                   focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+                   transition-all duration-200 pointer-events-auto"
+      >
+        比較セクションにスキップ
+      </a>
     </div>
   );
 }
 
-// フォーカス管理のユーティリティフック
+// フォーカス管理フック
 export function useFocusManagement() {
-  const focusableElementsSelector = `
-    a[href]:not([disabled]),
-    button:not([disabled]),
-    textarea:not([disabled]),
-    input[type="text"]:not([disabled]),
-    input[type="radio"]:not([disabled]),
-    input[type="checkbox"]:not([disabled]),
-    select:not([disabled]),
-    [tabindex]:not([tabindex="-1"]):not([disabled])
-  `;
-
-  const getFocusableElements = (container: HTMLElement): HTMLElement[] => {
-    return Array.from(container.querySelectorAll(focusableElementsSelector));
+  const getFocusableElements = (element: HTMLElement) => {
+    return element.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
   };
 
-  const trapFocus = (container: HTMLElement) => {
-    const focusableElements = getFocusableElements(container);
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
+  const trapFocus = (element: HTMLElement) => {
+    const focusableElements = getFocusableElements(element);
+    const firstElement = focusableElements[0] as HTMLElement;
+    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
-
-      if (e.shiftKey) {
-        // Shift + Tab
-        if (document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement?.focus();
-        }
-      } else {
-        // Tab
-        if (document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement?.focus();
+      if (e.key === 'Tab') {
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
         }
       }
     };
 
-    container.addEventListener('keydown', handleKeyDown);
-
-    // 最初の要素にフォーカス
+    element.addEventListener('keydown', handleKeyDown);
     firstElement?.focus();
 
     return () => {
-      container.removeEventListener('keydown', handleKeyDown);
+      element.removeEventListener('keydown', handleKeyDown);
     };
   };
 
-  const restoreFocus = (previousActiveElement: Element | null) => {
-    if (previousActiveElement && 'focus' in previousActiveElement) {
-      (previousActiveElement as HTMLElement).focus();
+  const restoreFocus = (element: Element | null) => {
+    if (element && element instanceof HTMLElement) {
+      element.focus();
     }
   };
 
-  return {
-    getFocusableElements,
-    trapFocus,
-    restoreFocus,
-  };
+  return { getFocusableElements, trapFocus, restoreFocus };
 }

@@ -177,27 +177,236 @@ export function generateScreenReaderText(context: {
 }
 
 /**
- * キーボードナビゲーション用のヘルパー
+ * フォーカス管理クラス
+ */
+export class FocusManager {
+  /**
+   * フォーカス可能な要素のセレクター
+   */
+  private static focusableSelectors = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])',
+    '[contenteditable="true"]',
+  ].join(', ');
+
+  /**
+   * 要素内のフォーカス可能な要素を取得
+   */
+  static getFocusableElements(container: HTMLElement): HTMLElement[] {
+    return Array.from(container.querySelectorAll(this.focusableSelectors)) as HTMLElement[];
+  }
+
+  /**
+   * 最初のフォーカス可能な要素を取得
+   */
+  static getFirstFocusableElement(container: HTMLElement): HTMLElement | null {
+    const elements = this.getFocusableElements(container);
+    return elements[0] || null;
+  }
+
+  /**
+   * 最後のフォーカス可能な要素を取得
+   */
+  static getLastFocusableElement(container: HTMLElement): HTMLElement | null {
+    const elements = this.getFocusableElements(container);
+    return elements[elements.length - 1] || null;
+  }
+
+  /**
+   * 要素にフォーカスを設定
+   */
+  static focusElement(element: HTMLElement, options: { preventScroll?: boolean } = {}) {
+    element.focus({ preventScroll: options.preventScroll });
+  }
+
+  /**
+   * フォーカストラップを実装
+   */
+  static trapFocus(container: HTMLElement, event: KeyboardEvent) {
+    if (event.key !== 'Tab') return;
+
+    const focusableElements = this.getFocusableElements(container);
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    const activeElement = document.activeElement as HTMLElement;
+
+    if (event.shiftKey) {
+      // Shift + Tab
+      if (activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      // Tab
+      if (activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  }
+}
+
+/**
+ * ARIA属性管理クラス
+ */
+export class AriaManager {
+  /**
+   * ライブリージョンでメッセージをアナウンス
+   */
+  static announce(message: string, priority: 'polite' | 'assertive' = 'polite') {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.textContent = message;
+
+    document.body.appendChild(announcer);
+
+    // 少し遅延してから削除
+    setTimeout(() => {
+      document.body.removeChild(announcer);
+    }, 1000);
+  }
+
+  /**
+   * 展開状態を設定
+   */
+  static setExpandedState(trigger: HTMLElement, content: HTMLElement, isExpanded: boolean) {
+    trigger.setAttribute('aria-expanded', isExpanded.toString());
+    if (content.id) {
+      trigger.setAttribute('aria-controls', content.id);
+    }
+    content.setAttribute('aria-hidden', (!isExpanded).toString());
+  }
+
+  /**
+   * 選択状態を設定
+   */
+  static setSelectedState(element: HTMLElement, isSelected: boolean) {
+    element.setAttribute('aria-selected', isSelected.toString());
+  }
+
+  /**
+   * 無効状態を設定
+   */
+  static setDisabledState(element: HTMLElement, isDisabled: boolean) {
+    element.setAttribute('aria-disabled', isDisabled.toString());
+    if (isDisabled) {
+      element.setAttribute('tabindex', '-1');
+    } else {
+      element.removeAttribute('tabindex');
+    }
+  }
+}
+
+/**
+ * キーボードナビゲーション管理クラス
+ */
+export class KeyboardNavigation {
+  /**
+   * アクティベーションキー（Enter、Space）の処理
+   */
+  static handleActivationKeys(event: KeyboardEvent, callback: () => void) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      callback();
+    }
+  }
+
+  /**
+   * Escapeキーの処理
+   */
+  static handleEscapeKey(event: KeyboardEvent, callback: () => void) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      callback();
+    }
+  }
+
+  /**
+   * 矢印キーナビゲーションの処理
+   */
+  static handleArrowNavigation<T extends HTMLElement>(
+    event: KeyboardEvent,
+    items: T[],
+    currentIndex: number,
+    options: {
+      orientation?: 'horizontal' | 'vertical' | 'both';
+      loop?: boolean;
+      onIndexChange?: (index: number) => void;
+    } = {}
+  ): number {
+    const { orientation = 'both', loop = true, onIndexChange } = options;
+    let newIndex = currentIndex;
+
+    const isVertical = orientation === 'vertical' || orientation === 'both';
+    const isHorizontal = orientation === 'horizontal' || orientation === 'both';
+
+    switch (event.key) {
+      case 'ArrowDown':
+        if (isVertical) {
+          event.preventDefault();
+          newIndex = loop && currentIndex === items.length - 1 ? 0 : Math.min(currentIndex + 1, items.length - 1);
+        }
+        break;
+      case 'ArrowUp':
+        if (isVertical) {
+          event.preventDefault();
+          newIndex = loop && currentIndex === 0 ? items.length - 1 : Math.max(currentIndex - 1, 0);
+        }
+        break;
+      case 'ArrowRight':
+        if (isHorizontal) {
+          event.preventDefault();
+          newIndex = loop && currentIndex === items.length - 1 ? 0 : Math.min(currentIndex + 1, items.length - 1);
+        }
+        break;
+      case 'ArrowLeft':
+        if (isHorizontal) {
+          event.preventDefault();
+          newIndex = loop && currentIndex === 0 ? items.length - 1 : Math.max(currentIndex - 1, 0);
+        }
+        break;
+      case 'Home':
+        event.preventDefault();
+        newIndex = 0;
+        break;
+      case 'End':
+        event.preventDefault();
+        newIndex = items.length - 1;
+        break;
+    }
+
+    if (newIndex !== currentIndex && onIndexChange) {
+      onIndexChange(newIndex);
+    }
+
+    return newIndex;
+  }
+}
+
+/**
+ * キーボードナビゲーション用のヘルパー（後方互換性のため）
  */
 export const keyboardNavigation = {
   /**
    * Enterキーまたはスペースキーでアクションを実行
    */
   handleActivation: (event: React.KeyboardEvent, callback: () => void) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      callback();
-    }
+    KeyboardNavigation.handleActivationKeys(event.nativeEvent, callback);
   },
 
   /**
    * Escapeキーでモーダルやドロップダウンを閉じる
    */
   handleEscape: (event: React.KeyboardEvent, callback: () => void) => {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      callback();
-    }
+    KeyboardNavigation.handleEscapeKey(event.nativeEvent, callback);
   },
 
   /**
@@ -209,29 +418,9 @@ export const keyboardNavigation = {
     maxIndex: number,
     onIndexChange: (index: number) => void
   ) => {
-    let newIndex = currentIndex;
-
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault();
-        newIndex = currentIndex < maxIndex ? currentIndex + 1 : 0;
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        newIndex = currentIndex > 0 ? currentIndex - 1 : maxIndex;
-        break;
-      case 'Home':
-        event.preventDefault();
-        newIndex = 0;
-        break;
-      case 'End':
-        event.preventDefault();
-        newIndex = maxIndex;
-        break;
-    }
-
-    if (newIndex !== currentIndex) {
-      onIndexChange(newIndex);
-    }
+    const items = Array.from({ length: maxIndex + 1 }, (_, i) => ({ index: i })) as any[];
+    KeyboardNavigation.handleArrowNavigation(event.nativeEvent, items, currentIndex, {
+      onIndexChange,
+    });
   },
 };

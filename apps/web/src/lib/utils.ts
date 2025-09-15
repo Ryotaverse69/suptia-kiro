@@ -48,3 +48,60 @@ export const breakpoints = {
   xl: '1280px',
   '2xl': '1536px',
 } as const;
+
+/**
+ * スコアに基づいてBadgeのvariantを決定する関数
+ */
+export function getScoreBadgeVariant(score: number): 'high' | 'medium' | 'low' {
+  if (score >= 80) return 'high';
+  if (score >= 60) return 'medium';
+  return 'low';
+}
+
+/**
+ * 価格をフォーマットする関数（LocaleContextに移行予定）
+ */
+export function formatPrice(amount: number, currency = 'JPY'): string {
+  return new Intl.NumberFormat('ja-JP', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: currency === 'JPY' ? 0 : 2,
+    maximumFractionDigits: currency === 'JPY' ? 0 : 2,
+  }).format(amount);
+}
+
+/**
+ * パーセンテージをフォーマットする関数
+ */
+export function formatPercentage(value: number, decimals = 1): string {
+  return `${value.toFixed(decimals)}%`;
+}
+
+/**
+ * 文字列を指定した長さで切り詰める関数
+ */
+export function truncate(str: string, length: number): string {
+  if (str.length <= length) return str;
+  return str.slice(0, length) + '...';
+}
+
+/**
+ * メンバーシップティアに基づいてBadgeのvariantを決定する関数
+ */
+export function getTierBadgeVariant(tier: string): 'high' | 'medium' | 'low' | 'danger' {
+  switch (tier.toLowerCase()) {
+    case 'premium':
+    case 'pro':
+      return 'high';
+    case 'standard':
+    case 'basic':
+      return 'medium';
+    case 'free':
+      return 'low';
+    case 'expired':
+    case 'suspended':
+      return 'danger';
+    default:
+      return 'low';
+  }
+}

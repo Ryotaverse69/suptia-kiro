@@ -216,9 +216,8 @@ export function PriceComparison({
               return (
                 <tr
                   key={seller.name}
-                  className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${
-                    isLowestPrice ? 'bg-green-50 border-green-200' : ''
-                  }`}
+                  className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${isLowestPrice ? 'bg-green-50 border-green-200' : ''
+                    }`}
                 >
                   <td className='py-4 px-2'>
                     <div className='flex items-center gap-2'>
@@ -282,11 +281,10 @@ export function PriceComparison({
                       href={seller.url}
                       target='_blank'
                       rel='noopener noreferrer'
-                      className={`inline-block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        seller.inStock
-                          ? 'bg-primary-600 text-white hover:bg-primary-700'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
+                      className={`inline-block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${seller.inStock
+                        ? 'bg-primary-600 text-white hover:bg-primary-700'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
                       onClick={
                         seller.inStock ? undefined : e => e.preventDefault()
                       }
@@ -305,16 +303,16 @@ export function PriceComparison({
       <div className='mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-center'>
           <div>
-            <div className='text-sm text-blue-600 font-medium'>最安値</div>
-            <div className='text-lg font-bold text-blue-800'>
+            <div className='text-sm text-primary-600 font-medium'>最安値</div>
+            <div className='text-lg font-bold text-primary-800'>
               {formatPrice(
                 Math.min(...sortedSellers.map(s => s.price + s.shipping))
               )}
             </div>
           </div>
           <div>
-            <div className='text-sm text-blue-600 font-medium'>平均価格</div>
-            <div className='text-lg font-bold text-blue-800'>
+            <div className='text-sm text-primary-600 font-medium'>平均価格</div>
+            <div className='text-lg font-bold text-primary-800'>
               {formatPrice(
                 sortedSellers.reduce(
                   (sum, s) => sum + s.price + s.shipping,
@@ -324,11 +322,11 @@ export function PriceComparison({
             </div>
           </div>
           <div>
-            <div className='text-sm text-blue-600 font-medium'>価格差</div>
-            <div className='text-lg font-bold text-blue-800'>
+            <div className='text-sm text-primary-600 font-medium'>価格差</div>
+            <div className='text-lg font-bold text-primary-800'>
               {formatPrice(
                 Math.max(...sortedSellers.map(s => s.price + s.shipping)) -
-                  Math.min(...sortedSellers.map(s => s.price + s.shipping))
+                Math.min(...sortedSellers.map(s => s.price + s.shipping))
               )}
             </div>
           </div>

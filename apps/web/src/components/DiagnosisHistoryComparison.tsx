@@ -275,7 +275,7 @@ export function DiagnosisHistoryComparison({ items, onClose }: DiagnosisHistoryC
                             <>
                                 <div className="p-4 bg-blue-50 rounded-lg">
                                     <h5 className="font-medium text-blue-900 mb-2">全体的な傾向</h5>
-                                    <p className="text-blue-800 text-sm">
+                                    <p className="text-primary-800 text-sm">
                                         平均スコア: {avgScore.toFixed(1)}点 |
                                         傾向: {trend === 'improving' ? '改善中' :
                                             trend === 'declining' ? '低下中' : '安定'}

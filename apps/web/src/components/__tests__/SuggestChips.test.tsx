@@ -89,7 +89,7 @@ describe('SuggestChips', () => {
     render(<SuggestChips chips={mockChips} onChipClick={vi.fn()} />);
 
     const vitaminDChip = screen.getByText('ビタミンD').closest('button');
-    expect(vitaminDChip).toHaveClass('bg-blue-100/80', 'text-blue-700');
+    expect(vitaminDChip).toHaveClass('bg-primary-100/80', 'text-primary-700');
 
     const fatigueChip = screen.getByText('疲労回復').closest('button');
     expect(fatigueChip).toHaveClass('bg-green-100/80', 'text-green-700');

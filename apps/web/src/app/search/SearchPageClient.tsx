@@ -76,7 +76,7 @@ export default function SearchPageClient({ initialProducts, aiConditions }: { in
             </div>
           </div>
 
-          <div className={view === 'card' ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6' : 'space-y-4'}>
+          <div className={view === 'card' ? 'grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
             {products.map(p => (
               <ResultCard
                 key={p.id}

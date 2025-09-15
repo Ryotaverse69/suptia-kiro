@@ -198,7 +198,7 @@ export function PriceAlertForm({
                             type="text"
                             value={formData.productName}
                             onChange={(e) => updateFormData('productName', e.target.value)}
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.productName ? 'border-red-300' : 'border-gray-300'
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.productName ? 'border-red-300' : 'border-gray-300'
                                 }`}
                             placeholder="商品名を入力してください"
                         />
@@ -215,7 +215,7 @@ export function PriceAlertForm({
                             type="text"
                             value={formData.productBrand}
                             onChange={(e) => updateFormData('productBrand', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                             placeholder="ブランド名（任意）"
                         />
                     </div>
@@ -229,7 +229,7 @@ export function PriceAlertForm({
                                 <select
                                     value={formData.currency}
                                     onChange={(e) => updateFormData('currency', e.target.value)}
-                                    className="px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 >
                                     <option value="JPY">¥</option>
                                     <option value="USD">$</option>
@@ -240,7 +240,7 @@ export function PriceAlertForm({
                                     step="0.01"
                                     value={formData.currentPrice}
                                     onChange={(e) => updateFormData('currentPrice', parseFloat(e.target.value) || 0)}
-                                    className={`flex-1 px-3 py-2 border rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.currentPrice ? 'border-red-300' : 'border-gray-300'
+                                    className={`flex-1 px-3 py-2 border rounded-r-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.currentPrice ? 'border-red-300' : 'border-gray-300'
                                         }`}
                                     placeholder="0"
                                 />
@@ -308,7 +308,7 @@ export function PriceAlertForm({
                                 max="100"
                                 value={formData.changePercentage}
                                 onChange={(e) => updateFormData('changePercentage', parseInt(e.target.value) || 0)}
-                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.changePercentage ? 'border-red-300' : 'border-gray-300'
+                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.changePercentage ? 'border-red-300' : 'border-gray-300'
                                     }`}
                                 placeholder="10"
                             />
@@ -331,7 +331,7 @@ export function PriceAlertForm({
                                     step="0.01"
                                     value={formData.targetPrice}
                                     onChange={(e) => updateFormData('targetPrice', parseFloat(e.target.value) || 0)}
-                                    className={`flex-1 px-3 py-2 border rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.targetPrice ? 'border-red-300' : 'border-gray-300'
+                                    className={`flex-1 px-3 py-2 border rounded-r-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.targetPrice ? 'border-red-300' : 'border-gray-300'
                                         }`}
                                     placeholder="0"
                                 />
@@ -350,7 +350,7 @@ export function PriceAlertForm({
                                                 key={label}
                                                 type="button"
                                                 onClick={() => updateFormData('targetPrice', value)}
-                                                className="px-3 py-1 text-sm bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors"
+                                                className="px-3 py-1 text-sm bg-primary-50 text-primary-700 rounded-full hover:bg-primary-100 transition-colors"
                                             >
                                                 {label} ({formData.currency === 'USD' ? '$' : '¥'}{value.toLocaleString()})
                                             </button>
@@ -373,7 +373,7 @@ export function PriceAlertForm({
                         <select
                             value={formData.notificationMethod}
                             onChange={(e) => updateFormData('notificationMethod', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                         >
                             <option value="browser">ブラウザ通知</option>
                             <option value="email">メール通知</option>
@@ -391,7 +391,7 @@ export function PriceAlertForm({
                         value={formData.notes}
                         onChange={(e) => updateFormData('notes', e.target.value)}
                         rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
                         placeholder="このアラートについてのメモ（任意）"
                     />
                 </div>

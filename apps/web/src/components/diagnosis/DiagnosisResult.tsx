@@ -259,7 +259,7 @@ export default function DiagnosisResult() {
       case 'medium':
         return 'text-yellow-600 bg-yellow-50 border-yellow-200';
       case 'low':
-        return 'text-blue-600 bg-blue-50 border-blue-200';
+        return 'text-primary-600 bg-primary-50 border-primary-200';
     }
   };
 
@@ -283,11 +283,10 @@ export default function DiagnosisResult() {
               <button
                 key={index}
                 onClick={() => setSelectedResult(index)}
-                className={`px-6 py-2 rounded-md font-medium transition-all ${
-                  selectedResult === index
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className={`px-6 py-2 rounded-md font-medium transition-all ${selectedResult === index
+                  ? 'bg-white text-primary-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+                  }`}
               >
                 第{index + 1}位
               </button>
@@ -333,13 +332,13 @@ export default function DiagnosisResult() {
             </div>
 
             {/* 実効コスト */}
-            <div className='bg-blue-50 rounded-lg p-4 mb-6'>
+            <div className='bg-primary-50 rounded-lg p-4 mb-6'>
               <div className='text-center'>
-                <p className='text-sm text-blue-600 font-medium mb-1'>
+                <p className='text-sm text-primary-600 font-medium mb-1'>
                   実効コスト/日
                 </p>
                 <p
-                  className='text-2xl font-bold text-blue-900'
+                  className='text-2xl font-bold text-primary-900'
                   aria-label={
                     locale === 'ja'
                       ? `1日あたり${formatPrice(currentResult.costPerDay)}`
@@ -349,7 +348,7 @@ export default function DiagnosisResult() {
                   {formatPrice(currentResult.costPerDay)}
                 </p>
                 <p
-                  className='text-sm text-blue-600'
+                  className='text-sm text-primary-600'
                   aria-label={
                     locale === 'ja'
                       ? `月額約${formatPrice(Math.round(currentResult.costPerDay * 30))}`
@@ -475,11 +474,10 @@ export default function DiagnosisResult() {
             {MOCK_DIAGNOSIS_RESULTS.map((result, index) => (
               <div
                 key={index}
-                className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                  selectedResult === index
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+                className={`p-4 rounded-lg border cursor-pointer transition-all ${selectedResult === index
+                  ? 'border-primary-600 bg-primary-50'
+                  : 'border-gray-200 hover:border-gray-300'
+                  }`}
                 onClick={() => setSelectedResult(index)}
               >
                 <div className='flex items-center justify-between'>

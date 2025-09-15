@@ -107,12 +107,12 @@ export default async function ProductsIndexPage({
 
   const filtered = query
     ? products.filter(p =>
-        [p.name]
-          .filter(Boolean)
-          .some(field =>
-            String(field).toLowerCase().includes(query.toLowerCase())
-          )
-      )
+      [p.name]
+        .filter(Boolean)
+        .some(field =>
+          String(field).toLowerCase().includes(query.toLowerCase())
+        )
+    )
     : products;
 
   // enrich with cost/day for sorting and display
@@ -124,7 +124,7 @@ export default async function ProductsIndexPage({
         servingsPerContainer: p.servingsPerContainer,
         servingsPerDay: p.servingsPerDay,
       });
-    } catch {}
+    } catch { }
     return { ...p, costPerDay };
   });
 
@@ -222,14 +222,14 @@ export default async function ProductsIndexPage({
         </div>
       ) : (
         <ul
-          className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+          className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
           role='list'
         >
           {sorted.map(p => (
             <li key={p.slug.current} role='listitem'>
               <Link
                 href={`/products/${p.slug.current}`}
-                className='card p-6 hover:shadow-medium block focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-xl'
+                className='card p-6 hover:shadow-soft block focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-xl'
               >
                 {/* Image / placeholder */}
                 <div className='mb-4'>
@@ -269,7 +269,7 @@ export default async function ProductsIndexPage({
                   <span className='inline-flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-md'>
                     {p.servingsPerContainer}回分
                   </span>
-                  <span className='inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded-md'>
+                  <span className='inline-flex items-center gap-1 bg-blue-100 text-primary-800 px-2 py-1 rounded-md'>
                     1日{p.servingsPerDay}回
                   </span>
                 </div>

@@ -13,7 +13,7 @@ export function AIProductReason({
   ingredients?: IngredientInfo[];
 }) {
   const evidenceLevel = (() => {
-    const levels = ingredients.map(i => i.evidenceLevel).filter(Boolean) as Array<'A'|'B'|'C'>;
+    const levels = ingredients.map(i => i.evidenceLevel).filter(Boolean) as Array<'A' | 'B' | 'C'>;
     if (levels.includes('A')) return 'A';
     if (levels.includes('B')) return 'B';
     return 'C';
@@ -28,7 +28,7 @@ export function AIProductReason({
   const tags = ingredients.slice(0, 3).map(i => i.name).filter(Boolean);
 
   return (
-    <div className='bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-5 mb-8'>
+    <div className='bg-gradient-to-br from-primary-50 to-indigo-50 border border-primary-100 rounded-xl p-5 mb-8'>
       <div className='flex items-center gap-3 mb-3'>
         <div className='w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm'>
           <span className='text-xl'>🤖</span>
@@ -40,10 +40,10 @@ export function AIProductReason({
         研究エビデンスの水準と成分バランスから総合的に評価しています。
       </p>
       <div className='flex flex-wrap items-center gap-3 text-sm'>
-        <span className='inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-blue-100 text-blue-700'>
+        <span className='inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-primary-100 text-primary-700'>
           信頼度 <span className='font-semibold'>{Math.round(confidence * 100)}%</span>
         </span>
-        <span className='inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-blue-100 text-blue-700'>
+        <span className='inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-primary-100 text-primary-700'>
           エビデンス <span className='font-semibold'>レベル{evidenceLevel}</span>
         </span>
       </div>

@@ -13,7 +13,7 @@ const AIRecommendationSearchBar = dynamic(
     ssr: false,
     loading: () => (
       <div className='max-w-2xl mx-auto'>
-        <div className='h-16 bg-gray-200 rounded-2xl animate-pulse' />
+        <div className='h-16 bg-gray-200 rounded-xl animate-pulse' />
       </div>
     ),
   }

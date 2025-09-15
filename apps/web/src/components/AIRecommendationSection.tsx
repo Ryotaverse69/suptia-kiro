@@ -23,7 +23,7 @@ export default function AIRecommendationSection() {
             <a
               key={i}
               href={`/products?recommended=${i}`}
-              className='glass-effect rounded-2xl p-6 shadow-soft hover:shadow-strong transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 apple-hover'
+              className='glass-effect rounded-xl p-6 shadow-soft hover:shadow-strong transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 apple-hover'
             >
               <div className='text-sm text-primary-600 font-semibold mb-2'>
                 あなた向け

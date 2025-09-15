@@ -68,7 +68,7 @@ export function ComparisonFilters({
                                     variant="outline"
                                     size="sm"
                                     onClick={() => onExport('csv')}
-                                    className="text-blue-600 hover:text-blue-700"
+                                    className="text-primary-600 hover:text-primary-700"
                                 >
                                     CSV出力
                                 </Button>
@@ -183,7 +183,7 @@ export function ComparisonFilters({
                                                 type="checkbox"
                                                 checked={isVisible}
                                                 onChange={() => toggleCriteria(criteria)}
-                                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                                             />
                                             <span className="text-sm text-gray-700">
                                                 {criteria.label}

@@ -18,10 +18,10 @@ interface Product {
   description?: string;
   ingredients?: Array<{
     ingredient:
-      | {
-          name?: string;
-        }
-      | string;
+    | {
+      name?: string;
+    }
+    | string;
     amountMgPerServing?: number;
   }>;
   warnings?: string[];
@@ -240,24 +240,24 @@ export function PersonaWarnings({
           const style =
             warning.severity === 'high'
               ? {
-                  wrap: 'bg-red-50 border-red-200',
-                  icon: 'text-red-400',
-                  title: 'text-red-800',
-                  text: 'text-red-700',
-                }
+                wrap: 'bg-red-50 border-red-200',
+                icon: 'text-red-400',
+                title: 'text-red-800',
+                text: 'text-red-700',
+              }
               : warning.severity === 'medium'
                 ? {
-                    wrap: 'bg-yellow-50 border-yellow-200',
-                    icon: 'text-yellow-400',
-                    title: 'text-yellow-800',
-                    text: 'text-yellow-700',
-                  }
+                  wrap: 'bg-yellow-50 border-yellow-200',
+                  icon: 'text-yellow-400',
+                  title: 'text-yellow-800',
+                  text: 'text-yellow-700',
+                }
                 : {
-                    wrap: 'bg-blue-50 border-blue-200',
-                    icon: 'text-blue-400',
-                    title: 'text-blue-800',
-                    text: 'text-blue-700',
-                  };
+                  wrap: 'bg-primary-50 border-primary-200',
+                  icon: 'text-primary-400',
+                  title: 'text-primary-800',
+                  text: 'text-primary-700',
+                };
           return (
             <div
               key={warning.id}

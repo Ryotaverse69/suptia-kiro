@@ -1,185 +1,279 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+/**
+ * Headerコンポーネントのユニットテスト
+ * ハンバーガーメニューの動作を含む
+ */
+
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import { Header } from '../Header';
 import { LocaleProvider } from '@/contexts/LocaleContext';
 
-// Next.js Link のモック
-vi.mock('next/link', () => ({
-  default: ({ children, href, ...props }: any) => (
-    <a href={href} {...props}>
-      {children}
-    </a>
-  ),
-}));
-
-// Next.js navigation のモック
+// Next.js router のモック
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: vi.fn(),
-    replace: vi.fn(),
-    prefetch: vi.fn(),
-    back: vi.fn(),
-    forward: vi.fn(),
-    refresh: vi.fn(),
-  }),
-  usePathname: () => '/',
+  usePathname: vi.fn(),
 }));
 
-// テスト用のラッパーコンポーネント
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <LocaleProvider>{children}</LocaleProvider>
-);
+// SkipLinks のモック
+vi.mock('../SkipLinks', () => ({
+  useFocusManagement: () => ({
+    trapFocus: vi.fn(() => vi.fn()),
+    restoreFocus: vi.fn(),
+  }),
+}));
 
-describe('Header Component', () => {
-  test('ロゴが正しく表示される', () => {
-    render(
-      <TestWrapper>
-        <Header />
-      </TestWrapper>
-    );
+const mockUsePathname = vi.mocked(await import('next/navigation')).usePathname;
 
-    // サプティア + Suptiaロゴの表示確認
-    expect(screen.getByText('サプティア')).toBeInTheDocument();
-    expect(screen.getByText('Suptia')).toBeInTheDocument();
+const renderHeader = () => {
+  return render(
+    <LocaleProvider>
+      <Header />
+    </LocaleProvider>
+  );
+};
 
-    // ロゴのアイコン（S）が表示されることを確認
-    expect(screen.getByText('S')).toBeInTheDocument();
-
-    // ロゴがリンクとして機能することを確認
-    const logoLink = screen.getByLabelText('サプティア ホーム');
-    expect(logoLink).toBeInTheDocument();
-    expect(logoLink).toHaveAttribute('href', '/');
+describe('Header', () => {
+  beforeEach(() => {
+    mockUsePathname.mockReturnValue('/');
+    // スクロールイベントのモック
+    Object.defineProperty(window, 'scrollY', {
+      value: 0,
+      writable: true,
+    });
   });
 
-  test('ロゴクリック時のホームページ遷移確認', () => {
-    render(
-      <TestWrapper>
-        <Header />
-      </TestWrapper>
-    );
-
-    // ロゴリンクが正しいhref属性を持つことを確認
-    const logoLink = screen.getByLabelText('サプティア ホーム');
-    expect(logoLink).toHaveAttribute('href', '/');
-
-    // ロゴがクリック可能であることを確認
-    fireEvent.click(logoLink);
-    // 実際のナビゲーションはNext.jsのルーターが処理するため、
-    // ここではhref属性の確認のみ行う
+  afterEach(() => {
+    vi.clearAllMocks();
+    document.body.style.overflow = '';
   });
 
-  test('ナビゲーションメニューが機能する', () => {
-    render(
-      <TestWrapper>
-        <Header />
-      </TestWrapper>
-    );
+  describe('基本表示', () => {
+    test('ヘッダーが正常に表示される', () => {
+      renderHeader();
 
-    // 各メニュー項目のクリック動作確認
-    expect(screen.getByText('ホーム')).toBeInTheDocument();
-    expect(screen.getByText('サプティアとは')).toBeInTheDocument();
-    expect(screen.getByText('成分ガイド')).toBeInTheDocument();
-    expect(screen.getByText('人気比較')).toBeInTheDocument();
-    expect(screen.getByText('マイページ')).toBeInTheDocument();
+      // ロゴが表示される（より具体的なセレクタを使用）
+      const logoLink = screen.getByLabelText(/サプティア.*ホーム/);
+      expect(logoLink).toBeInTheDocument();
+      expect(logoLink).toHaveTextContent('サプティア');
+      expect(logoLink).toHaveTextContent('Suptia');
 
-    // 各リンクが正しいhref属性を持つことを確認
-    expect(screen.getByRole('link', { name: 'ホーム' })).toHaveAttribute(
-      'href',
-      '/'
-    );
-    expect(
-      screen.getByRole('link', { name: 'サプティアとは' })
-    ).toHaveAttribute('href', '/about');
-    expect(screen.getByRole('link', { name: '成分ガイド' })).toHaveAttribute(
-      'href',
-      '/ingredients'
-    );
-    expect(screen.getByRole('link', { name: '人気比較' })).toHaveAttribute(
-      'href',
-      '/compare'
-    );
-    expect(screen.getByRole('link', { name: 'マイページ' })).toHaveAttribute(
-      'href',
-      '/mypage'
-    );
+      // ナビゲーションリンクが表示される（デスクトップ）
+      expect(screen.getByText('比較')).toBeInTheDocument();
+      expect(screen.getByText('成分ガイド')).toBeInTheDocument();
+      expect(screen.getByText('価格アラート')).toBeInTheDocument();
+      expect(screen.getByText('サプティアとは')).toBeInTheDocument();
+    });
+
+    test('検索ボタンが表示される', () => {
+      renderHeader();
+
+      const searchButton = screen.getByLabelText('検索');
+      expect(searchButton).toBeInTheDocument();
+    });
   });
 
-  test('言語・通貨切替が動作する', () => {
-    render(
-      <TestWrapper>
-        <Header />
-      </TestWrapper>
-    );
+  describe('ハンバーガーメニュー', () => {
+    test('ハンバーガーメニューボタンが表示される', () => {
+      renderHeader();
 
-    // 言語・通貨切替ボタンが表示されることを確認
-    const languageButton = screen.getByLabelText('言語・通貨切替');
-    expect(languageButton).toBeInTheDocument();
+      const menuButton = screen.getByLabelText('メニューを開く');
+      expect(menuButton).toBeInTheDocument();
+      expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+      expect(menuButton).toHaveAttribute('aria-controls', 'mobile-menu');
+    });
 
-    // ボタンをクリックしてドロップダウンを開く
-    fireEvent.click(languageButton);
+    test('初期状態ではモバイルメニューが非表示', () => {
+      renderHeader();
 
-    // ドロップダウンメニューが表示されることを確認
-    expect(screen.getByText('言語・通貨')).toBeInTheDocument();
-    expect(screen.getAllByText('日本語')).toHaveLength(2); // ボタンとドロップダウンの両方
-    expect(screen.getByText('English')).toBeInTheDocument();
+      const mobileMenu = screen.queryByRole('navigation', {
+        name: 'モバイルナビゲーション',
+      });
+      expect(mobileMenu).not.toBeInTheDocument();
+    });
 
-    // 通貨表示の確認
-    expect(screen.getByText('¥ JPY')).toBeInTheDocument();
-    expect(screen.getByText('$ USD')).toBeInTheDocument();
+    test('ハンバーガーメニューボタンをクリックするとメニューが開く', async () => {
+      renderHeader();
+
+      const menuButton = screen.getByLabelText('メニューを開く');
+      fireEvent.click(menuButton);
+
+      await waitFor(() => {
+        expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+        expect(menuButton).toHaveAttribute('aria-label', 'メニューを閉じる');
+      });
+
+      // モバイルメニューが表示される
+      const mobileMenu = screen.getByRole('navigation', {
+        name: 'モバイルナビゲーション',
+      });
+      expect(mobileMenu).toBeInTheDocument();
+
+      // body のスクロールが無効になる
+      expect(document.body.style.overflow).toBe('hidden');
+    });
+
+    test('メニューが開いている状態でボタンをクリックするとメニューが閉じる', async () => {
+      renderHeader();
+
+      const menuButton = screen.getByLabelText('メニューを開く');
+
+      // メニューを開く
+      fireEvent.click(menuButton);
+      await waitFor(() => {
+        expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      // メニューを閉じる
+      fireEvent.click(menuButton);
+      await waitFor(() => {
+        expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+        expect(menuButton).toHaveAttribute('aria-label', 'メニューを開く');
+      });
+
+      // モバイルメニューが非表示になる
+      const mobileMenu = screen.queryByRole('navigation', {
+        name: 'モバイルナビゲーション',
+      });
+      expect(mobileMenu).not.toBeInTheDocument();
+
+      // body のスクロールが復元される
+      expect(document.body.style.overflow).toBe('');
+    });
+
+    test('Escapeキーでメニューが閉じる', async () => {
+      renderHeader();
+
+      const menuButton = screen.getByLabelText('メニューを開く');
+
+      // メニューを開く
+      fireEvent.click(menuButton);
+      await waitFor(() => {
+        expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      // Escapeキーを押す
+      fireEvent.keyDown(document, { key: 'Escape' });
+
+      await waitFor(() => {
+        expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      // モバイルメニューが非表示になる
+      const mobileMenu = screen.queryByRole('navigation', {
+        name: 'モバイルナビゲーション',
+      });
+      expect(mobileMenu).not.toBeInTheDocument();
+    });
+
+    test('オーバーレイをクリックするとメニューが閉じる', async () => {
+      renderHeader();
+
+      const menuButton = screen.getByLabelText('メニューを開く');
+
+      // メニューを開く
+      fireEvent.click(menuButton);
+      await waitFor(() => {
+        expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      // オーバーレイをクリック
+      const overlay = document.querySelector('.fixed.inset-0.z-40');
+      expect(overlay).toBeInTheDocument();
+      fireEvent.click(overlay!);
+
+      await waitFor(() => {
+        expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+      });
+    });
+
+    test('モバイルメニュー内のリンクをクリックするとメニューが閉じる', async () => {
+      renderHeader();
+
+      const menuButton = screen.getByLabelText('メニューを開く');
+
+      // メニューを開く
+      fireEvent.click(menuButton);
+      await waitFor(() => {
+        expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      // モバイルメニュー内のリンクをクリック
+      const mobileMenu = screen.getByRole('navigation', {
+        name: 'モバイルナビゲーション',
+      });
+      const compareLink = mobileMenu.querySelector('a[href="/compare"]');
+      expect(compareLink).toBeInTheDocument();
+      fireEvent.click(compareLink!);
+
+      await waitFor(() => {
+        expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+      });
+    });
   });
 
-  test('モバイルメニューが機能する', () => {
-    render(
-      <TestWrapper>
-        <Header />
-      </TestWrapper>
-    );
+  describe('アクセシビリティ', () => {
+    test('適切なARIA属性が設定されている', () => {
+      renderHeader();
 
-    // モバイルメニューボタンが表示されることを確認
-    const mobileMenuButton = screen.getByLabelText('メニューを開く');
-    expect(mobileMenuButton).toBeInTheDocument();
+      const header = screen.getByRole('banner');
+      expect(header).toBeInTheDocument();
 
-    // モバイルメニューボタンをクリック
-    fireEvent.click(mobileMenuButton);
+      const mainNav = screen.getByRole('navigation', {
+        name: 'メインナビゲーション',
+      });
+      expect(mainNav).toBeInTheDocument();
 
-    // モバイルナビゲーションが表示されることを確認
-    const mobileNav = screen.getByLabelText('モバイルナビゲーション');
-    expect(mobileNav).toBeInTheDocument();
+      const menuButton = screen.getByLabelText('メニューを開く');
+      expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+      expect(menuButton).toHaveAttribute('aria-controls', 'mobile-menu');
+    });
+
+    test('ロゴリンクに適切なaria-labelが設定されている', () => {
+      renderHeader();
+
+      const logoLink = screen.getByLabelText(/サプティア.*ホーム/);
+      expect(logoLink).toBeInTheDocument();
+      expect(logoLink).toHaveAttribute('href', '/');
+    });
   });
 
-  test('レスポンシブデザインが適用される', () => {
-    render(
-      <TestWrapper>
-        <Header />
-      </TestWrapper>
-    );
+  describe('スクロール効果', () => {
+    test('スクロール時にヘッダーの背景が変化する', async () => {
+      renderHeader();
 
-    // ヘッダーが固定位置に配置されることを確認
-    const header = screen.getByRole('banner');
-    expect(header).toHaveClass('fixed', 'top-0', 'left-0', 'right-0');
+      const header = screen.getByRole('banner');
 
-    // デスクトップナビゲーションが適切なクラスを持つことを確認
-    const desktopNav = screen.getByLabelText('メインナビゲーション');
-    expect(desktopNav).toHaveClass('hidden', 'lg:flex');
+      // 初期状態
+      expect(header).toHaveClass('bg-white/95');
+
+      // スクロールをシミュレート
+      Object.defineProperty(window, 'scrollY', {
+        value: 10,
+        writable: true,
+      });
+
+      fireEvent.scroll(window);
+
+      await waitFor(() => {
+        expect(header).toHaveClass('shadow-sm');
+      });
+    });
   });
 
-  test('アクセシビリティ属性が適切に設定される', () => {
-    render(
-      <TestWrapper>
-        <Header />
-      </TestWrapper>
-    );
+  describe('アクティブリンクのハイライト', () => {
+    test('現在のページのナビゲーションリンクがハイライトされる', () => {
+      mockUsePathname.mockReturnValue('/compare');
+      renderHeader();
 
-    // ヘッダーがbanner roleを持つことを確認
-    expect(screen.getByRole('banner')).toBeInTheDocument();
+      const compareLink = screen.getByText('比較');
+      expect(compareLink).toHaveClass('text-gray-900', 'font-medium');
+    });
 
-    // ナビゲーションが適切なaria-labelを持つことを確認
-    expect(screen.getByLabelText('メインナビゲーション')).toBeInTheDocument();
+    test('成分ガイドページでのハイライト', () => {
+      mockUsePathname.mockReturnValue('/ingredients/vitamin-d');
+      renderHeader();
 
-    // ロゴが適切なaria-labelを持つことを確認
-    expect(screen.getByLabelText('サプティア ホーム')).toBeInTheDocument();
-
-    // 言語切替ボタンが適切なaria-labelを持つことを確認
-    expect(screen.getByLabelText('言語・通貨切替')).toBeInTheDocument();
+      const ingredientsLink = screen.getByText('成分ガイド');
+      expect(ingredientsLink).toHaveClass('text-gray-900', 'font-medium');
+    });
   });
 });

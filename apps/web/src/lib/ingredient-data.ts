@@ -148,7 +148,7 @@ export const PURPOSE_CATEGORIES: PurposeCategoryInfo[] = [
     name: '体重管理',
     description: 'ダイエット、代謝向上',
     icon: '⚖️',
-    color: 'bg-blue-100 text-blue-800',
+    color: 'bg-primary-100 text-primary-800',
   },
   {
     id: 'stress-relief',
@@ -250,7 +250,7 @@ export const INGREDIENT_CATEGORIES: IngredientCategoryInfo[] = [
     name: 'ミネラル',
     description: '骨や歯の形成、体液バランスの調整に重要な無機質栄養素',
     icon: '⚡',
-    color: 'bg-blue-100 text-blue-800',
+    color: 'bg-primary-100 text-primary-800',
     count: 16,
   },
   {

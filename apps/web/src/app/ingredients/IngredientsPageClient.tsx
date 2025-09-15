@@ -124,8 +124,8 @@ export default function IngredientsPageClient() {
                         <button
                             onClick={() => setViewMode('categories')}
                             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'categories' || viewMode === 'category-detail'
-                                    ? 'bg-white text-blue-600 shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-900'
+                                ? 'bg-white text-primary-600 shadow-sm'
+                                : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
                             カテゴリ別
@@ -133,8 +133,8 @@ export default function IngredientsPageClient() {
                         <button
                             onClick={() => setViewMode('purposes')}
                             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'purposes' || viewMode === 'purpose-detail'
-                                    ? 'bg-white text-blue-600 shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-900'
+                                ? 'bg-white text-primary-600 shadow-sm'
+                                : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
                             目的別
@@ -142,8 +142,8 @@ export default function IngredientsPageClient() {
                         <button
                             onClick={handleShowFiltered}
                             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'filtered'
-                                    ? 'bg-white text-blue-600 shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-900'
+                                ? 'bg-white text-primary-600 shadow-sm'
+                                : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
                             詳細検索
@@ -242,7 +242,7 @@ export default function IngredientsPageClient() {
                         <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-6">
                             <button
                                 onClick={handleBackToMain}
-                                className="hover:text-blue-600 transition-colors"
+                                className="hover:text-primary-600 transition-colors"
                             >
                                 成分ガイド
                             </button>
@@ -286,7 +286,7 @@ export default function IngredientsPageClient() {
                         <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-6">
                             <button
                                 onClick={handleBackToMain}
-                                className="hover:text-blue-600 transition-colors"
+                                className="hover:text-primary-600 transition-colors"
                             >
                                 成分ガイド
                             </button>

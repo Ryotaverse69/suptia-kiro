@@ -24,7 +24,7 @@ export function ResultCard({
   isInCompare?: boolean;
 }) {
   return (
-    <div className='bg-white rounded-xl p-6 shadow-soft hover:shadow-strong transition-all hover:-translate-y-0.5 border border-gray-100'>
+    <div className='bg-white rounded-xl p-6 shadow-soft hover:shadow-medium transition-all hover:-translate-y-0.5 border border-gray-100'>
       <div className='flex items-center justify-between mb-2'>
         <h3 className='font-semibold text-gray-900'>{product.name}</h3>
         {product.brand && (
@@ -57,7 +57,7 @@ export function ResultCard({
           className={cn(
             'px-3 py-2 rounded-lg text-sm border transition-colors',
             isInCompare
-              ? 'bg-blue-600 text-white border-blue-600'
+              ? 'bg-primary-600 text-white border-primary-600'
               : 'border-gray-300 text-gray-700 hover:bg-gray-50'
           )}
         >

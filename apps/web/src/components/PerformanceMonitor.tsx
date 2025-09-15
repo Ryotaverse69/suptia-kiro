@@ -188,7 +188,7 @@ export default function PerformanceMonitor({
     const warnings = getPerformanceStatus();
 
     return (
-        <div className="fixed bottom-4 right-4 bg-white border border-gray-300 rounded-lg shadow-lg p-4 max-w-sm z-50">
+        <div className="fixed bottom-4 right-4 bg-white border border-gray-300 rounded-lg shadow-sm p-4 max-w-sm z-50">
             <h3 className="text-sm font-semibold mb-2">パフォーマンス監視</h3>
 
             <div className="space-y-1 text-xs">

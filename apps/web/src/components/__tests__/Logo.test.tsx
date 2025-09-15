@@ -84,7 +84,7 @@ describe('Logo Component', () => {
     const iconContainer = screen.getByText('S').parentElement;
     expect(iconContainer).toHaveClass(
       'bg-gradient-to-br',
-      'from-blue-600',
+      'from-primary-600',
       'via-purple-600',
       'to-cyan-500'
     );
@@ -93,7 +93,7 @@ describe('Logo Component', () => {
     const textElement = screen.getByText('サプティア');
     expect(textElement).toHaveClass(
       'bg-gradient-to-r',
-      'from-blue-600',
+      'from-primary-600',
       'to-purple-600',
       'bg-clip-text',
       'text-transparent'
@@ -116,7 +116,7 @@ describe('Logo Component', () => {
 
     // 影効果が適用されることを確認
     const iconContainer = screen.getByText('S').parentElement;
-    expect(iconContainer).toHaveClass('shadow-lg');
+    expect(iconContainer).toHaveClass('shadow-sm');
 
     // 角丸効果が適用されることを確認
     expect(iconContainer).toHaveClass('rounded-xl');

@@ -45,7 +45,7 @@ interface ScoreVisualization {
  */
 function getScoreColorClass(score: number): string {
   if (score >= 80) return 'text-green-600 bg-green-100';
-  if (score >= 60) return 'text-blue-600 bg-blue-100';
+  if (score >= 60) return 'text-primary-600 bg-primary-100';
   if (score >= 40) return 'text-yellow-600 bg-yellow-100';
   return 'text-red-600 bg-red-100';
 }
@@ -91,7 +91,7 @@ const ProgressBar = memo(function ProgressBar({
 
   const progressBarColor = useMemo(() => {
     if (colorClass.includes('green')) return 'bg-green-500';
-    if (colorClass.includes('blue')) return 'bg-blue-500';
+    if (colorClass.includes('primary')) return 'bg-primary-600';
     if (colorClass.includes('yellow')) return 'bg-yellow-500';
     return 'bg-red-500';
   }, [colorClass]);
@@ -416,7 +416,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
     components,
     colors: {
       excellent: 'text-green-600 bg-green-100',
-      good: 'text-blue-600 bg-blue-100',
+      good: 'text-primary-600 bg-primary-100',
       fair: 'text-yellow-600 bg-yellow-100',
       poor: 'text-red-600 bg-red-100'
     }

@@ -166,7 +166,7 @@ export function DiagnosisHistoryList({ onItemClick, onCompareClick }: DiagnosisH
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-12">
-                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
                 <span className="ml-3 text-gray-600">読み込み中...</span>
             </div>
         );
@@ -182,7 +182,7 @@ export function DiagnosisHistoryList({ onItemClick, onCompareClick }: DiagnosisH
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">統計情報</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="text-center">
-                            <div className="text-2xl font-bold text-blue-600">{statistics.totalCount}</div>
+                            <div className="text-2xl font-bold text-primary-600">{statistics.totalCount}</div>
                             <div className="text-sm text-gray-600">総診断回数</div>
                         </div>
                         <div className="text-center">
@@ -371,7 +371,7 @@ export function DiagnosisHistoryList({ onItemClick, onCompareClick }: DiagnosisH
                                             type="checkbox"
                                             checked={selectedItems.has(item.id)}
                                             onChange={() => toggleSelection(item.id)}
-                                            className="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                            className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                                         />
                                         <div className="flex-1">
                                             {editingId === item.id ? (
@@ -396,7 +396,7 @@ export function DiagnosisHistoryList({ onItemClick, onCompareClick }: DiagnosisH
                                                 </div>
                                             ) : (
                                                 <h3
-                                                    className="text-lg font-semibold text-gray-900 mb-2 cursor-pointer hover:text-blue-600"
+                                                    className="text-lg font-semibold text-gray-900 mb-2 cursor-pointer hover:text-primary-600"
                                                     onClick={() => handleTitleEdit(item.id, item.title || '')}
                                                 >
                                                     {item.title}

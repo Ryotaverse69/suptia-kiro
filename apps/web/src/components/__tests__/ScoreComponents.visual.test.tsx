@@ -94,24 +94,24 @@ describe('スコアコンポーネント視覚的テスト', () => {
     visualTestScenarios.forEach(({ name, scoreResult }) => {
       it(`${name}の視覚的表示が正しい`, () => {
         render(<ScoreDisplay scoreResult={scoreResult} />);
-        
+
         // 基本要素の存在確認
         expect(screen.getByText('総合スコア')).toBeInTheDocument();
         expect(screen.getByText(scoreResult.total.toString())).toBeInTheDocument();
-        
+
         // スコアレベルの表示確認
         const scoreLevel = getScoreLevel(scoreResult.total);
         expect(screen.getByText(scoreLevel)).toBeInTheDocument();
-        
+
         // 色分けクラスの確認
         const scoreElement = screen.getByText(scoreResult.total.toString()).closest('div');
         const expectedColorClass = getExpectedColorClass(scoreResult.total);
         expect(scoreElement).toHaveClass(expectedColorClass);
-        
+
         // プログレスバーの確認
         const progressBars = screen.getAllByRole('progressbar');
         expect(progressBars.length).toBe(5); // 総合 + 4要素
-        
+
         // 各要素スコアの表示確認
         expect(screen.getByText(scoreResult.components.evidence.toString())).toBeInTheDocument();
         expect(screen.getByText(scoreResult.components.safety.toString())).toBeInTheDocument();
@@ -123,12 +123,12 @@ describe('スコアコンポーネント視覚的テスト', () => {
     it('データ不足時の警告表示が正しい', () => {
       const incompleteData = visualTestScenarios.find(s => s.name === 'データ不足ケース')!;
       render(<ScoreDisplay scoreResult={incompleteData.scoreResult} />);
-      
+
       // データ不足警告の表示
       expect(screen.getByText('データが不足しています')).toBeInTheDocument();
       expect(screen.getByText('価格情報')).toBeInTheDocument();
       expect(screen.getByText('詳細な成分データ')).toBeInTheDocument();
-      
+
       // 警告アイコンまたはスタイルの確認
       const warningElement = screen.getByText('データが不足しています').closest('div');
       expect(warningElement).toHaveClass('bg-yellow-50', 'border-yellow-200');
@@ -139,22 +139,22 @@ describe('スコアコンポーネント視覚的テスト', () => {
     visualTestScenarios.forEach(({ name, scoreResult }) => {
       it(`${name}の詳細表示が正しい`, () => {
         render(<ScoreBreakdown breakdown={scoreResult.breakdown} weights={scoreResult.weights} />);
-        
+
         // 基本構造の確認
         expect(screen.getByText('スコア詳細分析')).toBeInTheDocument();
-        
+
         // 4つのセクションの存在確認
         expect(screen.getByText('エビデンス')).toBeInTheDocument();
         expect(screen.getByText('安全性')).toBeInTheDocument();
         expect(screen.getByText('コスト')).toBeInTheDocument();
         expect(screen.getByText('実用性')).toBeInTheDocument();
-        
+
         // 各セクションの色分け確認
         const evidenceButton = screen.getByRole('button', { name: /エビデンス/ });
         const evidenceSection = evidenceButton.parentElement;
         const expectedBorderClass = getExpectedBorderClass(scoreResult.breakdown.evidence.score);
         expect(evidenceSection).toHaveClass(expectedBorderClass);
-        
+
         // 重み表示の確認
         expect(screen.getByText(/重み 35%/)).toBeInTheDocument();
         expect(screen.getByText(/重み 30%/)).toBeInTheDocument();
@@ -177,14 +177,14 @@ describe('スコアコンポーネント視覚的テスト', () => {
         // ビューポートサイズを設定
         Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: width });
         Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: height });
-        
+
         const testData = visualTestScenarios[1]; // 良好スコアを使用
         render(<ScoreDisplay scoreResult={testData.scoreResult} />);
-        
+
         // 基本表示の確認
         expect(screen.getByText('総合スコア')).toBeInTheDocument();
         expect(screen.getByText('75')).toBeInTheDocument();
-        
+
         // レスポンシブクラスの確認
         if (width < 640) {
           // モバイル: 縦並びレイアウト
@@ -203,7 +203,7 @@ describe('スコアコンポーネント視覚的テスト', () => {
     it('プログレスバーのアニメーションクラスが適用される', () => {
       const testData = visualTestScenarios[0]; // 優秀スコアを使用
       render(<ScoreDisplay scoreResult={testData.scoreResult} />);
-      
+
       // プログレスバーのアニメーションクラス確認
       const progressBars = screen.getAllByRole('progressbar');
       progressBars.forEach(bar => {
@@ -215,7 +215,7 @@ describe('スコアコンポーネント視覚的テスト', () => {
     it('ホバー効果のクラスが適用される', () => {
       const testData = visualTestScenarios[1];
       render(<ScoreBreakdown breakdown={testData.scoreResult.breakdown} weights={testData.scoreResult.weights} />);
-      
+
       // ボタンのホバー効果クラス確認
       const buttons = screen.getAllByRole('button');
       buttons.forEach(button => {
@@ -228,14 +228,14 @@ describe('スコアコンポーネント視覚的テスト', () => {
     it('ダークモードクラスが適用される', () => {
       // ダークモードをシミュレート
       document.documentElement.classList.add('dark');
-      
+
       const testData = visualTestScenarios[1];
       render(<ScoreDisplay scoreResult={testData.scoreResult} />);
-      
+
       // ダークモード用のクラスが適用されているかチェック
       const darkElements = document.querySelectorAll('.dark\\:bg-gray-800, .dark\\:text-white, .dark\\:border-gray-600');
       expect(darkElements.length).toBeGreaterThan(0);
-      
+
       // クリーンアップ
       document.documentElement.classList.remove('dark');
     });
@@ -245,7 +245,7 @@ describe('スコアコンポーネント視覚的テスト', () => {
     it('印刷用のスタイルクラスが適用される', () => {
       const testData = visualTestScenarios[1];
       render(<ScoreDisplay scoreResult={testData.scoreResult} />);
-      
+
       // 印刷用のクラスが適用されているかチェック
       const printElements = document.querySelectorAll('.print\\:text-black, .print\\:bg-white');
       expect(printElements.length).toBeGreaterThan(0);
@@ -263,7 +263,7 @@ function getScoreLevel(score: number): string {
 
 function getExpectedColorClass(score: number): string {
   if (score >= 80) return 'text-green-600';
-  if (score >= 60) return 'text-blue-600';
+  if (score >= 60) return 'text-primary-600';
   if (score >= 40) return 'text-yellow-600';
   return 'text-red-600';
 }

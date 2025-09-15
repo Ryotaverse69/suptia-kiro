@@ -1,246 +1,50 @@
-<testsuites id="" name="" tests="6" failures="6" skipped="0" errors="0" time="5.713431">
-<testsuite name="suptia-frontend-ui-ux.spec.ts" timestamp="2025-09-14T14:17:51.449Z" hostname="chromium" tests="1" failures="1" skipped="0" time="1.385" errors="0">
-<testcase name="サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない" classname="suptia-frontend-ui-ux.spec.ts" time="1.385">
-<failure message="suptia-frontend-ui-ux.spec.ts:32:9 Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない" type="FAILURE">
-<![CDATA[  [chromium] › suptia-frontend-ui-ux.spec.ts:32:9 › サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない 
+<testsuites id="" name="" tests="1" failures="1" skipped="0" errors="0" time="7.463284">
+<testsuite name="suptia-frontend-ui-ux.spec.ts" timestamp="2025-09-15T13:42:43.014Z" hostname="chromium" tests="1" failures="1" skipped="0" time="6.283" errors="0">
+<testcase name="サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Hero検索: カテゴリチップクリック機能" classname="suptia-frontend-ui-ux.spec.ts" time="6.283">
+<failure message="suptia-frontend-ui-ux.spec.ts:142:9 Hero検索: カテゴリチップクリック機能" type="FAILURE">
+<![CDATA[  [chromium] › suptia-frontend-ui-ux.spec.ts:142:9 › サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Hero検索: カテゴリチップクリック機能 
 
-    Error: expect(received).toBeGreaterThan(expected)
+    Error: expect(locator).toHaveValue(expected) failed
 
-    Expected: > 800
-    Received:   84
+    Locator: locator('input[role="combobox"]')
+    Expected string: "ビタミンD"
+    Received string: ""
+    Timeout: 5000ms
 
-      51 |         if (box) {
-      52 |           // 要素の上端がビューポートの下端より下にあれば見えない
-    > 53 |           expect(box.y).toBeGreaterThan(viewportHeight);
-         |                         ^
-      54 |         }
-      55 |       }
-      56 |       
-        at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25
+    Call log:
+      - Expect "toHaveValue" with timeout 5000ms
+      - waiting for locator('input[role="combobox"]')
+        9 × locator resolved to <input value="" type="text" role="combobox" aria-expanded="false" aria-label="サプリメント検索" aria-haspopup="listbox" placeholder="サプリメントを検索（例：ビタミンD、疲労回復、美容）" class="w-full px-4 sm:px-8 py-4 sm:py-6 text-base sm:text-lg bg-gray-50/80 border-2 border-transparent rounded-2xl  focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100  transition-all duration-300 placeholder-gray-500 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] pr-20 sm:pr-24"/>
+          - unexpected value ""
+
+
+      151 |
+      152 |       // 検索バーに「ビタミンD」が入力されることを確認
+    > 153 |       await expect(searchInput).toHaveValue('ビタミンD');
+          |                                 ^
+      154 |     });
+      155 |
+      156 |     test('Hero検索: キーボードナビゲーション', async ({ page }) => {
+        at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:153:33
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-chromium/test-failed-1.png
+    ../../test-results/suptia-frontend-ui-ux-サプティ-e89b5-me初期描画-Hero検索-カテゴリチップクリック機能-chromium/test-failed-1.png
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-chromium/video.webm
+    ../../test-results/suptia-frontend-ui-ux-サプティ-e89b5-me初期描画-Hero検索-カテゴリチップクリック機能-chromium/video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-chromium/error-context.md
+    Error Context: ../../test-results/suptia-frontend-ui-ux-サプティ-e89b5-me初期描画-Hero検索-カテゴリチップクリック機能-chromium/error-context.md
 ]]>
 </failure>
 <system-out>
 <![CDATA[
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-chromium/test-failed-1.png]]
+[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-e89b5-me初期描画-Hero検索-カテゴリチップクリック機能-chromium/test-failed-1.png]]
 
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-chromium/video.webm]]
+[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-e89b5-me初期描画-Hero検索-カテゴリチップクリック機能-chromium/video.webm]]
 
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-chromium/error-context.md]]
-]]>
-</system-out>
-</testcase>
-</testsuite>
-<testsuite name="suptia-frontend-ui-ux.spec.ts" timestamp="2025-09-14T14:17:51.449Z" hostname="firefox" tests="1" failures="1" skipped="0" time="2.102" errors="0">
-<testcase name="サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない" classname="suptia-frontend-ui-ux.spec.ts" time="2.102">
-<failure message="suptia-frontend-ui-ux.spec.ts:32:9 Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない" type="FAILURE">
-<![CDATA[  [firefox] › suptia-frontend-ui-ux.spec.ts:32:9 › サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない 
-
-    Error: expect(received).toBeGreaterThan(expected)
-
-    Expected: > 800
-    Received:   85.5
-
-      51 |         if (box) {
-      52 |           // 要素の上端がビューポートの下端より下にあれば見えない
-    > 53 |           expect(box.y).toBeGreaterThan(viewportHeight);
-         |                         ^
-      54 |         }
-      55 |       }
-      56 |       
-        at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-firefox/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-firefox/video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-firefox/error-context.md
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-firefox/test-failed-1.png]]
-
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-firefox/video.webm]]
-
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-firefox/error-context.md]]
-]]>
-</system-out>
-</testcase>
-</testsuite>
-<testsuite name="suptia-frontend-ui-ux.spec.ts" timestamp="2025-09-14T14:17:51.449Z" hostname="webkit" tests="1" failures="1" skipped="0" time="2.145" errors="0">
-<testcase name="サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない" classname="suptia-frontend-ui-ux.spec.ts" time="2.145">
-<failure message="suptia-frontend-ui-ux.spec.ts:32:9 Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない" type="FAILURE">
-<![CDATA[  [webkit] › suptia-frontend-ui-ux.spec.ts:32:9 › サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない 
-
-    Error: expect(received).toBeGreaterThan(expected)
-
-    Expected: > 800
-    Received:   83
-
-      51 |         if (box) {
-      52 |           // 要素の上端がビューポートの下端より下にあれば見えない
-    > 53 |           expect(box.y).toBeGreaterThan(viewportHeight);
-         |                         ^
-      54 |         }
-      55 |       }
-      56 |       
-        at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-webkit/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-webkit/video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-webkit/error-context.md
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-webkit/test-failed-1.png]]
-
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-webkit/video.webm]]
-
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-webkit/error-context.md]]
-]]>
-</system-out>
-</testcase>
-</testsuite>
-<testsuite name="suptia-frontend-ui-ux.spec.ts" timestamp="2025-09-14T14:17:51.449Z" hostname="Mobile Chrome" tests="1" failures="1" skipped="0" time="1.427" errors="0">
-<testcase name="サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない" classname="suptia-frontend-ui-ux.spec.ts" time="1.427">
-<failure message="suptia-frontend-ui-ux.spec.ts:32:9 Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない" type="FAILURE">
-<![CDATA[  [Mobile Chrome] › suptia-frontend-ui-ux.spec.ts:32:9 › サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない 
-
-    Error: expect(received).toBeGreaterThan(expected)
-
-    Expected: > 800
-    Received:   84
-
-      51 |         if (box) {
-      52 |           // 要素の上端がビューポートの下端より下にあれば見えない
-    > 53 |           expect(box.y).toBeGreaterThan(viewportHeight);
-         |                         ^
-      54 |         }
-      55 |       }
-      56 |       
-        at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Chrome/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Chrome/video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Chrome/error-context.md
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Chrome/test-failed-1.png]]
-
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Chrome/video.webm]]
-
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Chrome/error-context.md]]
-]]>
-</system-out>
-</testcase>
-</testsuite>
-<testsuite name="suptia-frontend-ui-ux.spec.ts" timestamp="2025-09-14T14:17:51.449Z" hostname="Mobile Safari" tests="1" failures="1" skipped="0" time="2.261" errors="0">
-<testcase name="サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない" classname="suptia-frontend-ui-ux.spec.ts" time="2.261">
-<failure message="suptia-frontend-ui-ux.spec.ts:32:9 Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない" type="FAILURE">
-<![CDATA[  [Mobile Safari] › suptia-frontend-ui-ux.spec.ts:32:9 › サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない 
-
-    Error: expect(received).toBeGreaterThan(expected)
-
-    Expected: > 800
-    Received:   83
-
-      51 |         if (box) {
-      52 |           // 要素の上端がビューポートの下端より下にあれば見えない
-    > 53 |           expect(box.y).toBeGreaterThan(viewportHeight);
-         |                         ^
-      54 |         }
-      55 |       }
-      56 |       
-        at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Safari/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Safari/video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Safari/error-context.md
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Safari/test-failed-1.png]]
-
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Safari/video.webm]]
-
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Mobile-Safari/error-context.md]]
-]]>
-</system-out>
-</testcase>
-</testsuite>
-<testsuite name="suptia-frontend-ui-ux.spec.ts" timestamp="2025-09-14T14:17:51.449Z" hostname="Tablet" tests="1" failures="1" skipped="0" time="1.068" errors="0">
-<testcase name="サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない" classname="suptia-frontend-ui-ux.spec.ts" time="1.068">
-<failure message="suptia-frontend-ui-ux.spec.ts:32:9 Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない" type="FAILURE">
-<![CDATA[  [Tablet] › suptia-frontend-ui-ux.spec.ts:32:9 › サプティアフロントエンドUI/UX E2Eテスト › Home初期描画 › Heroセクションが1画面で完結し、スクロールしないと次セクションが見えない 
-
-    Error: expect(received).toBeGreaterThan(expected)
-
-    Expected: > 800
-    Received:   84
-
-      51 |         if (box) {
-      52 |           // 要素の上端がビューポートの下端より下にあれば見えない
-    > 53 |           expect(box.y).toBeGreaterThan(viewportHeight);
-         |                         ^
-      54 |         }
-      55 |       }
-      56 |       
-        at /Users/ryota/suptia-kiro/apps/web/src/e2e/suptia-frontend-ui-ux.spec.ts:53:25
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Tablet/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Tablet/video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ../../test-results/suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Tablet/error-context.md
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Tablet/test-failed-1.png]]
-
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Tablet/video.webm]]
-
-[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-265d1-画面で完結し、スクロールしないと次セクションが見えない-Tablet/error-context.md]]
+[[ATTACHMENT|suptia-frontend-ui-ux-サプティ-e89b5-me初期描画-Hero検索-カテゴリチップクリック機能-chromium/error-context.md]]
 ]]>
 </system-out>
 </testcase>

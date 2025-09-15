@@ -125,23 +125,23 @@ export default function ScoreDisplayDemoPage() {
           </ul>
         </div>
         <ScoreDisplay scoreResult={highScoreResult} />
-        
+
         {/* 詳細表示切り替えボタン */}
         <div className="mt-4 text-center">
           <button
             onClick={() => setShowBreakdown(prev => ({ ...prev, high: !prev.high }))}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
           >
             {showBreakdown.high ? '詳細を隠す' : '詳細な計算根拠を表示'}
           </button>
         </div>
-        
+
         {/* スコア詳細表示 */}
         {showBreakdown.high && (
           <div className="mt-6">
-            <ScoreBreakdown 
-              breakdown={highScoreResult.breakdown} 
-              weights={highScoreResult.weights} 
+            <ScoreBreakdown
+              breakdown={highScoreResult.breakdown}
+              weights={highScoreResult.weights}
             />
           </div>
         )}
@@ -164,23 +164,23 @@ export default function ScoreDisplayDemoPage() {
           </ul>
         </div>
         <ScoreDisplay scoreResult={incompleteScoreResult} />
-        
+
         {/* 詳細表示切り替えボタン */}
         <div className="mt-4 text-center">
           <button
             onClick={() => setShowBreakdown(prev => ({ ...prev, incomplete: !prev.incomplete }))}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
           >
             {showBreakdown.incomplete ? '詳細を隠す' : '詳細な計算根拠を表示'}
           </button>
         </div>
-        
+
         {/* スコア詳細表示 */}
         {showBreakdown.incomplete && (
           <div className="mt-6">
-            <ScoreBreakdown 
-              breakdown={incompleteScoreResult.breakdown} 
-              weights={incompleteScoreResult.weights} 
+            <ScoreBreakdown
+              breakdown={incompleteScoreResult.breakdown}
+              weights={incompleteScoreResult.weights}
             />
           </div>
         )}
@@ -204,23 +204,23 @@ export default function ScoreDisplayDemoPage() {
           </ul>
         </div>
         <ScoreDisplay scoreResult={lowScoreResult} />
-        
+
         {/* 詳細表示切り替えボタン */}
         <div className="mt-4 text-center">
           <button
             onClick={() => setShowBreakdown(prev => ({ ...prev, low: !prev.low }))}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
           >
             {showBreakdown.low ? '詳細を隠す' : '詳細な計算根拠を表示'}
           </button>
         </div>
-        
+
         {/* スコア詳細表示 */}
         {showBreakdown.low && (
           <div className="mt-6">
-            <ScoreBreakdown 
-              breakdown={lowScoreResult.breakdown} 
-              weights={lowScoreResult.weights} 
+            <ScoreBreakdown
+              breakdown={lowScoreResult.breakdown}
+              weights={lowScoreResult.weights}
             />
           </div>
         )}
@@ -239,7 +239,7 @@ export default function ScoreDisplayDemoPage() {
               <div className="text-sm text-gray-600">エビデンス</div>
             </div>
             <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">30%</div>
+              <div className="text-2xl font-bold text-primary-600">30%</div>
               <div className="text-sm text-gray-600">安全性</div>
             </div>
             <div className="text-center p-3 bg-yellow-50 rounded-lg">
@@ -259,7 +259,7 @@ export default function ScoreDisplayDemoPage() {
               <div className="text-sm text-gray-600">優秀</div>
             </div>
             <div className="text-center p-3 bg-blue-100 rounded-lg">
-              <div className="text-lg font-bold text-blue-600">60-79</div>
+              <div className="text-lg font-bold text-primary-600">60-79</div>
               <div className="text-sm text-gray-600">良好</div>
             </div>
             <div className="text-center p-3 bg-yellow-100 rounded-lg">
@@ -278,7 +278,7 @@ export default function ScoreDisplayDemoPage() {
       <div className="text-center">
         <a
           href="/"
-          className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="inline-block bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
         >
           ホームに戻る
         </a>

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { SkipLinks, useFocusManagement } from '../SkipLinks';
+import SkipLinks, { useFocusManagement } from '../SkipLinks';
 
 // useFocusManagement フックのテスト用コンポーネント
 function TestFocusManagement() {

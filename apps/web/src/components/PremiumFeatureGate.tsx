@@ -56,7 +56,7 @@ export function PremiumFeatureGate({
     return (
         <Card className="p-6 text-center">
             <div className="mb-4">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-100 to-primary-100 rounded-full flex items-center justify-center">
                     <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                     </svg>
@@ -91,8 +91,8 @@ export function PremiumFeatureGate({
 
                 {/* 推奨プラン */}
                 {requiredTier && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                        <div className="text-sm text-blue-800">
+                    <div className="bg-primary-50 border border-primary-200 rounded-lg p-3 mb-4">
+                        <div className="text-sm text-primary-800">
                             <strong>推奨プラン:</strong> {getRequiredTierName(requiredTier)}
                         </div>
                     </div>

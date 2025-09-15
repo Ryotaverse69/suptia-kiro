@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import IngredientGuideSection from '../IngredientGuideSection';
 
 // console.logをモック
-const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
+const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => { });
 
 describe('IngredientGuideSection', () => {
   afterEach(() => {
@@ -107,6 +107,7 @@ describe('IngredientGuideSection', () => {
     const gridContainer = container.querySelector('.grid');
     expect(gridContainer).toHaveClass(
       'grid-cols-1',
+      'sm:grid-cols-1',
       'md:grid-cols-2',
       'lg:grid-cols-3'
     );

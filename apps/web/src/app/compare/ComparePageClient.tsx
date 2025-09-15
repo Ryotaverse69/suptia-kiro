@@ -152,11 +152,11 @@ export function ComparePageClient({ initialProducts }: ComparePageClientProps) {
     return (
         <div className="space-y-6">
             {/* 商品選択セクション */}
-            <div className="glass-effect rounded-3xl p-6 shadow-xl">
+            <div className="glass-effect rounded-xl p-6 shadow-sm">
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">
                     比較する商品を選択
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
                     {allComparisonProducts.map((product) => {
                         const isSelected = selectedProducts.find(p => p.id === product.id);
 
@@ -183,7 +183,7 @@ export function ComparePageClient({ initialProducts }: ComparePageClientProps) {
                                         <p className="text-xs text-gray-600 mt-1">
                                             {product.brand}
                                         </p>
-                                        <p className="text-xs text-blue-600 font-medium mt-1">
+                                        <p className="text-xs text-primary-600 font-medium mt-1">
                                             ¥{product.costPerDay.toFixed(0)}/日
                                         </p>
                                     </div>

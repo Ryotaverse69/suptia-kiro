@@ -18,8 +18,8 @@ import {
 
 // コンポーネントのインポート
 import { SearchBar } from '@/components/SearchBar';
-import { DiagnosisForm } from '@/components/diagnosis/DiagnosisForm';
-import { DiagnosisResult } from '@/components/diagnosis/DiagnosisResult';
+import DiagnosisForm from '@/components/diagnosis/DiagnosisForm';
+import DiagnosisResult from '@/components/diagnosis/DiagnosisResult';
 import { ComparisonTable } from '@/components/ComparisonTable';
 import { FavoritesList } from '@/components/FavoritesList';
 import { PriceTable } from '@/components/PriceTable';

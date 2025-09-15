@@ -3,16 +3,16 @@ import Link from 'next/link';
 export function Footer() {
   return (
     <footer className='bg-white border-t border-gray-200/50'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        {/* Main Footer Content */}
-        <div className='py-16'>
-          <div className='grid grid-cols-2 md:grid-cols-4 gap-8'>
+      <div className='max-w-7xl mx-auto container-padding'>
+        {/* Main Footer Content - Apple風広めの余白 */}
+        <div className='py-section-md'>
+          <div className='grid grid-cols-2 md:grid-cols-4 gap-component-xl'>
             {/* サプティアについて */}
             <div>
-              <h3 className='text-sm font-medium text-gray-900 mb-4'>
+              <h3 className='text-sm font-medium text-gray-900 mb-component-md'>
                 サプティア
               </h3>
-              <ul className='space-y-3'>
+              <ul className='flex flex-col gap-component-md'>
                 <li>
                   <Link
                     href='/about'
@@ -50,10 +50,10 @@ export function Footer() {
 
             {/* サポート */}
             <div>
-              <h3 className='text-sm font-medium text-gray-900 mb-4'>
+              <h3 className='text-sm font-medium text-gray-900 mb-component-md'>
                 サポート
               </h3>
-              <ul className='space-y-3'>
+              <ul className='flex flex-col gap-component-md'>
                 <li>
                   <Link
                     href='/contact'
@@ -83,10 +83,10 @@ export function Footer() {
 
             {/* 法的情報 */}
             <div>
-              <h3 className='text-sm font-medium text-gray-900 mb-4'>
+              <h3 className='text-sm font-medium text-gray-900 mb-component-md'>
                 法的情報
               </h3>
-              <ul className='space-y-3'>
+              <ul className='flex flex-col gap-component-md'>
                 <li>
                   <Link
                     href='/legal/privacy'
@@ -116,10 +116,10 @@ export function Footer() {
 
             {/* 会社情報 */}
             <div>
-              <h3 className='text-sm font-medium text-gray-900 mb-4'>
+              <h3 className='text-sm font-medium text-gray-900 mb-component-md'>
                 会社情報
               </h3>
-              <ul className='space-y-3'>
+              <ul className='flex flex-col gap-component-md'>
                 <li>
                   <Link
                     href='/company'
@@ -149,10 +149,10 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Section */}
-        <div className='border-t border-gray-200/50 py-8'>
-          <div className='flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0'>
-            <div className='flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6'>
+        {/* Bottom Section - Apple風広めの余白 */}
+        <div className='border-t border-gray-200/50 py-component-xl'>
+          <div className='flex flex-col md:flex-row justify-between items-center gap-component-md md:gap-0'>
+            <div className='flex flex-col md:flex-row items-center gap-component-sm md:gap-component-lg'>
               <p className='text-sm text-gray-600'>
                 © 2025 サプティア (Suptia). All rights reserved.
               </p>
@@ -161,14 +161,14 @@ export function Footer() {
               </p>
             </div>
 
-            <div className='flex items-center space-x-6'>
+            <div className='flex items-center gap-component-lg'>
               <Link
                 href='/sitemap'
                 className='text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200'
               >
                 サイトマップ
               </Link>
-              <div className='flex items-center space-x-2 text-xs text-gray-500'>
+              <div className='flex items-center gap-component-sm text-xs text-gray-500'>
                 <span>日本</span>
                 <svg
                   className='w-3 h-3'

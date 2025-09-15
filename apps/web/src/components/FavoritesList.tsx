@@ -151,7 +151,7 @@ export function FavoritesList({ onProductClick }: FavoritesListProps) {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-12">
-                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
                 <span className="ml-3 text-gray-600">読み込み中...</span>
             </div>
         );
@@ -183,7 +183,7 @@ export function FavoritesList({ onProductClick }: FavoritesListProps) {
                                 value={newCategoryName}
                                 onChange={(e) => setNewCategoryName(e.target.value)}
                                 placeholder="カテゴリ名を入力"
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 onKeyPress={(e) => e.key === 'Enter' && handleCreateCategory()}
                             />
                             <Button onClick={handleCreateCategory} size="sm">
@@ -208,7 +208,7 @@ export function FavoritesList({ onProductClick }: FavoritesListProps) {
                     <button
                         onClick={() => setSelectedCategory('all')}
                         className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${selectedCategory === 'all'
-                            ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                            ? 'bg-primary-100 text-primary-800 border border-primary-200'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                     >
@@ -217,7 +217,7 @@ export function FavoritesList({ onProductClick }: FavoritesListProps) {
                     <button
                         onClick={() => setSelectedCategory(null)}
                         className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${selectedCategory === null
-                            ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                            ? 'bg-primary-100 text-primary-800 border border-primary-200'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                     >
@@ -228,7 +228,7 @@ export function FavoritesList({ onProductClick }: FavoritesListProps) {
                             <button
                                 onClick={() => setSelectedCategory(category.id)}
                                 className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${selectedCategory === category.id
-                                    ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                    ? 'bg-primary-100 text-primary-800 border border-primary-200'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                     }`}
                             >
@@ -252,7 +252,7 @@ export function FavoritesList({ onProductClick }: FavoritesListProps) {
             {selectedProducts.size > 0 && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div className="flex items-center justify-between">
-                        <span className="text-blue-800 font-medium">
+                        <span className="text-primary-800 font-medium">
                             {selectedProducts.size}個の商品を選択中
                         </span>
                         <div className="flex gap-2">
@@ -319,7 +319,7 @@ export function FavoritesList({ onProductClick }: FavoritesListProps) {
                                         type="checkbox"
                                         checked={selectedProducts.has(product.id)}
                                         onChange={() => toggleProductSelection(product.id)}
-                                        className="ml-2 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                        className="ml-2 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                                     />
                                 </div>
 

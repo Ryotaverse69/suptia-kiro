@@ -81,7 +81,7 @@ export default function IngredientFilters({
                     <div className="flex items-center space-x-3">
                         <h3 className="text-lg font-semibold text-gray-900">フィルタ</h3>
                         {activeFiltersCount > 0 && (
-                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                            <span className="px-2 py-1 bg-blue-100 text-primary-800 text-sm rounded-full">
                                 {activeFiltersCount}個適用中
                             </span>
                         )}
@@ -124,7 +124,7 @@ export default function IngredientFilters({
                             value={filters.searchQuery}
                             onChange={(e) => onFiltersChange({ ...filters, searchQuery: e.target.value })}
                             placeholder="成分名を入力..."
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                         />
                     </div>
 
@@ -140,7 +140,7 @@ export default function IngredientFilters({
                                         type="checkbox"
                                         checked={filters.purposes.includes(purpose.id)}
                                         onChange={(e) => handlePurposeChange(purpose.id, e.target.checked)}
-                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                                     />
                                     <span className="text-sm text-gray-700 flex items-center space-x-1">
                                         <span>{purpose.icon}</span>
@@ -163,7 +163,7 @@ export default function IngredientFilters({
                                         type="checkbox"
                                         checked={filters.categories.includes(category.id)}
                                         onChange={(e) => handleCategoryChange(category.id, e.target.checked)}
-                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                                     />
                                     <span className="text-sm text-gray-700 flex items-center space-x-1">
                                         <span>{category.icon}</span>
@@ -186,7 +186,7 @@ export default function IngredientFilters({
                                         type="checkbox"
                                         checked={filters.forms.includes(form.id)}
                                         onChange={(e) => handleFormChange(form.id, e.target.checked)}
-                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                                     />
                                     <span className="text-sm text-gray-700">{form.name}</span>
                                 </label>
@@ -206,7 +206,7 @@ export default function IngredientFilters({
                                     name="priceRange"
                                     checked={!filters.priceRange}
                                     onChange={() => handlePriceRangeChange(null)}
-                                    className="text-blue-600 focus:ring-blue-500"
+                                    className="text-primary-600 focus:ring-primary-500"
                                 />
                                 <span className="text-sm text-gray-700">すべて</span>
                             </label>
@@ -217,7 +217,7 @@ export default function IngredientFilters({
                                         name="priceRange"
                                         checked={filters.priceRange?.id === range.id}
                                         onChange={() => handlePriceRangeChange(range)}
-                                        className="text-blue-600 focus:ring-blue-500"
+                                        className="text-primary-600 focus:ring-primary-500"
                                     />
                                     <span className="text-sm text-gray-700">{range.name}</span>
                                 </label>
@@ -241,7 +241,7 @@ export default function IngredientFilters({
                                         type="checkbox"
                                         checked={filters.evidenceLevel.includes(level)}
                                         onChange={(e) => handleEvidenceLevelChange(level, e.target.checked)}
-                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                                     />
                                     <span className={`text-sm ${color}`}>{name}</span>
                                 </label>
@@ -258,7 +258,7 @@ export default function IngredientFilters({
                             <select
                                 value={filters.sortBy}
                                 onChange={(e) => handleSortChange(e.target.value as FilterState['sortBy'], filters.sortOrder)}
-                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                             >
                                 <option value="name">名前</option>
                                 <option value="evidence">エビデンス</option>
@@ -267,7 +267,7 @@ export default function IngredientFilters({
                             <select
                                 value={filters.sortOrder}
                                 onChange={(e) => handleSortChange(filters.sortBy, e.target.value as FilterState['sortOrder'])}
-                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                             >
                                 <option value="asc">昇順</option>
                                 <option value="desc">降順</option>

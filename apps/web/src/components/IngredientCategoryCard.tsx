@@ -11,13 +11,13 @@ export default function IngredientCategoryCard({ category }: IngredientCategoryC
     return (
         <Link
             href={`/ingredients/${category.id}`}
-            className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-gray-200 overflow-hidden group"
+            className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden group"
         >
             <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
                         <span className="text-2xl">{category.icon}</span>
-                        <h3 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        <h3 className="text-xl font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
                             {category.name}
                         </h3>
                     </div>
@@ -31,11 +31,11 @@ export default function IngredientCategoryCard({ category }: IngredientCategoryC
                 </p>
 
                 <div className="flex items-center justify-between">
-                    <span className="text-blue-600 text-sm font-medium group-hover:text-blue-700">
+                    <span className="text-primary-600 text-sm font-medium group-hover:text-primary-700">
                         詳しく見る
                     </span>
                     <svg
-                        className="w-4 h-4 text-blue-600 group-hover:text-blue-700 group-hover:translate-x-1 transition-all duration-200"
+                        className="w-4 h-4 text-primary-600 group-hover:text-primary-700 group-hover:translate-x-1 transition-all duration-200"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"

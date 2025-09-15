@@ -231,10 +231,9 @@ export function SearchBar({
           className={`
             ${styles.input}
             w-full
-            ${
-              variant === 'glass'
-                ? 'rounded-full bg-gray-50 border border-gray-200 shadow-[0_2px_10px_rgba(0,0,0,0.06)] focus:border-emerald-500 focus:ring-4 focus:ring-emerald-400/20'
-                : 'rounded-2xl bg-white border-2 border-gray-200 shadow-lg focus:border-primary-500 focus:ring-4 focus:ring-primary-100'
+            ${variant === 'glass'
+              ? 'rounded-full bg-gray-50 border border-gray-200 shadow-[0_1px_6px_rgba(0,0,0,0.04)] focus:border-emerald-500 focus:ring-4 focus:ring-emerald-400/20'
+              : 'rounded-xl bg-white border-2 border-gray-200 shadow-sm focus:border-primary-500 focus:ring-4 focus:ring-primary-100'
             }
             focus:outline-none
             transition-all duration-200
@@ -253,19 +252,18 @@ export function SearchBar({
             right-2
             top-1/2
             -translate-y-1/2
-            ${
-              variant === 'glass'
-                ? 'bg-emerald-500 hover:bg-emerald-600 ring-1 ring-emerald-900/20'
-                : 'bg-primary-600 hover:bg-primary-700'
+            ${variant === 'glass'
+              ? 'bg-emerald-500 hover:bg-emerald-600 ring-1 ring-emerald-900/20'
+              : 'bg-primary-600 hover:bg-primary-700'
             }
             disabled:bg-gray-300
             disabled:cursor-not-allowed
             text-white
             font-semibold
-            ${variant === 'glass' ? 'rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.12)]' : 'rounded-xl'}
+            ${variant === 'glass' ? 'rounded-full shadow-[0_1px_4px_rgba(0,0,0,0.08)]' : 'rounded-xl'}
             transition-all
             duration-200
-            hover:shadow-lg
+            hover:shadow-md
             focus:outline-none
             focus:ring-2
             ${variant === 'glass' ? 'focus:ring-emerald-500' : 'focus:ring-primary-500'}
@@ -282,7 +280,7 @@ export function SearchBar({
           id='search-recommendations'
           role='listbox'
           aria-label='AIレコメンド'
-          className='absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 overflow-hidden'
+          className='absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-md z-50 overflow-hidden'
         >
           <div className='p-4 border-b border-gray-100'>
             <h3 className='text-sm font-semibold text-gray-700 flex items-center gap-2'>
@@ -306,9 +304,8 @@ export function SearchBar({
                 onClick={() => handleRecommendationClick(recommendation)}
                 onFocus={() => setSelectedIndex(index)}
                 onBlur={handleBlur}
-                className={`w-full p-4 text-left transition-colors border-b border-gray-50 last:border-b-0 ${
-                  selectedIndex === index ? 'bg-primary-50' : 'hover:bg-gray-50'
-                }`}
+                className={`w-full p-4 text-left transition-colors border-b border-gray-50 last:border-b-0 ${selectedIndex === index ? 'bg-primary-50' : 'hover:bg-gray-50'
+                  }`}
               >
                 <div className='flex items-start justify-between gap-3'>
                   <div className='flex-1 min-w-0'>

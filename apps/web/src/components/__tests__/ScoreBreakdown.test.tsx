@@ -110,24 +110,24 @@ describe('ScoreBreakdown', () => {
   describe('基本表示', () => {
     it('スコア詳細分析のタイトルが表示される', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       expect(screen.getByText('スコア詳細分析')).toBeInTheDocument();
       expect(screen.getByText('各要素をクリックして詳細な計算根拠を確認できます')).toBeInTheDocument();
     });
 
     it('4つのスコア要素セクションが表示される', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       expect(screen.getByText('エビデンス')).toBeInTheDocument();
       expect(screen.getByText('安全性')).toBeInTheDocument();
       expect(screen.getByText('コスト')).toBeInTheDocument();
@@ -136,17 +136,17 @@ describe('ScoreBreakdown', () => {
 
     it('各セクションにスコア値と重みが表示される', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       // エビデンスセクション
       const evidenceSection = screen.getByText('エビデンス').closest('button');
       expect(within(evidenceSection!).getByText('85.0')).toBeInTheDocument();
       expect(within(evidenceSection!).getByText(/重み 35%/)).toBeInTheDocument();
-      
+
       // 安全性セクション
       const safetySection = screen.getByText('安全性').closest('button');
       expect(within(safetySection!).getByText('75.0')).toBeInTheDocument();
@@ -155,15 +155,15 @@ describe('ScoreBreakdown', () => {
 
     it('重み設定の説明が表示される', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       expect(screen.getByText('重み設定について')).toBeInTheDocument();
       expect(screen.getByText('総合スコアは以下の重み付けで計算されています：')).toBeInTheDocument();
-      
+
       // 重みパーセンテージの確認
       expect(screen.getByText('35%')).toBeInTheDocument(); // エビデンス
       expect(screen.getByText('30%')).toBeInTheDocument(); // 安全性
@@ -175,12 +175,12 @@ describe('ScoreBreakdown', () => {
   describe('展開/折りたたみ機能', () => {
     it('初期状態では詳細が非表示になっている', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       // 詳細コンテンツが非表示
       expect(screen.queryByText('エビデンススコアは成分の科学的根拠の質を評価します')).not.toBeInTheDocument();
       expect(screen.queryByText('計算要因')).not.toBeInTheDocument();
@@ -188,16 +188,16 @@ describe('ScoreBreakdown', () => {
 
     it('セクションをクリックすると詳細が展開される', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       // エビデンスセクションをクリック
       const evidenceButton = screen.getByRole('button', { name: /エビデンス/ });
       fireEvent.click(evidenceButton);
-      
+
       // 詳細コンテンツが表示される
       expect(screen.getByText('エビデンススコアは成分の科学的根拠の質を評価します')).toBeInTheDocument();
       expect(screen.getByText('計算要因')).toBeInTheDocument();
@@ -206,18 +206,18 @@ describe('ScoreBreakdown', () => {
 
     it('展開されたセクションを再度クリックすると折りたたまれる', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       const evidenceButton = screen.getByRole('button', { name: /エビデンス/ });
-      
+
       // 展開
       fireEvent.click(evidenceButton);
       expect(screen.getByText('エビデンススコアは成分の科学的根拠の質を評価します')).toBeInTheDocument();
-      
+
       // 折りたたみ
       fireEvent.click(evidenceButton);
       expect(screen.queryByText('エビデンススコアは成分の科学的根拠の質を評価します')).not.toBeInTheDocument();
@@ -225,17 +225,17 @@ describe('ScoreBreakdown', () => {
 
     it('aria-expanded属性が正しく設定される', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       const evidenceButton = screen.getByRole('button', { name: /エビデンス/ });
-      
+
       // 初期状態
       expect(evidenceButton).toHaveAttribute('aria-expanded', 'false');
-      
+
       // 展開後
       fireEvent.click(evidenceButton);
       expect(evidenceButton).toHaveAttribute('aria-expanded', 'true');
@@ -245,53 +245,53 @@ describe('ScoreBreakdown', () => {
   describe('要因表示', () => {
     it('単一要因の場合、貢献度が表示されない', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       // エビデンスセクションを展開（単一要因）
       const evidenceButton = screen.getByRole('button', { name: /エビデンス/ });
       fireEvent.click(evidenceButton);
-      
+
       // 貢献度セクションが表示されない
       expect(screen.queryByText('貢献度')).not.toBeInTheDocument();
     });
 
     it('複数要因の場合、貢献度が表示される', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       // 実用性セクションを展開（複数要因）
       const practicalityButton = screen.getByRole('button', { name: /実用性/ });
       fireEvent.click(practicalityButton);
-      
+
       // 貢献度セクションが表示される
       expect(screen.getAllByText('貢献度')).toHaveLength(3); // 3つの要因
     });
 
     it('要因の詳細情報が正しく表示される', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       // 実用性セクションを展開
       const practicalityButton = screen.getByRole('button', { name: /実用性/ });
       fireEvent.click(practicalityButton);
-      
+
       // 各要因の情報を確認
       expect(screen.getByText('摂取頻度')).toBeInTheDocument();
       expect(screen.getByText('1日2回摂取')).toBeInTheDocument();
       expect(screen.getAllByText(/重み 40%/)[0]).toBeInTheDocument();
-      
+
       expect(screen.getByText('剤形')).toBeInTheDocument();
       expect(screen.getByText('capsule形式')).toBeInTheDocument();
       expect(screen.getAllByText(/重み 30%/)[0]).toBeInTheDocument();
@@ -301,16 +301,16 @@ describe('ScoreBreakdown', () => {
   describe('データ不足時の表示', () => {
     it('データ不足の警告が表示される', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockIncompleteScoreResult.breakdown} 
-          weights={mockIncompleteScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockIncompleteScoreResult.breakdown}
+          weights={mockIncompleteScoreResult.weights}
         />
       );
-      
+
       // エビデンスセクションを展開
       const evidenceButton = screen.getByRole('button', { name: /エビデンス/ });
       fireEvent.click(evidenceButton);
-      
+
       // 注意事項が表示される
       expect(screen.getByText('注意事項')).toBeInTheDocument();
       expect(screen.getByText(/一部のデータが不足しているため/)).toBeInTheDocument();
@@ -318,16 +318,16 @@ describe('ScoreBreakdown', () => {
 
     it('エラー要因の説明が表示される', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockIncompleteScoreResult.breakdown} 
-          weights={mockIncompleteScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockIncompleteScoreResult.breakdown}
+          weights={mockIncompleteScoreResult.weights}
         />
       );
-      
+
       // エビデンスセクションを展開
       const evidenceButton = screen.getByRole('button', { name: /エビデンス/ });
       fireEvent.click(evidenceButton);
-      
+
       // エラー説明が表示される
       expect(screen.getByText('成分データが不足しています')).toBeInTheDocument();
     });
@@ -336,12 +336,12 @@ describe('ScoreBreakdown', () => {
   describe('アクセシビリティ', () => {
     it('スクリーンリーダー用の隠しテキストが含まれる', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       // sr-onlyクラスの要素を確認
       const srOnlyElement = document.querySelector('.sr-only');
       expect(srOnlyElement).toBeInTheDocument();
@@ -350,20 +350,20 @@ describe('ScoreBreakdown', () => {
 
     it('プログレスバーに適切なaria属性が設定される', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       // 実用性セクションを展開
       const practicalityButton = screen.getByRole('button', { name: /実用性/ });
       fireEvent.click(practicalityButton);
-      
+
       // プログレスバーのaria属性を確認
       const progressBars = screen.getAllByRole('progressbar');
       expect(progressBars.length).toBeGreaterThan(0);
-      
+
       progressBars.forEach(progressBar => {
         expect(progressBar).toHaveAttribute('aria-valuenow');
         expect(progressBar).toHaveAttribute('aria-valuemin', '0');
@@ -374,18 +374,18 @@ describe('ScoreBreakdown', () => {
 
     it('キーボードナビゲーションが機能する', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       const evidenceButton = screen.getByRole('button', { name: /エビデンス/ });
-      
+
       // フォーカス可能
       evidenceButton.focus();
       expect(evidenceButton).toHaveFocus();
-      
+
       // Enterキーで展開（実際にはクリックイベントをシミュレート）
       fireEvent.click(evidenceButton);
       expect(screen.getByText('エビデンススコアは成分の科学的根拠の質を評価します')).toBeInTheDocument();
@@ -404,14 +404,14 @@ describe('ScoreBreakdown', () => {
           }
         }
       };
-      
+
       render(
-        <ScoreBreakdown 
-          breakdown={highScoreData.breakdown} 
-          weights={highScoreData.weights} 
+        <ScoreBreakdown
+          breakdown={highScoreData.breakdown}
+          weights={highScoreData.weights}
         />
       );
-      
+
       // ボタン要素の親要素（セクション全体）を取得
       const evidenceButton = screen.getByRole('button', { name: /エビデンス/ });
       const evidenceSection = evidenceButton.parentElement;
@@ -429,17 +429,17 @@ describe('ScoreBreakdown', () => {
           }
         }
       };
-      
+
       render(
-        <ScoreBreakdown 
-          breakdown={mediumScoreData.breakdown} 
-          weights={mediumScoreData.weights} 
+        <ScoreBreakdown
+          breakdown={mediumScoreData.breakdown}
+          weights={mediumScoreData.weights}
         />
       );
-      
+
       const safetyButton = screen.getByRole('button', { name: /安全性/ });
       const safetySection = safetyButton.parentElement;
-      expect(safetySection).toHaveClass('border-blue-200');
+      expect(safetySection).toHaveClass('border-primary-200');
     });
 
     it('低スコア（40未満）で赤色が適用される', () => {
@@ -453,14 +453,14 @@ describe('ScoreBreakdown', () => {
           }
         }
       };
-      
+
       render(
-        <ScoreBreakdown 
-          breakdown={lowScoreData.breakdown} 
-          weights={lowScoreData.weights} 
+        <ScoreBreakdown
+          breakdown={lowScoreData.breakdown}
+          weights={lowScoreData.weights}
         />
       );
-      
+
       const costButton = screen.getByRole('button', { name: /コスト/ });
       const costSection = costButton.parentElement;
       expect(costSection).toHaveClass('border-red-200');
@@ -475,14 +475,14 @@ describe('ScoreBreakdown', () => {
         configurable: true,
         value: 375,
       });
-      
+
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       // モバイル用のスタックレイアウトクラスが適用されている
       const container = document.querySelector('.space-y-4');
       expect(container).toBeInTheDocument();
@@ -495,14 +495,14 @@ describe('ScoreBreakdown', () => {
         configurable: true,
         value: 1024,
       });
-      
+
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       // デスクトップ用のレイアウトクラスが適用されている（重み説明セクションも含む）
       const sections = document.querySelectorAll('.border.rounded-lg');
       expect(sections.length).toBeGreaterThanOrEqual(4); // 4つのスコア要素 + 重み説明セクション
@@ -510,12 +510,12 @@ describe('ScoreBreakdown', () => {
 
     it('タブレットサイズで適切なフォントサイズになる', () => {
       render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
-          weights={mockScoreResult.weights} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
+          weights={mockScoreResult.weights}
         />
       );
-      
+
       // レスポンシブフォントクラスが適用されている
       const responsiveText = document.querySelectorAll('.text-sm, .text-base, .text-lg');
       expect(responsiveText.length).toBeGreaterThan(0);
@@ -540,23 +540,23 @@ describe('ScoreBreakdown', () => {
           }
         }
       };
-      
+
       const startTime = performance.now();
       render(
-        <ScoreBreakdown 
-          breakdown={largeFactorsData.breakdown} 
-          weights={largeFactorsData.weights} 
+        <ScoreBreakdown
+          breakdown={largeFactorsData.breakdown}
+          weights={largeFactorsData.weights}
         />
       );
       const endTime = performance.now();
-      
+
       // レンダリング時間が合理的な範囲内（1秒未満）
       expect(endTime - startTime).toBeLessThan(1000);
-      
+
       // 実用性セクションを展開
       const practicalityButton = screen.getByRole('button', { name: /実用性/ });
       fireEvent.click(practicalityButton);
-      
+
       // すべての要因が表示される
       expect(screen.getByText('要因1')).toBeInTheDocument();
       expect(screen.getByText('要因20')).toBeInTheDocument();
@@ -576,18 +576,18 @@ describe('ScoreBreakdown', () => {
           }
         }
       };
-      
+
       render(
-        <ScoreBreakdown 
-          breakdown={emptyFactorsData.breakdown} 
-          weights={emptyFactorsData.weights} 
+        <ScoreBreakdown
+          breakdown={emptyFactorsData.breakdown}
+          weights={emptyFactorsData.weights}
         />
       );
-      
+
       // エビデンスセクションを展開
       const evidenceButton = screen.getByRole('button', { name: /エビデンス/ });
       fireEvent.click(evidenceButton);
-      
+
       // エラーが発生せずに表示される
       expect(screen.getByText('データが不足しています')).toBeInTheDocument();
     });
@@ -599,12 +599,12 @@ describe('ScoreBreakdown', () => {
         cost: 1.5,
         practicality: 0.15
       };
-      
+
       expect(() => {
         render(
-          <ScoreBreakdown 
-            breakdown={mockScoreResult.breakdown} 
-            weights={invalidWeightsData} 
+          <ScoreBreakdown
+            breakdown={mockScoreResult.breakdown}
+            weights={invalidWeightsData}
           />
         );
       }).not.toThrow();
@@ -617,12 +617,12 @@ describe('ScoreBreakdown', () => {
         cost: { score: 0, factors: [], explanation: 'データなし' },
         practicality: { score: 0, factors: [], explanation: 'データなし' }
       };
-      
+
       expect(() => {
         render(
-          <ScoreBreakdown 
-            breakdown={incompleteBreakdown} 
-            weights={mockScoreResult.weights} 
+          <ScoreBreakdown
+            breakdown={incompleteBreakdown}
+            weights={mockScoreResult.weights}
           />
         );
       }).not.toThrow();
@@ -632,13 +632,13 @@ describe('ScoreBreakdown', () => {
   describe('カスタムクラス', () => {
     it('カスタムクラス名が適用される', () => {
       const { container } = render(
-        <ScoreBreakdown 
-          breakdown={mockScoreResult.breakdown} 
+        <ScoreBreakdown
+          breakdown={mockScoreResult.breakdown}
           weights={mockScoreResult.weights}
           className="custom-breakdown"
         />
       );
-      
+
       expect(container.firstChild).toHaveClass('custom-breakdown');
     });
   });

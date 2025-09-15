@@ -181,30 +181,105 @@ test.describe('アクセシビリティテスト', () => {
     });
 
     test('スキップリンクが機能する', async ({ page }) => {
-      // スキップリンクを探す
-      const skipLink = page
-        .locator('a')
-        .filter({ hasText: /スキップ|skip/i })
-        .first();
+      // Tabキーでスキップリンクにフォーカス
+      await page.keyboard.press('Tab');
+      
+      // スキップリンクが表示されることを確認
+      const skipLink = page.locator('a[href="#main-content"]');
+      await expect(skipLink).toBeFocused();
+      await expect(skipLink).toBeVisible();
 
-      if (await skipLink.isVisible()) {
-        await skipLink.focus();
-        await expect(skipLink).toBeFocused();
+      // Enterキーでスキップリンクを活性化
+      await page.keyboard.press('Enter');
+      await page.waitForTimeout(500);
 
-        // スキップリンクをクリック
-        await skipLink.click();
+      // メインコンテンツが存在することを確認
+      const mainContent = page.locator('#main-content');
+      await expect(mainContent).toBeVisible();
+      await expect(mainContent).toBeFocused();
+    });
 
-        // メインコンテンツが存在することを確認（フォーカスは必須ではない）
-        const mainContent = page
-          .locator('#main-content, main, [role="main"]')
-          .first();
-        if (await mainContent.isVisible()) {
-          await expect(mainContent).toBeVisible();
-        }
-      } else {
-        // スキップリンクが存在しない場合はテストをスキップ
-        test.skip();
-      }
+    test('キーボードのみで検索→比較→詳細カードCTAまで到達できる', async ({ page }) => {
+      // 1. 検索バーに直接フォーカス
+      const searchInput = page.locator('input[type="text"][role="combobox"]');
+      await searchInput.focus();
+      await expect(searchInput).toBeFocused();
+
+      // 2. 検索クエリを入力
+      await searchInput.fill('ビタミンD');
+      
+      // 3. Enterキーで検索実行
+      await page.keyboard.press('Enter');
+      
+      // 4. 比較セクションが表示されるまで待機
+      await page.waitForTimeout(2000);
+      
+      // 5. 比較セクションが存在することを確認
+      const comparisonsSection = page.locator('#popular-comparisons-section');
+      await expect(comparisonsSection).toBeVisible();
+      
+      // 6. 比較セクションの最初のカードを探す
+      const firstCompareCard = page.locator('[role="article"]').first().locator('button').last(); // 詳細ボタンを選択
+      await expect(firstCompareCard).toBeVisible();
+      
+      // 7. カードにフォーカスを移動
+      await firstCompareCard.focus();
+      await expect(firstCompareCard).toBeFocused();
+      
+      // 8. Enterキーで詳細を表示
+      await page.keyboard.press('Enter');
+      
+      // エラーが発生しないことを確認
+      await page.waitForTimeout(500);
+      await expect(page.locator('body')).toBeVisible();
+    });
+
+    test('矢印キーで比較カード間を移動できる', async ({ page }) => {
+      // 比較セクションが存在することを確認
+      const comparisonsSection = page.locator('#popular-comparisons-section');
+      await expect(comparisonsSection).toBeVisible();
+      
+      // 比較セクションまでスクロール
+      await comparisonsSection.scrollIntoViewIfNeeded();
+      
+      // 最初の比較カードにフォーカス
+      const firstCard = page.locator('[role="article"]').first().locator('button').last(); // 詳細ボタン
+      await firstCard.focus();
+      await expect(firstCard).toBeFocused();
+      
+      // 右矢印キーで次のカードに移動
+      await page.keyboard.press('ArrowRight');
+      
+      // 2番目のカードにフォーカスが移動していることを確認
+      const secondCard = page.locator('[role="article"]').nth(1).locator('button').last(); // 詳細ボタン
+      await expect(secondCard).toBeFocused();
+      
+      // 左矢印キーで前のカードに戻る
+      await page.keyboard.press('ArrowLeft');
+      await expect(firstCard).toBeFocused();
+    });
+
+    test('グローバルキーボードショートカットが機能する', async ({ page }) => {
+      // Alt + S: 検索バーにフォーカス
+      await page.keyboard.press('Alt+s');
+      await page.waitForTimeout(500);
+      const searchInput = page.locator('input[type="text"][role="combobox"]');
+      await expect(searchInput).toBeFocused();
+      
+      // Alt + C: 比較セクションにナビゲート
+      await page.keyboard.press('Alt+c');
+      await page.waitForTimeout(1000);
+      
+      // 比較セクションが表示されていることを確認
+      const comparisonsSection = page.locator('#popular-comparisons-section');
+      await expect(comparisonsSection).toBeInViewport();
+      
+      // Alt + M: メインコンテンツにナビゲート
+      await page.keyboard.press('Alt+m');
+      await page.waitForTimeout(500);
+      
+      const mainContent = page.locator('#main-content');
+      await expect(mainContent).toBeFocused();
     });
   });
 

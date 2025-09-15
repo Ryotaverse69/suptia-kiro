@@ -8,7 +8,7 @@ export interface AccessibleBannerProps extends React.HTMLAttributes<HTMLDivEleme
 
 export function AccessibleBanner({ status = 'info', title, children, className = '', ...rest }: AccessibleBannerProps) {
   const styles: Record<string, { wrap: string; title: string; text: string }> = {
-    info: { wrap: 'bg-blue-50 border-blue-200', title: 'text-blue-800', text: 'text-blue-700' },
+    info: { wrap: 'bg-primary-50 border-primary-200', title: 'text-primary-800', text: 'text-primary-700' },
     warning: { wrap: 'bg-yellow-50 border-yellow-200', title: 'text-yellow-800', text: 'text-yellow-700' },
     error: { wrap: 'bg-red-50 border-red-200', title: 'text-red-800', text: 'text-red-700' },
     success: { wrap: 'bg-green-50 border-green-200', title: 'text-green-800', text: 'text-green-700' },

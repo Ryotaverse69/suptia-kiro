@@ -26,7 +26,7 @@ export default function TrustIndicatorsSection() {
           {items.map(it => (
             <div
               key={it.title}
-              className='glass-effect rounded-2xl p-6 shadow-soft text-center'
+              className='glass-effect rounded-xl p-6 shadow-soft text-center'
             >
               <div className='text-3xl mb-2' aria-hidden='true'>
                 {it.icon}

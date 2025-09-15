@@ -59,7 +59,7 @@ interface FactorDisplayProps {
  */
 function getScoreColorClass(score: number): string {
   if (score >= 80) return 'text-green-600 bg-green-100 border-green-200';
-  if (score >= 60) return 'text-blue-600 bg-blue-100 border-blue-200';
+  if (score >= 60) return 'text-primary-600 bg-primary-100 border-primary-200';
   if (score >= 40) return 'text-yellow-600 bg-yellow-100 border-yellow-200';
   return 'text-red-600 bg-red-100 border-red-200';
 }
@@ -247,7 +247,7 @@ const CollapsibleSection = memo(function CollapsibleSection({
         ref={buttonRef}
         onClick={toggleExpanded}
         onKeyDown={handleKeyDown}
-        className="w-full px-4 py-3 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-lg hover:bg-black hover:bg-opacity-5 transition-colors"
+        className="w-full px-4 py-3 text-left focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-inset rounded-lg hover:bg-black hover:bg-opacity-5 transition-colors"
         aria-expanded={isExpanded}
         aria-controls={sectionId}
         aria-describedby={`${sectionId}-description`}
@@ -584,7 +584,7 @@ export const ScoreBreakdown = memo(function ScoreBreakdown({
         <h4 id="weight-settings-title" className="font-medium text-blue-900 mb-2">
           重み設定について
         </h4>
-        <p className="text-sm text-blue-800 mb-3">
+        <p className="text-sm text-primary-800 mb-3">
           総合スコアは以下の重み付けで計算されています：
         </p>
         <div className="grid grid-cols-2 gap-2 text-sm" role="list" aria-label="重み設定一覧">

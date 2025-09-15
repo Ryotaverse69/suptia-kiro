@@ -25,7 +25,7 @@ export default function ContactPage() {
                                     id="name"
                                     name="name"
                                     required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                 />
                             </div>
 
@@ -38,7 +38,7 @@ export default function ContactPage() {
                                     id="email"
                                     name="email"
                                     required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                 />
                             </div>
 
@@ -50,7 +50,7 @@ export default function ContactPage() {
                                     id="subject"
                                     name="subject"
                                     required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                 >
                                     <option value="">選択してください</option>
                                     <option value="general">一般的なお問い合わせ</option>
@@ -70,14 +70,14 @@ export default function ContactPage() {
                                     name="message"
                                     rows={6}
                                     required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                     placeholder="お問い合わせ内容をご記入ください"
                                 ></textarea>
                             </div>
 
                             <button
                                 type="submit"
-                                className="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                className="w-full bg-primary-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-primary-700 transition-colors duration-200"
                             >
                                 送信する
                             </button>
@@ -91,17 +91,17 @@ export default function ContactPage() {
                         <div className="space-y-6">
                             <div className="flex items-start space-x-4">
                                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-semibold text-gray-900 mb-2">メール</h3>
                                     <p className="text-gray-600">
-                                        一般的なお問い合わせ: <a href="mailto:contact@suptia.com" className="text-blue-600 hover:text-blue-700">contact@suptia.com</a>
+                                        一般的なお問い合わせ: <a href="mailto:contact@suptia.com" className="text-primary-600 hover:text-primary-700">contact@suptia.com</a>
                                     </p>
                                     <p className="text-gray-600">
-                                        技術サポート: <a href="mailto:support@suptia.com" className="text-blue-600 hover:text-blue-700">support@suptia.com</a>
+                                        技術サポート: <a href="mailto:support@suptia.com" className="text-primary-600 hover:text-primary-700">support@suptia.com</a>
                                     </p>
                                 </div>
                             </div>
@@ -132,7 +132,7 @@ export default function ContactPage() {
                                     <p className="text-gray-600 mb-2">
                                         お問い合わせ前に、よくある質問もご確認ください。
                                     </p>
-                                    <a href="/faq" className="text-blue-600 hover:text-blue-700 font-medium">
+                                    <a href="/faq" className="text-primary-600 hover:text-primary-700 font-medium">
                                         FAQを見る →
                                     </a>
                                 </div>

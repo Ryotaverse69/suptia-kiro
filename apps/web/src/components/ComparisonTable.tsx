@@ -144,7 +144,7 @@ export function ComparisonTable({ products, onProductRemove, className = '' }: C
             return (
                 <button
                     onClick={() => handleProductClick(product)}
-                    className="text-left font-medium text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                    className="text-left font-medium text-primary-600 hover:text-primary-800 hover:underline transition-colors"
                 >
                     {Array.isArray(value) ? JSON.stringify(value) : String(value)}
                 </button>
@@ -224,7 +224,7 @@ export function ComparisonTable({ products, onProductRemove, className = '' }: C
 
             <div className="overflow-x-auto">
                 <table className="w-full min-w-[800px]">
-                    <thead className="bg-gray-50 sticky top-0 z-10">
+                    <thead className="bg-white sticky top-0 z-10 border-b border-gray-200">
                         <tr>
                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 操作
@@ -232,7 +232,7 @@ export function ComparisonTable({ products, onProductRemove, className = '' }: C
                             {visibleCriteria.map((criteria) => (
                                 <th
                                     key={criteria.field}
-                                    className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${criteria.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
+                                    className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${criteria.sortable ? 'cursor-pointer hover:bg-gray-50' : ''
                                         }`}
                                     onClick={() => criteria.sortable && handleSort(criteria.field)}
                                 >
@@ -250,7 +250,7 @@ export function ComparisonTable({ products, onProductRemove, className = '' }: C
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                         {sortedProducts.map((product) => (
-                            <tr key={product.id} className="hover:bg-gray-50">
+                            <tr key={product.id} className="hover:bg-gray-50/50">
                                 <td className="px-4 py-4 whitespace-nowrap">
                                     <Button
                                         variant="outline"

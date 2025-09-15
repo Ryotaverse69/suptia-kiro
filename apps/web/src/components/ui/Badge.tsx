@@ -48,6 +48,12 @@ const badgeVariants = cva(
         // エビデンス強度C: 低い信頼性
         evidenceC:
           'border-red-400 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold shadow-soft',
+
+        // スコア評価用バリアント
+        high: 'border-green-400 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold shadow-soft',
+        medium: 'border-yellow-400 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold shadow-soft',
+        low: 'border-red-400 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold shadow-soft',
+        danger: 'border-red-500 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold shadow-soft',
       },
       size: {
         sm: 'px-2 py-0.5 text-xs',
@@ -71,7 +77,7 @@ const badgeVariants = cva(
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+  VariantProps<typeof badgeVariants> { }
 
 function Badge({ className, variant, size, hover, ...props }: BadgeProps) {
   return (

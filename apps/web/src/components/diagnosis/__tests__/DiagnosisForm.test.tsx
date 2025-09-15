@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import DiagnosisForm from '../DiagnosisForm';
 
 // Next.js routerをモック
@@ -36,7 +37,7 @@ describe('DiagnosisForm', () => {
         fireEvent.click(option);
 
         // 選択状態のスタイルが適用されることを確認
-        expect(option.closest('button')).toHaveClass('border-blue-500');
+        expect(option.closest('button')).toHaveClass('border-primary-600');
     });
 
     it('複数選択の質問で複数の選択肢を選べる', () => {
@@ -48,8 +49,8 @@ describe('DiagnosisForm', () => {
         fireEvent.click(option1);
         fireEvent.click(option2);
 
-        expect(option1.closest('button')).toHaveClass('border-blue-500');
-        expect(option2.closest('button')).toHaveClass('border-blue-500');
+        expect(option1.closest('button')).toHaveClass('border-primary-600');
+        expect(option2.closest('button')).toHaveClass('border-primary-600');
     });
 
     it('必須質問で回答しないと次に進めない', () => {

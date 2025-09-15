@@ -20,7 +20,7 @@ export default function HomeSearchSection() {
       {/* 大型検索窓（AIレコメンド機能付き） */}
       <div className='mb-12 max-w-3xl mx-auto'>
         <div className='relative'>
-          <div className='absolute -inset-1 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-3xl blur opacity-20 animate-pulse-gentle'></div>
+          <div className='absolute -inset-1 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-xl blur opacity-20 animate-pulse-gentle'></div>
           <div className='relative'>
             <AIRecommendationSearchBar
               onSearch={handleSearch}

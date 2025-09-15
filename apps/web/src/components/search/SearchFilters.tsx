@@ -59,7 +59,7 @@ export function SearchFilters({
             {aiSelectedConditions.map((c, i) => (
               <button
                 key={i}
-                className='px-3 py-1 rounded-full text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors'
+                className='px-3 py-1 rounded-full text-xs bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors'
                 onClick={() => {
                   if (c === '疲労回復') togglePurpose('疲労回復');
                   if (c.includes('¥')) setPrice(1, 2000);
@@ -89,7 +89,7 @@ export function SearchFilters({
                   type='checkbox'
                   checked={value.purposes.includes(p)}
                   onChange={() => togglePurpose(p)}
-                  className='rounded border-gray-300 text-blue-600 focus:ring-blue-500'
+                  className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
                 />
                 <span className='text-gray-700'>{p}</span>
               </label>

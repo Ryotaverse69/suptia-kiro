@@ -33,12 +33,12 @@ export default function HomePrimaryActions() {
             <a
               key={card.href}
               href={card.href}
-              className='glass-effect rounded-2xl p-7 shadow-soft hover:shadow-strong transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
+              className='glass-effect rounded-xl p-7 shadow-soft hover:shadow-strong transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
             >
               <div className='text-3xl mb-3'>{card.icon}</div>
-              <h3 className='text-xl font-bold text-gray-900 mb-1'>
+              <h2 className='text-xl font-bold text-gray-900 mb-1'>
                 {card.title}
-              </h3>
+              </h2>
               <p className='text-gray-600'>{card.desc}</p>
             </a>
           ))}

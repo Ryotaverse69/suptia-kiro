@@ -49,8 +49,8 @@ export default function IngredientCard({
 
   return (
     <article
-      className={`bg-white rounded-2xl p-4 sm:p-6 lg:p-8 border-2 ${categoryColor} cursor-pointer 
-                       transition-all duration-400 hover:shadow-2xl hover:-translate-y-2 
+      className={`bg-white rounded-xl p-4 sm:p-6 lg:p-8 border-2 ${categoryColor} cursor-pointer 
+                       transition-all duration-400 hover:shadow-md hover:-translate-y-2 
                        hover:scale-[1.02] group apple-hover`}
       onClick={onClick}
       role='article'
@@ -64,8 +64,8 @@ export default function IngredientCard({
         }
       }}
     >
-      {/* 成分画像 */}
-      <div className='mb-4 sm:mb-6 flex justify-center'>
+      {/* 成分画像 - Apple風広めの余白 */}
+      <div className='mb-component-lg flex justify-center'>
         <div className='w-12 h-12 sm:w-16 sm:h-16 relative rounded-xl overflow-hidden'>
           <IngredientImage
             src={
@@ -77,11 +77,11 @@ export default function IngredientCard({
         </div>
       </div>
 
-      {/* エビデンス強度バッジ */}
-      <div className='flex items-center justify-between mb-4 sm:mb-6'>
+      {/* エビデンス強度バッジ - Apple風広めの余白 */}
+      <div className='flex items-center justify-between mb-component-lg'>
         <div
           className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${evidenceDisplay.color} 
-                               flex items-center justify-center font-bold text-base sm:text-lg shadow-lg`}
+                               flex items-center justify-center font-bold text-base sm:text-lg shadow-sm`}
           role='img'
           aria-label={`エビデンス強度 ${evidenceDisplay.label}ランク`}
         >
@@ -98,11 +98,11 @@ export default function IngredientCard({
         </div>
       </div>
 
-      {/* 成分名 */}
-      <div className='mb-4 sm:mb-6'>
+      {/* 成分名 - Apple風広めの余白 */}
+      <div className='mb-component-lg'>
         <h3
           id={`ingredient-name-${ingredient.id}`}
-          className='text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-1 sm:mb-2 
+          className='text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-component-xs 
                               group-hover:text-primary-600 transition-colors duration-300 leading-tight'
         >
           {ingredient.name}
@@ -112,17 +112,17 @@ export default function IngredientCard({
         </p>
       </div>
 
-      {/* 説明文 */}
+      {/* 説明文 - Apple風広めの余白 */}
       <p
         id={`ingredient-description-${ingredient.id}`}
-        className='text-gray-600 text-sm mb-6 leading-relaxed line-clamp-3'
+        className='text-gray-600 text-sm mb-component-lg leading-relaxed line-clamp-3'
       >
         {ingredient.description}
       </p>
 
-      {/* 効能バッジ */}
-      <div className='mb-6'>
-        <div className='flex flex-wrap gap-2' role='list' aria-label='効能一覧'>
+      {/* 効能バッジ - Apple風広めの余白 */}
+      <div className='mb-component-lg'>
+        <div className='flex flex-wrap gap-component-sm' role='list' aria-label='効能一覧'>
           {ingredient.benefits.slice(0, 3).map((benefit, index) => (
             <span
               key={index}
@@ -147,9 +147,9 @@ export default function IngredientCard({
         </div>
       </div>
 
-      {/* 人気度インジケーター */}
-      <div className='mb-6' role='region' aria-label='人気度'>
-        <div className='flex items-center justify-between text-sm mb-2'>
+      {/* 人気度インジケーター - Apple風広めの余白 */}
+      <div className='mb-component-lg' role='region' aria-label='人気度'>
+        <div className='flex items-center justify-between text-sm mb-component-xs'>
           <span className='text-gray-500'>人気度</span>
           <span className='font-medium text-gray-700'>
             {ingredient.popularity}%
@@ -175,8 +175,8 @@ export default function IngredientCard({
       <button
         className='w-full bg-primary-600 text-white py-3 sm:py-4 rounded-xl font-medium text-sm sm:text-base
                              hover:bg-primary-700 transition-all duration-300 
-                             hover:scale-105 active:scale-95 shadow-lg 
-                             hover:shadow-xl group-hover:shadow-primary-500/25'
+                             hover:scale-105 active:scale-95 shadow-sm 
+                             hover:shadow-md group-hover:shadow-primary-500/25'
         aria-label={`${ingredient.name}の詳細を見る`}
       >
         詳細を見る

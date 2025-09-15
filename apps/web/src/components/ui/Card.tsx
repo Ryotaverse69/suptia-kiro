@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
  * 白基調、極薄影、Apple風の洗練されたデザイン
  */
 const cardVariants = cva(
-  'rounded-2xl border bg-white text-gray-900 transition-all duration-200',
+  'rounded-xl border bg-white text-gray-900 transition-all duration-200',
   {
     variants: {
       variant: {
@@ -31,7 +31,7 @@ const cardVariants = cva(
         none: '',
         lift: 'hover:-translate-y-1 hover:shadow-medium',
         scale: 'hover:scale-[1.02]',
-        glow: 'hover:shadow-[0_0_20px_rgba(37,99,235,0.1)]',
+        glow: 'hover:shadow-[0_0_12px_rgba(37,99,235,0.06)]',
       },
       // パディング設定
       padding: {
@@ -52,7 +52,7 @@ const cardVariants = cva(
 
 export interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof cardVariants> {}
+  VariantProps<typeof cardVariants> { }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant, hover, padding, ...props }, ref) => (

@@ -7,8 +7,8 @@ import { cn } from '@/lib/utils';
 interface OptimizedImageProps {
   src: string;
   alt: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   className?: string;
   priority?: boolean;
   placeholder?: 'blur' | 'empty';
@@ -75,7 +75,8 @@ export function OptimizedImage({
         className={cn(
           'transition-opacity duration-300',
           isLoading ? 'opacity-0' : 'opacity-100',
-          fill ? 'object-cover' : ''
+          fill ? 'object-cover' : '',
+          className?.includes('pointer-events-none') ? 'pointer-events-none' : ''
         )}
         onLoad={handleLoad}
         onError={handleError}
@@ -84,7 +85,7 @@ export function OptimizedImage({
       {/* ローディング状態のプレースホルダー */}
       {isLoading && !hasError && (
         <div className='absolute inset-0 bg-gray-100 animate-pulse flex items-center justify-center'>
-          <div className='w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin' />
+          <div className='w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin' />
         </div>
       )}
     </div>
@@ -158,7 +159,7 @@ export function HeroBackgroundImage({ className }: { className?: string }) {
       alt='Hero background'
       fill
       priority
-      className={className}
+      className={cn('pointer-events-none', className)}
       sizes='100vw'
       quality={75}
     />

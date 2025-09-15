@@ -45,7 +45,7 @@ export function MembershipStatus({ onUpgrade, onManageBilling }: MembershipStatu
     const getTierColor = (tier: MembershipTier): string => {
         switch (tier) {
             case 'free': return 'text-gray-600 bg-gray-50';
-            case 'basic': return 'text-blue-600 bg-blue-50';
+            case 'basic': return 'text-primary-600 bg-primary-50';
             case 'premium': return 'text-purple-600 bg-purple-50';
             case 'enterprise': return 'text-orange-600 bg-orange-50';
             default: return 'text-gray-600 bg-gray-50';
@@ -135,7 +135,7 @@ export function MembershipStatus({ onUpgrade, onManageBilling }: MembershipStatu
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                                 <div
-                                    className="bg-blue-600 h-2 rounded-full transition-all duration-200 ease-out"
+                                    className="bg-primary-600 h-2 rounded-full transition-all duration-200 ease-out"
                                     style={{
                                         width: `${getUsagePercentage(status.usage.priceAlerts.current, status.usage.priceAlerts.limit)}%`
                                     }}

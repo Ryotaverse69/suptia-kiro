@@ -54,7 +54,7 @@ export default function WebVitalsMonitor() {
           console.log(
             'DOM Content Loaded:',
             navigation.domContentLoadedEventEnd -
-              navigation.domContentLoadedEventStart,
+            navigation.domContentLoadedEventStart,
             'ms'
           );
           console.log(
@@ -185,7 +185,7 @@ export function LayoutShiftPrevention() {
         
         .bg-gray-100 {
           background-color: #ffffff;
-          border: 1px solid #000000;
+          border: 1px solid #e5e7eb;
         }
       }
       
