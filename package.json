@@ -71,6 +71,9 @@
     "alert:report": "node scripts/alert-manager.mjs report",
     "domain:check": "npm run monitor:health",
     "domain:monitor": "npm run monitor:start",
+    "codex:export": "node scripts/export-tasks-for-codex.mjs",
+    "codex:import": "node scripts/import-codex-results.mjs",
+    "codex:workflow": "npm run codex:export && echo '📋 Codex IDEでタスクを実行してください (.codex-tasks/)' && echo '📥 完了後、npm run codex:import で結果を取り込んでください'",
     "prepare": "husky || true"
   },
   "devDependencies": {

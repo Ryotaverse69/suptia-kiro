@@ -75,3 +75,10 @@ pids/
 tmp/
 temp/
 .vercel
+
+# Codex IDE連携ファイル
+.codex-tasks/
+.codex-results/
+.kiro/reviews/
+.kiro/tests/
+*.backup.*
