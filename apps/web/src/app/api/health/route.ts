@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { sanityClient } from '@/lib/sanity.client';
+import { sanity } from '@/lib/sanity.client';
 
 // システム情報の取得
 function getSystemInfo() {
@@ -28,12 +28,11 @@ async function checkSanityConnection() {
     const startTime = Date.now();
 
     // 簡単なクエリでSanity接続をテスト
-    const result = await sanityClient.fetch(
+    const result = await sanity.fetch(
       `*[_type == "product"][0]{_id, name}`,
       {},
       {
         cache: 'no-store',
-        next: { revalidate: 0 },
       }
     );
 
@@ -49,7 +48,7 @@ async function checkSanityConnection() {
     return {
       status: 'unhealthy',
       connected: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
@@ -172,7 +171,7 @@ export async function GET() {
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
         error: 'Health check failed',
-        message: error.message,
+        message: error instanceof Error ? error.message : 'Unknown error',
         system: getSystemInfo(),
       },
       {
@@ -208,7 +207,8 @@ export async function HEAD() {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'X-Health-Status': 'unhealthy',
-        'X-Health-Error': error.message,
+        'X-Health-Error':
+          error instanceof Error ? error.message : 'Unknown error',
       },
     });
   }

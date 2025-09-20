@@ -47,10 +47,7 @@ export function HeroSearch() {
         <span className='rounded-full border border-primary-200/60 bg-primary-50/60 px-4 py-1 text-xs font-semibold uppercase tracking-[0.32em] text-primary-600'>
           Precision Supplement Intelligence
         </span>
-        <h1
-          className='mt-6 text-balance text-4xl font-light tracking-tight text-slate-900 md:text-6xl'
-          style={{ fontDisplay: 'swap' }}
-        >
+        <h1 className='mt-6 text-balance text-4xl font-light tracking-tight text-slate-900 md:text-6xl'>
           {copy.hero.headline}
         </h1>
         <p

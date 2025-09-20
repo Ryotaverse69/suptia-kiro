@@ -100,6 +100,7 @@ export default async function SearchPage({
           categories: [],
           brands: [],
           ingredients: [],
+          goals: [],
           priceRange: { min: 0, max: 0 },
         },
       };
@@ -115,6 +116,7 @@ export default async function SearchPage({
         categories: [],
         brands: [],
         ingredients: [],
+        goals: [],
         priceRange: { min: 0, max: 0 },
       },
     };

@@ -63,7 +63,11 @@ export async function POST(request: NextRequest) {
         return { path, success: true };
       } catch (error) {
         console.error(`Failed to revalidate path ${path}:`, error);
-        return { path, success: false, error: error.message };
+        return {
+          path,
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        };
       }
     });
 
@@ -111,7 +115,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Internal server error',
-        message: error.message,
+        message: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
       { status: 500 }
@@ -162,7 +166,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Revalidation failed',
-        message: error.message,
+        message: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
       { status: 500 }
