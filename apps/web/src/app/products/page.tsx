@@ -1,8 +1,8 @@
 import { sanity } from '@/lib/sanity.client';
 import Link from 'next/link';
-import Image from 'next/image';
 import ClientPrice from '@/components/ClientPrice';
 import { calculateEffectiveCostPerDay } from '@/lib/cost';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 interface ProductListItem {
   name: string;
@@ -107,12 +107,12 @@ export default async function ProductsIndexPage({
 
   const filtered = query
     ? products.filter(p =>
-      [p.name]
-        .filter(Boolean)
-        .some(field =>
-          String(field).toLowerCase().includes(query.toLowerCase())
-        )
-    )
+        [p.name]
+          .filter(Boolean)
+          .some(field =>
+            String(field).toLowerCase().includes(query.toLowerCase())
+          )
+      )
     : products;
 
   // enrich with cost/day for sorting and display
@@ -124,7 +124,7 @@ export default async function ProductsIndexPage({
         servingsPerContainer: p.servingsPerContainer,
         servingsPerDay: p.servingsPerDay,
       });
-    } catch { }
+    } catch {}
     return { ...p, costPerDay };
   });
 
@@ -233,21 +233,24 @@ export default async function ProductsIndexPage({
               >
                 {/* Image / placeholder */}
                 <div className='mb-4'>
-                  {p.imageUrl ? (
-                    <Image
-                      src={p.imageUrl}
-                      alt={p.imageAlt || p.name}
-                      width={640}
-                      height={256}
-                      className='w-full h-40 object-cover rounded-lg border border-gray-100'
-                      sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
-                      priority={false}
-                    />
-                  ) : (
-                    <div className='w-full h-40 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-4xl'>
-                      💊
-                    </div>
-                  )}
+                  <div className='relative h-40 w-full overflow-hidden rounded-lg border border-gray-100 bg-gray-50'>
+                    {p.imageUrl ? (
+                      <OptimizedImage
+                        src={p.imageUrl}
+                        alt={p.imageAlt || p.name}
+                        width={640}
+                        height={256}
+                        className='h-full w-full object-cover'
+                        sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
+                        placeholder='blur'
+                        blurDataURL='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjI1NiIgdmlld0JveD0iMCAwIDY0MCAyNTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjY0MCIgaGVpZ2h0PSIyNTYiIGZpbGw9IiNGRkZGRkYiLz48cmVjdCB3aWR0aD0iNjQwIiBoZWlnaHQ9IjI1NiIgZmlsbD0iI0VGRkZGRiIgb3BhY2l0eT0iMC44Ii8+PHJlY3Qgd2lkdGg9IjY0MCIgaGVpZ2h0PSIyNTYiIGZpbGw9IiNFM0VGRkYiIG9wYWNpdHk9IjAuNiIvPjwvc3ZnPg=='
+                      />
+                    ) : (
+                      <div className='flex h-full w-full items-center justify-center text-4xl text-primary-500'>
+                        💊
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className='flex items-start justify-between gap-3 mb-3'>
                   <h2
@@ -288,7 +291,10 @@ export default async function ProductsIndexPage({
       )}
 
       <div className='mt-10'>
-        <Link href='/' className='btn-secondary transition-all duration-200 ease-out'>
+        <Link
+          href='/'
+          className='btn-secondary transition-all duration-200 ease-out'
+        >
           ホームに戻る
         </Link>
       </div>

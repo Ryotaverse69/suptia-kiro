@@ -2,6 +2,14 @@
 export * from './ui';
 
 // コンポーネントエクスポート
+export { Header } from './layout/Header';
+export { Footer } from './layout/Footer';
+export { LangCurrencySwitcher } from './layout/LangCurrencySwitcher';
+export { LogoWordmark } from './layout/LogoWordmark';
+export { HeroSearch } from './search/HeroSearch';
+export { SearchForm } from './search/SearchForm';
+export { PopularComparisonsSection } from './sections/PopularComparisons';
+export { IngredientGuideSection } from './sections/IngredientGuide';
 export { LegacyWarningBanner } from './LegacyWarningBanner';
 export { PersonaWarnings } from './PersonaWarnings';
 export { PriceTable } from './PriceTable';
@@ -32,11 +40,6 @@ export { default as IngredientFilters } from './IngredientFilters';
 export { default as IngredientGuideSection } from './IngredientGuideSection';
 export { default as PurposeCategoryCard } from './PurposeCategoryCard';
 
-// 比較機能コンポーネント
-export { ComparisonTable } from './ComparisonTable';
-export { ComparisonFilters } from './ComparisonFilters';
-export { ProductComparisonModal } from './ProductComparisonModal';
-
 // 型エクスポート
 export type { ScoreDisplayProps } from './ScoreDisplay';
 export type { ScoreBreakdownProps } from './ScoreBreakdown';
@@ -45,7 +48,3 @@ export type { SearchBarProps, Recommendation } from './SearchBar';
 export type { AppleSearchBarProps, AISuggestion } from './AppleSearchBar';
 export type { SuggestChipsProps, SuggestChip } from './SuggestChips';
 export type { AIRecommendationSearchBarProps } from './AIRecommendationSearchBar';
-export type {
-  Product as ComparisonProduct,
-  ComparisonCriteria,
-} from './ComparisonTable';

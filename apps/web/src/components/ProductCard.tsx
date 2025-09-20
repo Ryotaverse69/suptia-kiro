@@ -1,17 +1,6 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import ClientPrice from '@/components/ClientPrice';
-
-function shimmer(w: number, h: number) {
-  return `\n  <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">\n    <defs>\n      <linearGradient id="g">\n        <stop stop-color="#f3f4f6" offset="20%"/>\n        <stop stop-color="#e5e7eb" offset="50%"/>\n        <stop stop-color="#f3f4f6" offset="70%"/>\n      </linearGradient>\n    </defs>\n    <rect width="${w}" height="${h}" fill="#f3f4f6"/>\n    <rect id="r" width="${w}" height="${h}" fill="url(#g)"/>\n    <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1s" repeatCount="indefinite"  />\n  </svg>`;
-}
-
-function toBase64(str: string) {
-  if (typeof window === 'undefined') {
-    return Buffer.from(str).toString('base64');
-  }
-  return window.btoa(str);
-}
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 export interface ProductCardProps {
   href: string;
@@ -40,25 +29,27 @@ export default function ProductCard({
       className='glass-effect rounded-xl p-5 block shadow-soft hover:shadow-strong transition-all duration-200 ease-out hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 interactive'
     >
       <div className='mb-3'>
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={imageAlt || name}
-            width={640}
-            height={256}
-            className='w-full h-40 object-cover rounded-lg border border-gray-100'
-            sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
-            placeholder='blur'
-            blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(640, 256))}`}
-          />
-        ) : (
-          <div
-            className='w-full h-40 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-4xl'
-            aria-hidden='true'
-          >
-            💊
-          </div>
-        )}
+        <div className='relative h-40 w-full overflow-hidden rounded-lg border border-gray-100 bg-gray-50'>
+          {imageUrl ? (
+            <OptimizedImage
+              src={imageUrl}
+              alt={imageAlt || name}
+              width={640}
+              height={256}
+              className='h-full w-full object-cover'
+              sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
+              placeholder='blur'
+              blurDataURL='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjI1NiIgdmlld0JveD0iMCAwIDY0MCAyNTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjY0MCIgaGVpZ2h0PSIyNTYiIGZpbGw9IiNGRkZGRkYiLz48cmVjdCB3aWR0aD0iNjQwIiBoZWlnaHQ9IjI1NiIgZmlsbD0iI0VPRUYwRSIgb3BhY2l0eT0iMC45Ii8+PHJlY3Qgd2lkdGg9IjY0MCIgaGVpZ2h0PSIyNTYiIGZpbGw9IiNFN0ZGRjgiIG9wYWNpdHk9IjAuNyIvPjwvc3ZnPg=='
+            />
+          ) : (
+            <div
+              className='flex h-full w-full items-center justify-center text-4xl text-primary-500'
+              aria-hidden='true'
+            >
+              💊
+            </div>
+          )}
+        </div>
       </div>
       <div className='flex items-start justify-between gap-3 mb-2'>
         <h3

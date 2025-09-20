@@ -1,0 +1,24 @@
+{
+  "ja": {
+    "tagline": "科学的根拠と価格データを掛け合わせ、最適なサプリメント選びをサポートします。",
+    "hero": {
+      "headline": "あなたに最も合うサプリを最も安い価格で",
+      "subheadline": "人気サプリメントの成分・価格・エビデンスをAIが比較分析"
+    },
+    "footer": {
+      "about": "サプティアは価格だけでなく、安全性と科学的根拠を重視するサプリ比較プラットフォームです。",
+      "contact": "サポートが必要な場合は、いつでもお問い合わせください。"
+    }
+  },
+  "en": {
+    "tagline": "Evidence-based supplement insights with transparent pricing.",
+    "hero": {
+      "headline": "Find your best supplement for the best price",
+      "subheadline": "AI compares ingredients, pricing, and scientific evidence across top supplements"
+    },
+    "footer": {
+      "about": "Suptia delivers supplement comparisons that balance price, safety, and scientific credibility.",
+      "contact": "Need support? Reach out to our team anytime."
+    }
+  }
+}

@@ -15,7 +15,8 @@ describe('Button', () => {
 
     const button = screen.getByRole('button', { name: 'セカンダリボタン' });
     expect(button).toHaveClass('bg-white');
-    expect(button).toHaveClass('border-gray-200');
+    expect(button).toHaveClass('border');
+    expect(button).toHaveClass('border-border/60');
   });
 
   it('サイズバリアントが正しく適用される', () => {

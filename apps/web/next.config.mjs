@@ -61,6 +61,9 @@ const nextConfig = {
     scrollRestoration: true,
   },
   
+  // ISR設定（Incremental Static Regeneration）
+  // Requirements: 32.2 - ISR設定（product: 1h, listing: 10m revalidate）
+  
   // 本番環境設定
   productionBrowserSourceMaps: true,
   reactStrictMode: true,

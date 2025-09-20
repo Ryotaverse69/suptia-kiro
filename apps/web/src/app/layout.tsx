@@ -1,51 +1,39 @@
 // Validate environment variables at startup
 import '@/env';
 import './globals.css';
-import { Inter, Noto_Sans_JP } from 'next/font/google';
 import { headers } from 'next/headers';
 import Script from 'next/script';
+import { Inter } from 'next/font/google';
+import { Noto_Sans_JP } from 'next/font/google';
+import type { Metadata } from 'next';
 import { getSiteUrl } from '@/lib/runtimeConfig';
+import { cn } from '@/lib/utils';
 import { LocaleProvider } from '@/contexts/LocaleContext';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 import SkipLinks from '@/components/SkipLinks';
-import dynamic from 'next/dynamic';
+import LocaleHtmlLangSetter from '@/components/LocaleHtmlLangSetter';
+import CookieConsentBanner from '@/components/CookieConsentBanner';
+import { WebVitals } from '@/components/WebVitals';
 
-// Apple風フォント設定 - Inter + Noto Sans JP
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  preload: true,
   variable: '--font-inter',
 });
-
-const notoSansJP = Noto_Sans_JP({
+const notoSans = Noto_Sans_JP({
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
-  preload: true,
-  variable: '--font-noto-sans-jp',
-  weight: ['300', '400', '500', '600', '700'],
-});
-import LocaleHtmlLangSetter from '@/components/LocaleHtmlLangSetter';
-
-// パフォーマンス監視コンポーネントを動的インポート
-const PerformanceMonitor = dynamic(
-  () =>
-    import('@/components/WebVitalsMonitor').then(mod => ({
-      default: mod.PerformanceMonitor,
-    })),
-  { ssr: false }
-);
-const WebVitalsClient = dynamic(() => import('@/components/WebVitalsClient'), {
-  ssr: false,
+  variable: '--font-noto-sans',
 });
 
-export const metadata = {
-  title: 'サプティア - あなたに最も合うサプリを最も安い価格で',
+export const metadata: Metadata = {
+  title: 'サプティア | サプリメント比較プラットフォーム',
   description:
-    'あなたに最も合うサプリを最も安い価格で。科学的根拠に基づいた分析で、安全で効果的なサプリメント選択をサポートします。AIレコメンド機能、詳細な商品分析、個人診断機能を提供。',
+    '科学的なデータと洗練されたUIでサプリメントを比較。成分情報・価格・エビデンスを1つの画面で素早く確認できます。',
   keywords:
-    'サプリメント, 比較, 安全性, コスト, AI, 健康, レコメンド, 診断, 成分分析',
+    'サプリメント, 比較, 成分ガイド, ビタミン, プロテイン, サプティア, supplement comparison',
   authors: [{ name: 'サプティア' }],
   creator: 'サプティア',
   publisher: 'サプティア',
@@ -71,12 +59,12 @@ export const metadata = {
         type: 'image/png',
       },
     ],
-    other: [{ rel: 'mask-icon', url: '/favicon.svg', color: '#3b82f6' }],
+    other: [{ rel: 'mask-icon', url: '/favicon.svg', color: '#2563eb' }],
   },
   openGraph: {
-    title: 'サプティア - あなたに最も合うサプリを最も安い価格で',
+    title: 'サプティア | サプリメント比較プラットフォーム',
     description:
-      '科学的根拠に基づいた分析で、安全で効果的なサプリメント選択をサポート。AIレコメンド機能と個人診断で最適なサプリメントを見つけます。',
+      '成分ごとのエビデンスや最安値をワンストップで。Apple/xAIレベルのUIで最適なサプリを見つけましょう。',
     type: 'website',
     locale: 'ja_JP',
     siteName: 'サプティア',
@@ -84,9 +72,9 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'サプティア - あなたに最も合うサプリを最も安い価格で',
+    title: 'サプティア | サプリメント比較プラットフォーム',
     description:
-      '科学的根拠に基づいた分析で、安全で効果的なサプリメント選択をサポート',
+      '100+サイトの価格とエビデンスを横断比較。未来志向のサプリ選びをサポートします。',
   },
   robots: {
     index: true,
@@ -116,12 +104,12 @@ export default function RootLayout({
     alternateName: 'Suptia',
     url: siteUrl,
     description:
-      'あなたに最も合うサプリを最も安い価格で。科学的根拠に基づいた分析で、安全で効果的なサプリメント選択をサポート。',
+      'エビデンスと価格データを掛け合わせ、最適なサプリメント選びをサポートします。',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${siteUrl}/products?search={search_term_string}`,
+        urlTemplate: `${siteUrl}/search?q={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },
@@ -133,7 +121,7 @@ export default function RootLayout({
     name: 'サプティア',
     alternateName: 'Suptia',
     url: siteUrl,
-    description: 'サプリメント選択支援サービス',
+    description: 'サプリメント比較・成分インテリジェンスプラットフォーム',
     logo: `${siteUrl}/logo.svg`,
     foundingDate: '2025',
     contactPoint: {
@@ -144,20 +132,26 @@ export default function RootLayout({
   };
 
   return (
-    <html lang='ja' className={`scroll-smooth ${inter.variable} ${notoSansJP.variable}`}>
+    <html
+      lang='ja'
+      className={cn('scroll-smooth', inter.variable, notoSans.variable)}
+    >
       <head>
         <link rel='manifest' href='/site.webmanifest' />
         <meta name='theme-color' content='#2563eb' />
 
-        {/* DNS プリフェッチ */}
+        {/* Preload frequently used SVG assets to tighten LCP */}
+        <link rel='preload' as='image' href='/logo.svg' type='image/svg+xml' />
+        <link
+          rel='preload'
+          as='image'
+          href='/placeholders/product-placeholder.svg'
+          type='image/svg+xml'
+        />
+
+        {/* DNS プリフェッチ / Preconnect */}
         <link rel='dns-prefetch' href='//cdn.sanity.io' />
-        {/* Removed Google Fonts runtime dependencies (using next/font) */}
-
-        {/* Preconnect for performance */}
         <link rel='preconnect' href='https://cdn.sanity.io' crossOrigin='' />
-        {/* Fonts are self-hosted by next/font; no preconnect needed */}
-
-        {/* フォントのプリロードは外部CDNに依存するため一旦無効化 */}
 
         {/* Service Worker 登録 */}
         <Script id='sw-register' strategy='afterInteractive'>
@@ -168,7 +162,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className='min-h-screen bg-white text-gray-900 antialiased'>
+      <body className='min-h-screen bg-background-subtle font-sans text-text-default antialiased transition-colors duration-300 ease-apple'>
         {/* Global JSON-LD structured data */}
         <Script id='website-jsonld' type='application/ld+json' nonce={nonce}>
           {JSON.stringify(websiteJsonLd)}
@@ -184,6 +178,9 @@ export default function RootLayout({
         {/* Skip links for accessibility */}
         <SkipLinks />
 
+        {/* Web Vitals monitoring */}
+        <WebVitals />
+
         {/* Locale Provider for client-side components */}
         <LocaleProvider>
           {/* Sync <html lang> on client with current locale */}
@@ -191,17 +188,20 @@ export default function RootLayout({
           {/* Header */}
           <Header />
 
-          {/* Main Content (site width fixed to 1280px) */}
-          <main id='main-content' role='main' className='pt-16 min-h-screen'>
-            <div className='max-w-[1280px] mx-auto px-4'>{children}</div>
+          {/* Main Content */}
+          <main
+            id='main-content'
+            role='main'
+            tabIndex={-1}
+            className='min-h-screen pt-[96px] md:pt-[110px]'
+          >
+            {children}
           </main>
+
+          <CookieConsentBanner />
 
           {/* Footer */}
           <Footer />
-
-          {/* パフォーマンス監視 */}
-          <PerformanceMonitor />
-          <WebVitalsClient />
         </LocaleProvider>
       </body>
     </html>

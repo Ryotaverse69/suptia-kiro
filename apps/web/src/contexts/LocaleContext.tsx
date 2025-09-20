@@ -1,16 +1,22 @@
 'use client';
 
-import React, {
+import {
   createContext,
   useContext,
   useState,
   useEffect,
   ReactNode,
 } from 'react';
-import { BASE_CURRENCY, convertFromJPY } from '@/lib/exchange';
+import {
+  BASE_CURRENCY,
+  convertFromJPY,
+  refreshRates,
+  type CurrencyCode,
+} from '@/lib/exchange';
 // import { useRouter, usePathname } from 'next/navigation';
 import jaMessages from '@/messages/ja.json';
 import enMessages from '@/messages/en.json';
+import copyMessages from '@/messages/copy.json';
 // 簡素化されたロケール設定
 const locales = ['ja', 'en'] as const;
 type Locale = (typeof locales)[number];
@@ -20,14 +26,35 @@ const currencies = {
   en: 'USD',
 } as const;
 
+const normalizeCurrency = (value: string): CurrencyCode =>
+  value === 'USD' ? 'USD' : 'JPY';
+
+const COOKIE_LOCALE = 'suptia-locale';
+const COOKIE_CURRENCY = 'suptia-currency';
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
+function getCookie(name: string) {
+  if (typeof document === 'undefined') return undefined;
+  const value = document.cookie
+    .split('; ')
+    .find(row => row.startsWith(`${name}=`));
+  return value ? value.split('=')[1] : undefined;
+}
+
+function setCookie(name: string, value: string) {
+  if (typeof document === 'undefined') return;
+  document.cookie = `${name}=${value}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`;
+}
+
 interface LocaleContextType {
   locale: Locale;
-  currency: string;
+  currency: CurrencyCode;
   setLocale: (locale: Locale) => void;
-  setCurrency: (currency: string) => void;
+  setCurrency: (currency: CurrencyCode) => void;
   formatPrice: (amount: number) => string;
   formatNumber: (value: number, options?: Intl.NumberFormatOptions) => string;
   formatDate: (date: Date, options?: Intl.DateTimeFormatOptions) => string;
+  copy: (typeof copyMessages)['ja'];
 }
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
@@ -42,8 +69,8 @@ export function LocaleProvider({
   initialLocale = defaultLocale,
 }: LocaleProviderProps) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
-  const [currency, setCurrencyState] = useState<string>(
-    currencies[initialLocale]
+  const [currency, setCurrencyState] = useState<CurrencyCode>(
+    normalizeCurrency(currencies[initialLocale])
   );
   // const router = useRouter();
   // const pathname = usePathname();
@@ -51,57 +78,82 @@ export function LocaleProvider({
   // ローカルストレージから設定を復元
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedLocale = localStorage.getItem('suptia-locale') as Locale;
-      const savedCurrency = localStorage.getItem('suptia-currency');
+      const cookieLocale = getCookie(COOKIE_LOCALE) as Locale | undefined;
+      const cookieCurrency = getCookie(COOKIE_CURRENCY);
+      const savedLocale =
+        (localStorage.getItem('suptia-locale') as Locale | null) ||
+        cookieLocale ||
+        null;
+      const savedCurrency =
+        localStorage.getItem('suptia-currency') || cookieCurrency || null;
 
       if (savedLocale && locales.includes(savedLocale)) {
         setLocaleState(savedLocale);
       }
 
       if (savedCurrency) {
-        setCurrencyState(savedCurrency);
+        setCurrencyState(normalizeCurrency(savedCurrency));
       } else if (savedLocale) {
-        setCurrencyState(currencies[savedLocale]);
+        setCurrencyState(normalizeCurrency(currencies[savedLocale]));
       }
     }
   }, []);
 
+  useEffect(() => {
+    refreshRates().catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    if (currency === 'JPY') return;
+    refreshRates().catch(() => undefined);
+  }, [currency]);
+
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
-    setCurrencyState(currencies[newLocale]);
+    const nextCurrency = normalizeCurrency(currencies[newLocale]);
+    setCurrencyState(nextCurrency);
 
     // ローカルストレージに保存
     if (typeof window !== 'undefined') {
       localStorage.setItem('suptia-locale', newLocale);
-      localStorage.setItem('suptia-currency', currencies[newLocale]);
+      localStorage.setItem('suptia-currency', nextCurrency);
+      setCookie(COOKIE_LOCALE, newLocale);
+      setCookie(COOKIE_CURRENCY, nextCurrency);
     }
 
     // ルーティングのロケール対応は未実装のためURLは変更しない
     // 実装済みになったらここで /ja や /en プレフィックスに切り替える
   };
 
-  const setCurrency = (newCurrency: string) => {
-    setCurrencyState(newCurrency);
+  const setCurrency = (newCurrency: CurrencyCode) => {
+    const normalized = normalizeCurrency(newCurrency);
+    setCurrencyState(normalized);
 
     // ローカルストレージに保存
     if (typeof window !== 'undefined') {
-      localStorage.setItem('suptia-currency', newCurrency);
+      localStorage.setItem('suptia-currency', normalized);
+      setCookie(COOKIE_CURRENCY, normalized);
     }
   };
 
   // amount is assumed to be in JPY (base currency)
   const formatPrice = (amount: number): string => {
     const localeCode = locale === 'ja' ? 'ja-JP' : 'en-US';
+    const currentCurrency = normalizeCurrency(currency);
     const converted =
       BASE_CURRENCY === 'JPY'
-        ? convertFromJPY(amount, currency as any)
+        ? convertFromJPY(amount, currentCurrency)
         : amount;
-    return new Intl.NumberFormat(localeCode, {
+    const formatted = new Intl.NumberFormat(localeCode, {
       style: 'currency',
-      currency: currency,
-      minimumFractionDigits: currency === 'JPY' ? 0 : 2,
-      maximumFractionDigits: currency === 'JPY' ? 0 : 2,
+      currency: currentCurrency,
+      minimumFractionDigits: currentCurrency === 'JPY' ? 0 : 2,
+      maximumFractionDigits: currentCurrency === 'JPY' ? 0 : 2,
     }).format(converted);
+    if (currentCurrency === 'JPY') {
+      return `${formatted} 税込`;
+    }
+    return formatted;
   };
 
   const formatNumber = (
@@ -136,6 +188,7 @@ export function LocaleProvider({
     formatPrice,
     formatNumber,
     formatDate,
+    copy: (copyMessages as Record<Locale, (typeof copyMessages)['ja']>)[locale],
   };
 
   return (

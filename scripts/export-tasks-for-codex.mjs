@@ -126,6 +126,56 @@ async function exportSingleTask(task, requirements, design) {
       acceptance_criteria: generateAcceptanceCriteria(task),
       files_to_modify: suggestFilesToModify(task),
       testing_requirements: generateTestingRequirements(task),
+      
+      // 追加の仕様書情報
+      project_context: {
+        name: 'Suptia - トリバゴクローン',
+        description: 'サプリメント価格比較サイト（トリバゴのUI/UXを完全再現）',
+        target_audience: 'サプリメント購入を検討している日本のユーザー',
+        key_features: [
+          '価格比較機能',
+          '人気検索カード',
+          'AI推奨システム',
+          'レスポンシブデザイン',
+          'アクセシビリティ対応'
+        ]
+      },
+      
+      technical_specifications: {
+        framework: 'Next.js 14 (App Router)',
+        language: 'TypeScript',
+        styling: 'Tailwind CSS',
+        cms: 'Sanity',
+        deployment: 'Vercel',
+        testing: 'Jest + React Testing Library',
+        accessibility: 'WCAG 2.1 AA準拠',
+        performance: 'Core Web Vitals最適化'
+      },
+      
+      design_system: {
+        colors: {
+          primary: '#0066CC (トリバゴブルー)',
+          secondary: '#FF6B35',
+          success: '#28A745',
+          warning: '#FFC107',
+          error: '#DC3545'
+        },
+        typography: {
+          font_family: 'Inter, system-ui, sans-serif',
+          sizes: '12px, 14px, 16px, 18px, 20px, 24px, 32px, 48px'
+        },
+        spacing: '4px, 8px, 12px, 16px, 20px, 24px, 32px, 40px, 48px, 64px, 80px',
+        breakpoints: 'sm: 640px, md: 768px, lg: 1024px, xl: 1280px, 2xl: 1536px'
+      },
+      
+      quality_standards: {
+        code_coverage: '80%以上',
+        accessibility_score: '90%以上',
+        performance_score: '85%以上',
+        typescript_strict: true,
+        eslint_max_warnings: 0,
+        prettier_formatting: true
+      }
     },
 
     // コードチェック用の設定
@@ -150,6 +200,65 @@ async function exportSingleTask(task, requirements, design) {
       cms: 'Sanity',
       deployment: 'Vercel',
     },
+
+    // 参照すべきファイル・ドキュメント
+    reference_files: {
+      specifications: [
+        '.kiro/specs/trivago-clone-complete/requirements.md',
+        '.kiro/specs/trivago-clone-complete/design.md',
+        '.kiro/specs/trivago-clone-complete/tasks.md'
+      ],
+      existing_components: [
+        'apps/web/src/components/index.ts',
+        'apps/web/src/components/Header.tsx',
+        'apps/web/src/components/Footer.tsx',
+        'apps/web/src/app/layout.tsx',
+        'apps/web/src/app/page.tsx'
+      ],
+      schemas: [
+        'packages/schemas/category.ts',
+        'packages/schemas/product.ts',
+        'packages/schemas/ingredient.ts'
+      ],
+      libraries: [
+        'apps/web/src/lib/categories.ts',
+        'apps/web/src/lib/sanity.client.ts'
+      ],
+      config_files: [
+        'tailwind.config.js',
+        'tsconfig.json',
+        '.eslintrc.json',
+        'sanity.config.ts'
+      ]
+    },
+
+    // 実装ガイドライン
+    implementation_guidelines: {
+      component_structure: [
+        'TypeScript + React Functional Components',
+        'Props interfaceの明確な定義',
+        'デフォルトpropsの適切な設定',
+        'エラーハンドリングの実装'
+      ],
+      styling_approach: [
+        'Tailwind CSSクラスの使用',
+        'レスポンシブデザインの実装',
+        'ダークモード対応（将来対応）',
+        'カスタムCSSは最小限に'
+      ],
+      accessibility_requirements: [
+        'セマンティックHTMLの使用',
+        'ARIA属性の適切な設定',
+        'キーボードナビゲーション対応',
+        'スクリーンリーダー対応'
+      ],
+      performance_optimization: [
+        'React.memoの適切な使用',
+        '画像の最適化（Next.js Image）',
+        'コード分割の実装',
+        'バンドルサイズの最適化'
+      ]
+    },
   };
 
   const filename = `${CODEX_OUTPUT_DIR}/task-${taskId}.json`;
@@ -159,39 +268,106 @@ async function exportSingleTask(task, requirements, design) {
 }
 
 function extractRelevantRequirements(reqIds, requirementsContent) {
-  if (!reqIds || reqIds.length === 0) return '';
+  if (!reqIds || reqIds.length === 0) {
+    // 要件IDが指定されていない場合は、全体の要件を返す
+    return requirementsContent;
+  }
   
   const requirements = [];
   for (const reqId of reqIds) {
-    const regex = new RegExp(`### ${reqId}[\\s\\S]*?(?=###|$)`, 'g');
-    const match = requirementsContent.match(regex);
-    if (match) {
-      requirements.push(match[0]);
+    // より柔軟な正規表現で要件を抽出
+    const patterns = [
+      new RegExp(`### ${reqId}[\\s\\S]*?(?=###|$)`, 'g'),
+      new RegExp(`## ${reqId}[\\s\\S]*?(?=##|$)`, 'g'),
+      new RegExp(`# ${reqId}[\\s\\S]*?(?=#|$)`, 'g'),
+    ];
+    
+    for (const pattern of patterns) {
+      const match = requirementsContent.match(pattern);
+      if (match) {
+        requirements.push(match[0]);
+        break;
+      }
     }
   }
   
-  return requirements.join('\n\n');
+  // 要件が見つからない場合は、関連キーワードで検索
+  if (requirements.length === 0) {
+    for (const reqId of reqIds) {
+      const lines = requirementsContent.split('\n');
+      const relevantLines = [];
+      let inRelevantSection = false;
+      
+      for (const line of lines) {
+        if (line.toLowerCase().includes(reqId.toLowerCase())) {
+          inRelevantSection = true;
+          relevantLines.push(line);
+        } else if (inRelevantSection && line.startsWith('#')) {
+          break;
+        } else if (inRelevantSection) {
+          relevantLines.push(line);
+        }
+      }
+      
+      if (relevantLines.length > 0) {
+        requirements.push(relevantLines.join('\n'));
+      }
+    }
+  }
+  
+  return requirements.length > 0 ? requirements.join('\n\n') : requirementsContent;
 }
 
 function extractRelevantDesign(taskTitle, designContent) {
   // タスクタイトルに関連するデザイン情報を抽出
-  const keywords = taskTitle.toLowerCase().split(/\s+/);
+  const keywords = taskTitle.toLowerCase().split(/\s+/).filter(word => 
+    word.length > 2 && !['phase', 'task', 'タスク'].includes(word)
+  );
+  
   const lines = designContent.split('\n');
   const relevantSections = [];
   
+  // キーワードマッチングでセクションを抽出
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].toLowerCase();
     if (keywords.some(keyword => line.includes(keyword))) {
       // 関連セクションを抽出（次の見出しまで）
       let section = lines[i];
-      for (let j = i + 1; j < lines.length && !lines[j].startsWith('##'); j++) {
+      for (let j = i + 1; j < lines.length && !lines[j].match(/^#{1,3}\s/); j++) {
         section += '\n' + lines[j];
       }
       relevantSections.push(section);
     }
   }
   
-  return relevantSections.join('\n\n');
+  // 特定のセクションも含める
+  const importantSections = [
+    'デザインシステム',
+    'コンポーネント',
+    'レイアウト',
+    'スタイリング',
+    'UI/UX',
+    'ビジュアル',
+    'カラー',
+    'タイポグラフィ',
+    'レスポンシブ'
+  ];
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (importantSections.some(section => line.includes(section))) {
+      let section = lines[i];
+      for (let j = i + 1; j < lines.length && !lines[j].match(/^#{1,3}\s/); j++) {
+        section += '\n' + lines[j];
+      }
+      if (!relevantSections.some(existing => existing.includes(section))) {
+        relevantSections.push(section);
+      }
+    }
+  }
+  
+  // 関連セクションが見つからない場合は、全体のデザイン情報を返す
+  return relevantSections.length > 0 ? relevantSections.join('\n\n') : designContent;
 }
 
 function generateAcceptanceCriteria(task) {

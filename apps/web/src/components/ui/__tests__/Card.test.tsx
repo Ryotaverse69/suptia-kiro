@@ -40,7 +40,7 @@ describe('Card', () => {
     );
 
     const card = screen.getByTestId('hover-card');
-    expect(card).toHaveClass('hover:scale-[1.02]');
+    expect(card).toHaveClass('hover:scale-[1.01]');
   });
 
   it('CardHeaderとCardTitleが正しくレンダリングされる', () => {

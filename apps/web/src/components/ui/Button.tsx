@@ -8,44 +8,53 @@ import { cn } from '@/lib/utils';
  * デザイントークン: #2563EB、白基調、Inter + Noto Sans JP
  */
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-2xl text-sm font-semibold tracking-tight transition-all duration-200 ease-apple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
         // プライマリ: Apple風ブルー (#2563EB)
         primary:
-          'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 shadow-soft hover:shadow-medium',
+          'bg-primary-600 text-white shadow-soft hover:bg-primary-700 hover:shadow-medium active:bg-primary-800',
 
         // セカンダリ: 白基調
         secondary:
-          'bg-white text-gray-900 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-soft hover:shadow-medium',
+          'bg-white text-slate-900 border border-border/60 shadow-soft hover:bg-background-surface hover:border-border hover:shadow-medium',
 
         // アウトライン: Apple風ボーダー
         outline:
-          'border border-primary-600 text-primary-600 hover:bg-primary-50 hover:text-primary-700',
+          'border border-primary-600 text-primary-600 bg-white hover:bg-primary-50 hover:text-primary-700',
 
         // ゴースト: 最小限のスタイル
-        ghost: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
+        ghost:
+          'text-slate-600 hover:bg-primary-50/60 hover:text-primary-700 focus-visible:bg-primary-50/60',
 
         // リンク: テキストのみ
-        link: 'text-primary-600 underline-offset-4 hover:underline',
+        link: 'text-primary-600 underline-offset-4 hover:underline focus-visible:underline',
 
         // 破壊的アクション
         destructive:
-          'bg-red-500 text-white hover:bg-red-600 active:bg-red-700 shadow-soft hover:shadow-medium',
+          'bg-red-500 text-white shadow-soft hover:bg-red-600 active:bg-red-700',
+
+        // 透明なガラス調ボタン
+        glass:
+          'border border-white/70 bg-white/30 text-white backdrop-blur-xl shadow-soft hover:bg-white/45 hover:text-white',
       },
       size: {
-        sm: 'h-9 px-3 text-xs',
-        md: 'h-10 px-4 py-2',
-        lg: 'h-12 px-6 py-3 text-base',
-        xl: 'h-14 px-8 py-4 text-lg',
-        icon: 'h-10 w-10',
+        sm: 'h-9 px-4 text-xs',
+        md: 'h-11 px-5 text-sm',
+        lg: 'h-12 px-6 text-base',
+        xl: 'h-14 px-8 text-lg',
+        icon: 'h-11 w-11',
       },
       // Apple風のホバー効果
       hover: {
         none: '',
         lift: 'hover:-translate-y-0.5',
         scale: 'hover:scale-[1.02] active:scale-[0.98]',
+        glow: 'hover:shadow-[0_0_24px_rgba(37,99,235,0.18)]',
+      },
+      fullWidth: {
+        true: 'w-full',
       },
     },
     defaultVariants: {

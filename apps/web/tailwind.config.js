@@ -1,3 +1,20 @@
+const plugin = require('tailwindcss/plugin');
+
+// アクセント色パレット: #2563EB を基調とした一貫したブルー系統
+const accent = {
+  50: '#eff6ff',
+  100: '#dbeafe',
+  200: '#bfdbfe',
+  300: '#93c5fd',
+  400: '#60a5fa',
+  500: '#3b82f6',
+  600: '#2563eb', // メインアクセント色
+  700: '#1d4ed8', // 強いアクセント色
+  800: '#1e40af',
+  900: '#1e3a8a',
+  DEFAULT: '#2563eb', // デフォルトアクセント色
+};
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -6,204 +23,141 @@ module.exports = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {
-      transitionTimingFunction: {
-        // Apple-like easing curve
-        apple: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: '1.5rem', // 24px gutters
+        sm: '1.5rem',
+        md: '1.5rem',
+        lg: '1.5rem',
+        xl: '1.5rem',
+        '2xl': '1.5rem',
       },
+      screens: {
+        sm: '640px',
+        md: '768px',
+        lg: '1024px',
+        xl: '1280px',
+        '2xl': '1440px',
+      },
+    },
+    extend: {
       colors: {
-        // CSS変数を参照するブランドカラー
-        brand: 'var(--brand)',
-
-        // 近未来的なブルー系プライマリカラー
-        primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb', // 統一されたアクセントカラー #2563EB
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-          950: '#172554',
-        },
-        // アクセント用セカンダリカラー
+        accent,
+        primary: accent,
         secondary: {
-          50: '#ecfdf5',
-          100: '#d1fae5',
-          200: '#a7f3d0',
-          300: '#6ee7b7',
-          400: '#34d399',
-          500: '#10b981',
-          600: '#059669',
-          700: '#047857',
-          800: '#065f46',
-          900: '#064e3b',
-          950: '#022c22',
+          50: '#eef2ff',
+          100: '#e0e7ff',
+          200: '#c7d2fe',
+          300: '#a5b4fc',
+          400: '#818cf8',
+          500: '#6366f1',
+          600: '#4f46e5',
+          700: '#4338ca',
+          800: '#3730a3',
+          900: '#312e81',
+          DEFAULT: '#4f46e5',
         },
-        // ステータスカラー
-        success: {
-          50: '#ecfdf5',
-          500: '#10b981',
-          600: '#059669',
+        // 一貫した色彩設計: #2563EB アクセント、#FFFFFF背景、#0F172A本文
+        background: {
+          DEFAULT: '#ffffff', // 背景色: 純白
+          subtle: '#f8fafc', // 微細な背景色
+          surface: '#f1f5f9', // サーフェス色
         },
-        warning: {
-          50: '#fffbeb',
-          500: '#f59e0b',
-          600: '#d97706',
+        surface: {
+          DEFAULT: '#ffffff', // サーフェス: 純白
+          subtle: '#f8fafc', // 微細なサーフェス
+          elevated: '#f8fafc', // 浮上サーフェス
         },
-        error: {
-          50: '#fef2f2',
-          500: '#ef4444',
-          600: '#dc2626',
+        border: {
+          DEFAULT: '#e5e7eb', // 基本ボーダー色
+          strong: '#cbd5f5', // 強いボーダー色
+          muted: 'rgba(148, 163, 184, 0.24)', // ミュートボーダー色
         },
-        info: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          600: '#2563eb',
+        text: {
+          DEFAULT: '#0f172a', // 本文色: ダークネイビー
+          subtle: '#334155', // サブテキスト色
+          muted: '#64748b', // ミュートテキスト色
         },
       },
       fontFamily: {
         sans: [
-          'var(--font-inter)',
-          'var(--font-noto-sans-jp)',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          'Segoe UI',
-          'Hiragino Sans',
-          'Hiragino Kaku Gothic ProN',
+          'Inter',
+          'Noto Sans JP',
+          'Helvetica Neue',
+          'Helvetica',
+          'Arial',
           'sans-serif',
         ],
-        // Apple風フォントスタック
-        apple: [
-          'var(--font-inter)',
-          'var(--font-noto-sans-jp)',
-          '-apple-system',
-          'BlinkMacSystemFont',
+        heading: [
+          'Inter',
+          'Noto Sans JP',
+          'SF Pro Text',
+          'Helvetica Neue',
+          'Arial',
           'sans-serif',
         ],
       },
-      container: {
-        center: true,
-        padding: {
-          DEFAULT: '1rem',
-          sm: '1.5rem',
-          lg: '2rem',
-        },
-        screens: {
-          sm: '640px',
-          md: '768px',
-          lg: '1024px',
-          xl: '1280px',
-          '2xl': '1280px',
-        },
+      borderRadius: {
+        xl: '16px',
+        '2xl': '24px',
+        pill: '9999px',
       },
-      fontSize: {
-        xs: ['0.75rem', { lineHeight: '1rem', letterSpacing: '0' }],
-        sm: ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0' }],
-        base: ['1rem', { lineHeight: '1.5rem', letterSpacing: '-0.005em' }],
-        lg: ['1.125rem', { lineHeight: '1.75rem', letterSpacing: '-0.01em' }],
-        xl: ['1.25rem', { lineHeight: '1.75rem', letterSpacing: '-0.01em' }],
-        '2xl': ['1.5rem', { lineHeight: '2rem', letterSpacing: '-0.015em' }],
-        '3xl': ['1.875rem', { lineHeight: '2.25rem', letterSpacing: '-0.02em' }],
-        '4xl': ['2.25rem', { lineHeight: '2.5rem', letterSpacing: '-0.02em' }],
-        '5xl': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.025em' }],
-        '6xl': ['3.75rem', { lineHeight: '1.1', letterSpacing: '-0.025em' }],
-        // Apple風カスタムサイズ
-        'hero': ['clamp(3rem, 8vw, 6rem)', { lineHeight: '1.1', letterSpacing: '-0.025em', fontWeight: '300' }],
-        'display': ['clamp(2rem, 5vw, 3.5rem)', { lineHeight: '1.15', letterSpacing: '-0.02em', fontWeight: '400' }],
-        'headline': ['clamp(1.5rem, 4vw, 2.25rem)', { lineHeight: '1.25', letterSpacing: '-0.015em', fontWeight: '500' }],
+      boxShadow: {
+        // Apple風微細シャドウ (opacity<8%)
+        soft: '0 8px 24px rgba(15, 23, 42, 0.06)',
+        medium: '0 12px 32px rgba(15, 23, 42, 0.07)',
+        strong: '0 24px 60px rgba(15, 23, 42, 0.08)',
       },
-      fontWeight: {
-        thin: '100',
-        extralight: '200',
-        light: '300', // Apple風ライト
-        normal: '400', // Apple風ノーマル
-        medium: '500', // Apple風ミディアム
-        semibold: '600', // Apple風セミボールド
-        bold: '700',
-        extrabold: '800',
-        black: '900',
-      },
-      letterSpacing: {
-        tighter: '-0.05em',
-        tight: '-0.025em',
-        'apple-tight': '-0.02em', // Apple風
-        'apple-normal': '-0.01em', // Apple風
-        normal: '0em',
-        wide: '0.025em',
-        wider: '0.05em',
-        widest: '0.1em',
+      transitionTimingFunction: {
+        apple: 'cubic-bezier(0.32, 0.72, 0, 1)',
+        emphasis: 'cubic-bezier(0.16, 1, 0.3, 1)',
       },
       spacing: {
         18: '4.5rem',
-        88: '22rem',
-        128: '32rem',
-        // Apple風セクションスペーシング - 広めの余白
-        'section-xs': '2rem',    // 32px
-        'section-sm': '3rem',    // 48px
-        'section-md': '5rem',    // 80px - Apple風標準
-        'section-lg': '6rem',    // 96px
-        'section-xl': '8rem',    // 128px - Apple風特大
-        'section-2xl': '10rem',  // 160px - Apple風ヒーロー用
-        // Apple風コンポーネントスペーシング
-        'component-xs': '0.5rem',  // 8px
-        'component-sm': '1rem',    // 16px
-        'component-md': '1.5rem',  // 24px - Apple風
-        'component-lg': '2rem',    // 32px - Apple風
-        'component-xl': '3rem',    // 48px - Apple風
-        'component-2xl': '4rem',   // 64px - Apple風特大
+        22: '5.5rem',
       },
-      animation: {
-        'fade-in': 'fadeIn 0.5s ease-in-out',
-        'fade-in-up': 'fadeInUp 0.6s ease-out',
-        'slide-up': 'slideUp 0.5s ease-out',
-        'scale-in': 'scaleIn 0.35s ease-apple',
-        'bounce-gentle': 'bounceGentle 2s infinite',
-        'pulse-gentle': 'pulseGentle 2s infinite',
-        'gradient-shift': 'gradientShift 3s ease-in-out infinite',
+      maxWidth: {
+        '8xl': '1440px',
       },
-      keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
-        fadeInUp: {
-          '0%': { opacity: '0', transform: 'translateY(30px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        slideUp: {
-          '0%': { transform: 'translateY(20px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
-        },
-        scaleIn: {
-          '0%': { transform: 'scale(0.98)', opacity: '0' },
-          '100%': { transform: 'scale(1)', opacity: '1' },
-        },
-        bounceGentle: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-5px)' },
-        },
-        pulseGentle: {
-          '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.8' },
-        },
-        gradientShift: {
-          '0%, 100%': { backgroundPosition: '0% 50%' },
-          '50%': { backgroundPosition: '100% 50%' },
-        },
+      backdropBlur: {
+        softer: '18px',
       },
-      borderRadius: {
-        brand: 'var(--radius)', // CSS変数を参照
-      },
-      boxShadow: {
-        soft: 'var(--shadow-soft)', // CSS変数を参照
-        medium: 'var(--shadow-medium)', // Apple風極薄シャドウ
-        strong: 'var(--shadow-strong)', // Apple風極薄シャドウ
+      letterSpacing: {
+        tight: '-0.02em', // Hero tracking-tight
+        normal: '0em', // Body normal
       },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(({ addComponents, theme }) => {
+      addComponents({
+        // フォーカスリング: アクセント色 #2563EB を使用した一貫したフォーカス表示
+        '.focus-ring': {
+          outline: 'none',
+          boxShadow: `0 0 0 2px rgba(255, 255, 255, 0.95), 0 0 0 6px rgba(37, 99, 235, 0.32)`,
+          transition: 'box-shadow 180ms cubic-bezier(0.32, 0.72, 0, 1)',
+        },
+        '.focus-ring-offset': {
+          outline: 'none',
+          boxShadow: `0 0 0 2px rgba(255, 255, 255, 1), 0 0 0 8px rgba(37, 99, 235, 0.24)`,
+          transition: 'box-shadow 200ms cubic-bezier(0.32, 0.72, 0, 1)',
+        },
+        '.card-base': {
+          borderRadius: theme('borderRadius.xl'),
+          backgroundColor: theme('colors.background.DEFAULT'),
+          border: `1px solid ${theme('colors.border.DEFAULT')}`,
+          boxShadow: theme('boxShadow.soft'),
+          transition:
+            'transform 260ms cubic-bezier(0.32, 0.72, 0, 1), box-shadow 260ms cubic-bezier(0.32, 0.72, 0, 1)',
+        },
+        '.card-base:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: theme('boxShadow.medium'),
+          // ホバー時のボーダー: アクセント色 #2563EB を使用
+          borderColor: 'rgba(37, 99, 235, 0.18)',
+        },
+      });
+    }),
+  ],
 };

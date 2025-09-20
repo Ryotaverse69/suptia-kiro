@@ -5,6 +5,12 @@
 
 import { env, isProduction } from './env-validation';
 
+const ANALYTICS_SAMPLE_RATE = Number(
+  process.env.NEXT_PUBLIC_ANALYTICS_SAMPLE ?? '0.1'
+);
+
+const shouldSample = () => Math.random() < ANALYTICS_SAMPLE_RATE;
+
 /**
  * Web Vitalsの閾値設定
  */
@@ -14,25 +20,25 @@ export const WEB_VITALS_THRESHOLDS = {
     good: 2500,
     needsImprovement: 4000,
   },
-  
+
   // First Input Delay (FID)
   FID: {
     good: 100,
     needsImprovement: 300,
   },
-  
+
   // Cumulative Layout Shift (CLS)
   CLS: {
     good: 0.1,
     needsImprovement: 0.25,
   },
-  
+
   // First Contentful Paint (FCP)
   FCP: {
     good: 1800,
     needsImprovement: 3000,
   },
-  
+
   // Time to First Byte (TTFB)
   TTFB: {
     good: 800,
@@ -70,11 +76,15 @@ export interface ErrorInfo {
 /**
  * パフォーマンスメトリクスの評価
  */
-export function evaluateMetric(name: string, value: number): 'good' | 'needs-improvement' | 'poor' {
-  const thresholds = WEB_VITALS_THRESHOLDS[name as keyof typeof WEB_VITALS_THRESHOLDS];
-  
+export function evaluateMetric(
+  name: string,
+  value: number
+): 'good' | 'needs-improvement' | 'poor' {
+  const thresholds =
+    WEB_VITALS_THRESHOLDS[name as keyof typeof WEB_VITALS_THRESHOLDS];
+
   if (!thresholds) return 'good';
-  
+
   if (value <= thresholds.good) return 'good';
   if (value <= thresholds.needsImprovement) return 'needs-improvement';
   return 'poor';
@@ -85,17 +95,20 @@ export function evaluateMetric(name: string, value: number): 'good' | 'needs-imp
  */
 export function sendWebVitals(metric: PerformanceMetric) {
   if (!env.features.monitoring) return;
-  
+  if (!shouldSample()) return;
+
   // Google Analytics 4への送信
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', metric.name, {
       event_category: 'Web Vitals',
       event_label: metric.id,
-      value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
+      value: Math.round(
+        metric.name === 'CLS' ? metric.value * 1000 : metric.value
+      ),
       non_interaction: true,
     });
   }
-  
+
   // カスタム分析エンドポイントへの送信
   if (isProduction) {
     fetch('/api/analytics/web-vitals', {
@@ -119,7 +132,7 @@ export function sendWebVitals(metric: PerformanceMetric) {
  */
 export function sendError(error: ErrorInfo) {
   if (!env.features.monitoring) return;
-  
+
   // 本番環境でのみエラーを送信
   if (isProduction) {
     fetch('/api/analytics/errors', {
@@ -139,9 +152,14 @@ export function sendError(error: ErrorInfo) {
 /**
  * カスタムイベントの送信
  */
-export function sendCustomEvent(eventName: string, parameters: Record<string, any> = {}) {
+export function sendCustomEvent(
+  eventName: string,
+  parameters: Record<string, any> = {},
+  options?: { bypassSampling?: boolean }
+) {
   if (!env.features.analytics) return;
-  
+  if (!options?.bypassSampling && !shouldSample()) return;
+
   // Google Analytics 4への送信
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', eventName, {
@@ -149,7 +167,7 @@ export function sendCustomEvent(eventName: string, parameters: Record<string, an
       timestamp: Date.now(),
     });
   }
-  
+
   // カスタム分析エンドポイントへの送信
   if (isProduction) {
     fetch('/api/analytics/events', {
@@ -174,7 +192,8 @@ export function sendCustomEvent(eventName: string, parameters: Record<string, an
  */
 export function sendPageView(url: string, title?: string) {
   if (!env.features.analytics) return;
-  
+  if (!shouldSample()) return;
+
   // Google Analytics 4への送信
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('config', process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '', {
@@ -182,12 +201,16 @@ export function sendPageView(url: string, title?: string) {
       page_location: url,
     });
   }
-  
+
   // カスタム分析エンドポイントへの送信
-  sendCustomEvent('page_view', {
-    page_title: title,
-    page_location: url,
-  });
+  sendCustomEvent(
+    'page_view',
+    {
+      page_title: title,
+      page_location: url,
+    },
+    { bypassSampling: true }
+  );
 }
 
 /**
@@ -201,7 +224,7 @@ export const trackUserAction = {
       results_count: resultsCount,
     });
   },
-  
+
   // 診断実行
   diagnosis: (answers: Record<string, any>, score: number) => {
     sendCustomEvent('diagnosis_completed', {
@@ -209,7 +232,7 @@ export const trackUserAction = {
       answer_count: Object.keys(answers).length,
     });
   },
-  
+
   // 商品詳細表示
   productView: (productId: string, productName: string) => {
     sendCustomEvent('view_item', {
@@ -218,7 +241,7 @@ export const trackUserAction = {
       item_category: 'supplement',
     });
   },
-  
+
   // お気に入り追加
   addToFavorites: (productId: string, productName: string) => {
     sendCustomEvent('add_to_wishlist', {
@@ -227,7 +250,7 @@ export const trackUserAction = {
       item_category: 'supplement',
     });
   },
-  
+
   // 比較機能使用
   compareProducts: (productIds: string[]) => {
     sendCustomEvent('compare_products', {
@@ -235,7 +258,7 @@ export const trackUserAction = {
       item_ids: productIds.join(','),
     });
   },
-  
+
   // 価格アラート設定
   setPriceAlert: (productId: string, targetPrice: number) => {
     sendCustomEvent('set_price_alert', {
@@ -250,7 +273,7 @@ export const trackUserAction = {
  */
 export function initializeMonitoring() {
   if (typeof window === 'undefined' || !env.features.monitoring) return;
-  
+
   // Web Vitalsの監視（web-vitalsパッケージが利用可能な場合のみ）
   // TODO: web-vitalsパッケージをインストール後に有効化
   /*
@@ -268,9 +291,9 @@ export function initializeMonitoring() {
     console.warn('Web Vitals package not available:', error);
   }
   */
-  
+
   // グローバルエラーハンドラー
-  window.addEventListener('error', (event) => {
+  window.addEventListener('error', event => {
     sendError({
       message: event.message,
       stack: event.error?.stack,
@@ -281,9 +304,9 @@ export function initializeMonitoring() {
       timestamp: Date.now(),
     });
   });
-  
+
   // Promise rejection ハンドラー
-  window.addEventListener('unhandledrejection', (event) => {
+  window.addEventListener('unhandledrejection', event => {
     sendError({
       message: `Unhandled Promise Rejection: ${event.reason}`,
       stack: event.reason?.stack,
@@ -292,7 +315,7 @@ export function initializeMonitoring() {
       timestamp: Date.now(),
     });
   });
-  
+
   // ページ離脱時の処理
   window.addEventListener('beforeunload', () => {
     // 未送信のデータがあれば送信
@@ -302,7 +325,7 @@ export function initializeMonitoring() {
         url: window.location.href,
         timestamp: Date.now(),
       });
-      
+
       navigator.sendBeacon('/api/analytics/events', data);
     }
   });
@@ -313,22 +336,22 @@ export function initializeMonitoring() {
  */
 export function monitorResourceUsage() {
   if (typeof window === 'undefined' || !env.features.monitoring) return;
-  
+
   // メモリ使用量の監視（対応ブラウザのみ）
   if ('memory' in performance) {
     const memory = (performance as any).memory;
-    
+
     sendCustomEvent('resource_usage', {
       used_js_heap_size: memory.usedJSHeapSize,
       total_js_heap_size: memory.totalJSHeapSize,
       js_heap_size_limit: memory.jsHeapSizeLimit,
     });
   }
-  
+
   // ネットワーク情報の監視（対応ブラウザのみ）
   if ('connection' in navigator) {
     const connection = (navigator as any).connection;
-    
+
     sendCustomEvent('network_info', {
       effective_type: connection.effectiveType,
       downlink: connection.downlink,
@@ -342,18 +365,19 @@ export function monitorResourceUsage() {
  * Google Analytics 4の設定
  */
 export function configureGoogleAnalytics() {
-  if (!env.features.analytics || !process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID) return;
-  
+  if (!env.features.analytics || !process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID)
+    return;
+
   const script = document.createElement('script');
   script.src = `https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`;
   script.async = true;
   document.head.appendChild(script);
-  
+
   window.dataLayer = window.dataLayer || [];
   window.gtag = function gtag() {
     window.dataLayer.push(arguments);
   };
-  
+
   window.gtag('js', new Date());
   window.gtag('config', process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID, {
     page_title: document.title,

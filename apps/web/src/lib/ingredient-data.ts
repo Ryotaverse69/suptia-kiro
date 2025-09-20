@@ -19,6 +19,19 @@ export interface Ingredient {
   imageUrl?: string; // 成分画像URL（オプショナル）
 }
 
+export interface IngredientProductRecommendation {
+  id: string;
+  name: string;
+  brand: string;
+  headline: string;
+  price: number;
+  pricePerDay: number;
+  rating: number;
+  reviewCount: number;
+  matchScore: number;
+  url: string;
+}
+
 export type IngredientCategory =
   | 'vitamins'
   | 'minerals'
@@ -725,6 +738,104 @@ export function getIngredientsByPurpose(
 // 人気成分取得
 export function getPopularIngredients(limit: number = 10): Ingredient[] {
   return [...MOCK_INGREDIENTS]
+    .sort((a, b) => b.popularity - a.popularity)
+    .slice(0, limit);
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+function buildRecommendationVariants(
+  ingredient: Ingredient
+): IngredientProductRecommendation[] {
+  const popularityRatio = ingredient.popularity / 100;
+  const basePrice = Math.max(800, ingredient.averagePrice);
+  const baseReviewCount = Math.round(120 + popularityRatio * 280);
+
+  const variants = [
+    {
+      suffix: 'ベーシック',
+      headline: '初めてでも続けやすい基本フォーミュラ',
+      priceFactor: 0.85,
+      ratingBase: 4.1,
+      ratingSwing: 0.3,
+      scoreWeight: 0.92,
+    },
+    {
+      suffix: 'バランス',
+      headline: 'エビデンスとコストの黄金比',
+      priceFactor: 1,
+      ratingBase: 4.2,
+      ratingSwing: 0.4,
+      scoreWeight: 1,
+    },
+    {
+      suffix: 'プレミアム',
+      headline: '臨床データ重視のハイグレード設計',
+      priceFactor: 1.18,
+      ratingBase: 4.35,
+      ratingSwing: 0.45,
+      scoreWeight: 1.08,
+    },
+  ] as const;
+
+  return variants.map((variant, index) => {
+    const price = Math.round((basePrice * variant.priceFactor) / 10) * 10;
+    const pricePerDay = Math.round((price / 30) * 10) / 10;
+    const rating = clamp(
+      variant.ratingBase + popularityRatio * variant.ratingSwing,
+      4,
+      4.9
+    );
+    const reviewCount = baseReviewCount + index * 32;
+    const matchScore = clamp(popularityRatio * variant.scoreWeight, 0.65, 0.98);
+
+    return {
+      id: `${ingredient.id}-${index + 1}`,
+      name: `${ingredient.name} ${variant.suffix}`,
+      brand: `${ingredient.name} Lab`,
+      headline: variant.headline,
+      price,
+      pricePerDay,
+      rating: Number(rating.toFixed(1)),
+      reviewCount,
+      matchScore: Number((matchScore * 100).toFixed(1)),
+      url: `/search?ingredient=${encodeURIComponent(ingredient.name)}&sort=popularity_desc`,
+    };
+  });
+}
+
+export function getRecommendedProductsForIngredient(
+  ingredientId: string,
+  limit: number = 3
+): IngredientProductRecommendation[] {
+  const ingredient = getIngredientById(ingredientId);
+  if (!ingredient) {
+    return [];
+  }
+
+  return buildRecommendationVariants(ingredient).slice(0, limit);
+}
+
+export function getRelatedIngredients(
+  ingredientId: string,
+  limit: number = 3
+): Ingredient[] {
+  const base = getIngredientById(ingredientId);
+  if (!base) {
+    return [];
+  }
+
+  return [...MOCK_INGREDIENTS]
+    .filter(candidate => candidate.id !== ingredientId)
+    .filter(candidate => {
+      const sameCategory = candidate.category === base.category;
+      const sharedPurpose = candidate.purposes.some(purpose =>
+        base.purposes.includes(purpose)
+      );
+      return sameCategory || sharedPurpose;
+    })
     .sort((a, b) => b.popularity - a.popularity)
     .slice(0, limit);
 }

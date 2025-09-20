@@ -39,7 +39,14 @@
     "preview:url": "node ../../scripts/get-preview-url.mjs",
     "perf:optimize": "node ../../scripts/performance-optimizer.mjs",
     "perf:report": "node ../../scripts/performance-optimizer.mjs --report",
-    "perf:cleanup": "node ../../scripts/performance-optimizer.mjs --cleanup"
+    "perf:cleanup": "node ../../scripts/performance-optimizer.mjs --cleanup",
+    "verify:env": "node scripts/verify-env.mjs",
+    "deploy:check": "pnpm verify:env && pnpm build && pnpm test:ci",
+    "deploy:production": "pnpm deploy:check && npx vercel --prod",
+    "cache:clear": "curl -X POST https://suptia.com/api/revalidate",
+    "vitals:monitor": "node scripts/vitals-monitor.mjs",
+    "lighthouse:ci": "lighthouse http://localhost:3000 --output=json --output-path=./lighthouse-report.json --chrome-flags='--headless'",
+    "lighthouse:prod": "lighthouse https://suptia.com --output=json --output-path=./lighthouse-prod-report.json"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",

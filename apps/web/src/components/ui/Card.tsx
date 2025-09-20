@@ -7,31 +7,43 @@ import { cn } from '@/lib/utils';
  * 白基調、極薄影、Apple風の洗練されたデザイン
  */
 const cardVariants = cva(
-  'rounded-xl border bg-white text-gray-900 transition-all duration-200',
+  'rounded-2xl border border-border bg-white text-slate-900 shadow-soft transition-all duration-300 ease-apple',
   {
     variants: {
       variant: {
         // デフォルト: 白基調、極薄影
-        default: 'border-gray-200/50 shadow-soft',
+        default: 'border-border/70 shadow-soft',
 
         // エレベーテッド: より強い影
-        elevated: 'border-gray-200/30 shadow-medium hover:shadow-strong',
+        elevated: 'border-border/50 shadow-medium hover:shadow-strong',
 
         // アウトライン: ボーダーのみ
-        outlined: 'border-gray-200 shadow-none',
+        outlined: 'border-border shadow-none hover:border-primary-200',
 
         // ガラス効果
-        glass: 'border-white/20 bg-white/80 backdrop-blur-md shadow-soft',
+        glass: 'border-white/40 bg-white/70 backdrop-blur-lg shadow-soft',
 
         // ヒーロー: 大型カード用
-        hero: 'border-gray-100 shadow-strong bg-gradient-to-br from-white to-gray-50/30',
+        hero: 'border-transparent bg-gradient-to-br from-white to-slate-100/60 shadow-strong',
+
+        // プロダクトカード
+        product:
+          'border-border bg-white shadow-soft hover:shadow-medium hover:border-primary-200/80 relative overflow-hidden',
+
+        // 成分カード
+        ingredient:
+          'border-primary-100/60 bg-gradient-to-br from-primary-50/70 via-white to-secondary-50/60 shadow-soft backdrop-blur-[2px]',
+
+        // カテゴリーカード
+        category:
+          'border-border/60 bg-white/90 backdrop-blur-md shadow-soft hover:shadow-medium',
       },
       // Apple風のホバー効果
       hover: {
         none: '',
         lift: 'hover:-translate-y-1 hover:shadow-medium',
-        scale: 'hover:scale-[1.02]',
-        glow: 'hover:shadow-[0_0_12px_rgba(37,99,235,0.06)]',
+        scale: 'hover:scale-[1.01]',
+        glow: 'hover:shadow-[0_0_24px_rgba(37,99,235,0.12)]',
       },
       // パディング設定
       padding: {
@@ -52,7 +64,7 @@ const cardVariants = cva(
 
 export interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof cardVariants> { }
+    VariantProps<typeof cardVariants> {}
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant, hover, padding, ...props }, ref) => (
@@ -90,7 +102,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      'text-xl font-semibold leading-none tracking-tight text-gray-900',
+      'text-xl font-semibold leading-tight tracking-tight text-slate-900',
       className
     )}
     {...props}
@@ -107,7 +119,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn('text-sm text-gray-600 leading-relaxed', className)}
+    className={cn('text-sm text-slate-600 leading-relaxed', className)}
     {...props}
   />
 ));

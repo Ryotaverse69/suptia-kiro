@@ -14,7 +14,7 @@ import { generateProductJsonLd, generateBreadcrumbJsonLd } from '@/lib/seo';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { isValidSlug } from '@/lib/sanitize';
-import Image from 'next/image';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { headers } from 'next/headers';
 import Script from 'next/script';
 import { Suspense } from 'react';
@@ -137,13 +137,13 @@ interface Product {
   }>;
   warnings?: string[];
   form?:
-  | 'capsule'
-  | 'tablet'
-  | 'softgel'
-  | 'powder'
-  | 'liquid'
-  | 'gummy'
-  | string;
+    | 'capsule'
+    | 'tablet'
+    | 'softgel'
+    | 'powder'
+    | 'liquid'
+    | 'gummy'
+    | string;
   thirdPartyTested?: boolean;
 }
 
@@ -660,13 +660,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
               {product.images && product.images.length > 0 ? (
                 <div className='relative'>
                   <div className='absolute inset-0 bg-gradient-to-r from-primary-200 to-secondary-200 rounded-xl blur-2xl opacity-30 transform rotate-6'></div>
-                  <Image
+                  <OptimizedImage
                     src={product.images[0].asset.url}
                     alt={product.images[0].alt || product.name}
                     width={400}
                     height={400}
-                    className='relative rounded-xl shadow-sm'
+                    className='relative h-80 w-80 rounded-xl shadow-sm'
                     priority
+                    placeholder='blur'
+                    blurDataURL='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJhZGlhbEdyYWRpZW50IGlkPSdjJyBjeD0iNTAlIiBjeT0iNTAlIiByPSc3NSc+PHN0b3Agb2Zmc2V0PScwJyBzdHlsZT0nPHR5cGU6bXVsdGlwbHk7c3RvcC1jb2xvcjojRkZGRkZGJy8+PHN0b3Agb2Zmc2V0PScxJyBzdHlsZT0nPHR5cGU6bXVsdGlwbHk7c3RvcC1jb2xvcjojRUZGRkZGOycgLz48L3JhZGlhbEdyYWRpZW50PjxyZWN0IHdpZHRoPSc0MDAnIGhlaWdodD0nNDAwJyBmaWxsPScjRkZGRkZGIFknIG9wYWNpdHk9JzAuOCcvPjxyZWN0IHdpZHRoPSc0MDAnIGhlaWdodD0nNDAwJyBmaWxsPSd1cmwoI2MpJyBvcGFjaXR5PScwLjUnLz48L3N2Zz4='
                   />
                 </div>
               ) : (
@@ -775,7 +777,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 ¥
                 {Math.round(
                   (product.priceJPY / product.servingsPerContainer) *
-                  product.servingsPerDay
+                    product.servingsPerDay
                 )}
               </div>
             </div>
@@ -845,12 +847,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   <div className='flex flex-wrap gap-2 mt-3'>
                     {item.ingredient.evidenceLevel && (
                       <span
-                        className={`inline-block px-2 py-1 rounded-md text-xs font-medium ${item.ingredient.evidenceLevel === 'A'
-                          ? 'bg-green-100 text-green-700'
-                          : item.ingredient.evidenceLevel === 'B'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-gray-100 text-gray-700'
-                          }`}
+                        className={`inline-block px-2 py-1 rounded-md text-xs font-medium ${
+                          item.ingredient.evidenceLevel === 'A'
+                            ? 'bg-green-100 text-green-700'
+                            : item.ingredient.evidenceLevel === 'B'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-gray-100 text-gray-700'
+                        }`}
                       >
                         エビデンス: {item.ingredient.evidenceLevel}
                       </span>
@@ -957,6 +960,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
           }))}
           className='mb-8'
         />
+
+        <div className='mb-8 rounded-2xl border border-slate-200 bg-slate-50/80 p-5 text-sm text-slate-600'>
+          サプティアが提供する商品情報は最新のデータに基づいていますが、医療上の助言ではありません。サプリメントの摂取は体質や服薬状況によりリスクが異なるため、必ず医師・薬剤師など専門家に相談のうえご判断ください。
+        </div>
 
         {/* Back to List */}
         <div className='text-center'>

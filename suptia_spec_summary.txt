@@ -1,0 +1,63 @@
+SUPTIA COMPARISON PLATFORM – SPEC SUMMARY
+
+1. PRODUCT VISION
+- Build “Suptia”, a supplement comparison platform inspired by Trivago’s flow (search → compare → filter → detail) and Apple/xAI-level minimal aesthetics.
+- Primary goal: responsive, premium-feeling experience that allows users to search, compare, and learn about supplements quickly.
+- Target performance: Lighthouse mobile scores ≥90 across Performance, Accessibility, Best Practices.
+
+2. CORE TECHNOLOGY STACK
+- Framework: Next.js 14 App Router with TypeScript.
+- Styling: Tailwind CSS guided by design tokens defined in globals.css.
+- CMS/Data: Sanity (product, ingredient, brand schemas) with mock data for MVP.
+- Deployment & Ops: Vercel Edge Network + Vercel Analytics; monitoring integrates SLO tracking and alerting.
+- Testing: Jest/React Testing Library for components, Playwright for E2E & performance scripts.
+
+3. ARCHITECTURE & FOLDER LAYOUT (apps/web/src)
+- app/: Next.js routes (marketing group, search, ingredients/[slug], products/[slug], layout, globals.css, loading).
+- components/: design-system primitives (ui/), layout pieces (header, footer, language/currency switcher), search modules (hero search, filter sidebar, sort bar, product card), and section-level components (popular comparisons, ingredient guide).
+- lib/: Sanity client & GROQ queries, search logic (filters, sorting, suggestions), utilities (currency formatting, URL handling, SEO helpers), constants (design tokens, copy, config).
+- types/: Type definitions for product/search/UI.
+
+4. UX FLOW & KEY COMPONENTS
+- Sticky header with logo (“サプティア | Suptia”), nav links (“サプティアとは”, “成分ガイド”, “比較”), JA/EN language switch, JPY/USD currency switch; shrinks and transitions to solid white on scroll with backdrop blur.
+- Hero section (100dvh) centered around search form: free-text input with autosuggest, category/goal multi-select, price slider, search CTA, and scroll indicator. Background uses white base, subtle radial gradients, abstract line motifs.
+- Immediately below hero: Popular comparison grid (3–6 cards responsive up to 6 columns) emphasizing product image, main ingredients, effect pill, lowest price, rating, and hover lift.
+- Ingredient guide: pill-style tags with quick indicators (effect, safety, evidence). Clicking navigates to /ingredients/[slug] and pre-fills search filters.
+- Search results page: left sidebar for filters (price, ingredients, goals, brand, stock, sale, etc.) and right content area with product cards and sticky sort/filter controls. URL query params persist search, filters, sort, and pagination for bookmarking.
+- Ingredient detail pages: structured sections (overview 160–240 chars, evidence level, recommended dosage, cautions, related products linking back to search).
+- Footer: legal/info links, duplicated language/currency controls.
+
+5. FUNCTIONAL REQUIREMENTS SNAPSHOT
+- Design system: container max widths (1280/1440px), spacing scale (8/12/16/24/32/48px), rounded-2xl cards, minimal shadows, Inter + Noto Sans JP typography, defined breakpoints (640–1440).
+- Search: query and filters mirrored in URL (/search?q=&goal=&price_min=&price_max=&sort=&page=). Autosuggest limited to top five entries (recent, popular, ingredients).
+- Sorting: default popularity_desc with options price_asc/desc, rating_desc, new_arrivals; ties resolved by popularity → rating → price → name.
+- Pagination: 20 items per page, rel="prev/next" metadata, load more retains URL state, zero-result fallback offers 3 alternatives by popularity × category similarity.
+- i18n & currency: ja/en dictionary lookup, JPY/USD conversion via fixed build-time rate, cookie persistence, canonical /en path, consistent formatting (¥1,980 - ¥3,240 (税込)).
+- Cards: show image (1:1, >=400px), truncated ingredient tags, effect badge, price info, compare CTA, hover expansion with dosage/form/quantity.
+- Filters: price range slider, searchable multi-select ingredients, goal toggles, brand selection, stock/sale checkboxes, evidence/safety filters.
+
+6. DATA MODEL OVERVIEW
+- Product: name, slug, brand ref, description, main/all ingredients, serving size, pricing array (store, URL, currency, sale flags, timestamps), lowest/average price, effects, goals, rating/review count, evidence & safety ratings, form, dosage, quantity, SEO metadata, timestamps.
+- Ingredient: slug, description, benefits, side effects, recommended dosage, evidence level, safety notes, related products, category, SEO fields.
+- Brand: name, slug, logo, description, website, country.
+- Shared FilterOption: value/label/count; SearchParams/Filters define query, goals, price range, sort, page, ingredient/goal/brand lists, inStock/onSale flags, evidence/safety arrays.
+
+7. NON-FUNCTIONAL REQUIREMENTS
+- Performance: Lighthouse ≥90, LCP <1.0s (Fast 3G mobile), CLS ≤0.02, skeleton loading for perceived speed, lightweight animation respecting reduced motion, motion durations 0.2–0.4s.
+- Accessibility: Keyboard-only flow (header → search → results → filter → detail) fully operable; visible focus rings; ARIA labels/roles; screen reader support for hero/search/results.
+- SEO: Canonical URLs, OG/Twitter tags, JSON-LD schemas (Product with offers/rating, ItemList with descending order, BreadcrumbList), XML sitemap with priority/changefreq, 404/500 templates with clear navigation.
+- Security/Compliance: Strict CSP allowing only required CDNs, cookie consent gating analytics, medical disclaimers on ingredient/product pages, privacy policy access, respectful tracking behavior.
+- Observability: Core Web Vitals sent to Vercel Analytics (10% sample), SLO monitoring (search-to-result apdex, compare-to-detail conversion), GitHub Issue automation on SLO breaches, alerts at 20% degradation, CSP report collection.
+- Caching & Assets: next/image with AVIF/WebP priority, quality=80, max upload 2048px, hero 16:9 ≥1920x1080, placeholders for missing assets, revalidation cadence (product 1h, listings 10m), manual purge plan.
+
+8. TESTING & QA STRATEGY
+- Component tests verify search form parameter handling and UI behaviors.
+- Playwright E2E covers hero search to detail page, filter interactions, URL assertions, keyboard navigation path, and performance metrics (LCP/CLS measurement harness).
+- Acceptance criteria demand: consistent sort order across reloads, currency formatting accuracy, full URL state restoration, accessible keyboard journey, JSON-LD validation success, CSP enforcement without blocked resources, language/currency switches maintaining FCP/LCP ±5%.
+
+9. SCOPE & RISK MANAGEMENT
+- Current phase scope: UI foundations for search, comparison, ingredient guide, and detail; purchase flow via external EC deferred.
+- Use dummy content/assets to maintain visual integrity; externalize copy in copy.json; develop Sanity product/ingredient/brand schemas in parallel; provide fallbacks for missing data.
+- Daily exchange-rate updates (00:00 UTC) trigger rebuild/ISR; documentation required for currency update workflow.
+
+Use this document to brief other AI systems or tooling about the Suptia project’s goals, architecture, and delivery constraints.

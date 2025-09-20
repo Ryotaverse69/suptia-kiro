@@ -5,11 +5,13 @@
 
 import { MetadataRoute } from 'next';
 import { env } from '@/lib/env-validation';
+import { MOCK_INGREDIENTS } from '@/lib/ingredient-data';
+import { fetchProductsForSearch } from '@/lib/sanity/queries';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = env.site.url;
   const currentDate = new Date();
-  
+
   // 静的ページ
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -67,49 +69,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
   ];
-  
-  // 動的ページ（商品ページなど）は別途生成
-  // 本番環境では実際のデータから生成する
+
   const dynamicPages: MetadataRoute.Sitemap = [];
-  
-  // 成分カテゴリページ
-  const ingredientCategories = [
-    'vitamins',
-    'minerals', 
-    'herbs',
-    'amino-acids',
-    'probiotics',
-    'omega-3',
-  ];
-  
-  ingredientCategories.forEach(category => {
+
+  MOCK_INGREDIENTS.forEach(ingredient => {
     dynamicPages.push({
-      url: `${baseUrl}/ingredients/${category}`,
+      url: `${baseUrl}/ingredients/${ingredient.id}`,
       lastModified: currentDate,
       changeFrequency: 'weekly',
-      priority: 0.7,
+      priority: 0.8,
     });
   });
-  
-  // 目的別ページ
-  const purposes = [
-    'fatigue-recovery',
-    'immune-support',
-    'beauty',
-    'brain-health',
-    'heart-health',
-    'bone-health',
-  ];
-  
-  purposes.forEach(purpose => {
-    dynamicPages.push({
-      url: `${baseUrl}/ingredients/purpose/${purpose}`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    });
-  });
-  
+
   return [...staticPages, ...dynamicPages];
 }
 
@@ -118,28 +89,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
  */
 export async function generateProductSitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = env.site.url;
-  
-  // 本番環境では実際の商品データから生成
-  // ここではサンプルデータを使用
-  const sampleProducts = [
-    {
-      slug: 'vitamin-c-1000mg',
-      lastModified: new Date('2024-01-15'),
-    },
-    {
-      slug: 'vitamin-d3-2000iu',
-      lastModified: new Date('2024-01-10'),
-    },
-    {
-      slug: 'omega-3-fish-oil',
-      lastModified: new Date('2024-01-12'),
-    },
-  ];
-  
-  return sampleProducts.map(product => ({
-    url: `${baseUrl}/products/${product.slug}`,
-    lastModified: product.lastModified,
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
+  try {
+    const products = await fetchProductsForSearch();
+    if (products.length === 0) {
+      return [];
+    }
+
+    return products.slice(0, 500).map(product => ({
+      url: `${baseUrl}/products/${product.slug ?? product._id}`,
+      lastModified: product._updatedAt
+        ? new Date(product._updatedAt)
+        : new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+  } catch (error) {
+    console.error('Failed to build product sitemap', error);
+    return [];
+  }
 }

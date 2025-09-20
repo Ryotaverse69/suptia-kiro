@@ -1,10 +1,14 @@
 {
-  "name": "サプティア",
+  "name": "サプティア - サプリメント比較プラットフォーム",
   "short_name": "Suptia",
+  "description": "科学的根拠に基づくサプリメント比較・成分ガイド",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#ffffff",
-  "theme_color": "#3b82f6",
+  "theme_color": "#2563eb",
+  "categories": ["health", "lifestyle", "shopping"],
+  "lang": "ja",
   "icons": [
     {
       "src": "/favicon.svg",
@@ -21,6 +25,22 @@
       "src": "/icons/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "検索",
+      "short_name": "検索",
+      "description": "サプリメントを検索",
+      "url": "/search",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "成分ガイド",
+      "short_name": "成分",
+      "description": "成分情報を確認",
+      "url": "/ingredients",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
     }
   ]
 }

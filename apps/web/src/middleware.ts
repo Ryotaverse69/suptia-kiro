@@ -24,7 +24,7 @@ export function middleware(req: NextRequest) {
     "script-src-attr 'none'",
     // Allow Google Fonts stylesheets
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "img-src 'self' https://cdn.sanity.io data:",
+    "img-src 'self' https://cdn.sanity.io https://images.unsplash.com data:",
     "connect-src 'self' https://*.sanity.io",
     // Allow Google Fonts font files
     "font-src 'self' data: https://fonts.gstatic.com",

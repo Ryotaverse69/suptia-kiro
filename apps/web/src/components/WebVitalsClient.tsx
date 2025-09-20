@@ -8,7 +8,15 @@ type Metric = {
   id?: string;
 };
 
+const samplingRate = Number(process.env.NEXT_PUBLIC_ANALYTICS_SAMPLE ?? '0.1');
+
+function shouldSample() {
+  if (typeof window === 'undefined') return false;
+  return Math.random() < samplingRate;
+}
+
 function send(metric: Metric) {
+  if (!shouldSample()) return;
   try {
     const body = JSON.stringify({
       name: metric.name,
@@ -17,9 +25,9 @@ function send(metric: Metric) {
       ts: Date.now(),
     });
     if (navigator.sendBeacon) {
-      navigator.sendBeacon('/api/vitals', body);
+      navigator.sendBeacon('/api/analytics/web-vitals', body);
     } else {
-      fetch('/api/vitals', {
+      fetch('/api/analytics/web-vitals', {
         method: 'POST',
         body,
         keepalive: true,

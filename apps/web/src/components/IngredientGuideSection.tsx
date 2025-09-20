@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import IngredientCard from './IngredientCard';
 import SectionHeader from './SectionHeader';
 import {
@@ -20,6 +21,7 @@ export default function IngredientGuideSection({
   const [selectedCategory, setSelectedCategory] = useState<
     IngredientCategory | 'all'
   >('all');
+  const router = useRouter();
   const { t } = useTranslation();
 
   // カテゴリフィルタリング
@@ -27,12 +29,11 @@ export default function IngredientGuideSection({
     selectedCategory === 'all'
       ? MOCK_INGREDIENTS.slice(0, 6) // 全体表示時は6件まで
       : MOCK_INGREDIENTS.filter(
-        ingredient => ingredient.category === selectedCategory
-      );
+          ingredient => ingredient.category === selectedCategory
+        );
 
   const handleIngredientClick = (ingredientId: string) => {
-    // 成分詳細ページへの遷移（将来実装）
-    console.log('Navigate to ingredient detail:', ingredientId);
+    router.push(`/ingredients/${ingredientId}`);
   };
 
   return (
@@ -51,10 +52,11 @@ export default function IngredientGuideSection({
           <button
             onClick={() => setSelectedCategory('all')}
             className={`px-component-md sm:px-component-lg py-component-sm sm:py-component-md rounded-full text-xs sm:text-sm font-medium transition-all duration-300 
-                       hover:scale-105 active:scale-95 ${selectedCategory === 'all'
-                ? 'bg-primary-600 text-white shadow-sm'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                       hover:scale-105 active:scale-95 ${
+                         selectedCategory === 'all'
+                           ? 'bg-primary-600 text-white shadow-sm'
+                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                       }`}
           >
             {t('common.all') || 'すべて'}
           </button>
@@ -63,10 +65,11 @@ export default function IngredientGuideSection({
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
               className={`px-component-sm sm:px-component-lg py-component-sm sm:py-component-md rounded-full text-xs sm:text-sm font-medium transition-all duration-300 
-                         hover:scale-105 active:scale-95 flex items-center gap-1 sm:gap-2 ${selectedCategory === category.id
-                  ? 'bg-primary-600 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                         hover:scale-105 active:scale-95 flex items-center gap-1 sm:gap-2 ${
+                           selectedCategory === category.id
+                             ? 'bg-primary-600 text-white shadow-sm'
+                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                         }`}
             >
               <span className='text-sm sm:text-lg'>{category.icon}</span>
               <span className='hidden sm:inline'>{category.name}</span>

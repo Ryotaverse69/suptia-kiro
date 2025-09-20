@@ -1,311 +1,193 @@
-import { sanity } from '@/lib/sanity.client';
-import { calculateEffectiveCostPerDay, formatCostJPY } from '@/lib/cost';
-import {
-  ComparisonTable,
-  Product as ComparisonProduct,
-} from '@/components/ComparisonTable';
-import { ComparisonFilters } from '@/components/ComparisonFilters';
-import dynamic from 'next/dynamic';
-import OnVisible from '@/components/OnVisible';
-import DeferGradientSection from '@/components/DeferGradientSection';
-const ComparePageClient = dynamic(() => import('./ComparePageClient').then(m => m.ComparePageClient), {
-  ssr: false,
-  loading: () => <div className='glass-effect rounded-xl p-6 shadow-sm text-center text-gray-600'>比較UIを読み込み中...</div>,
-});
-import { generateSEO } from '@/lib/seo-config';
+import Link from 'next/link';
+import Script from 'next/script';
+import type { Metadata } from 'next';
 
-export const metadata = generateSEO({
-  title: 'サプリメント比較 - 価格・成分・安全性を総合評価',
-  description:
-    '科学的根拠に基づいたサプリメント比較。価格、成分、安全性を総合的に評価し、あなたに最適なサプリメントを見つけます。',
-  url: 'https://suptia.com/compare',
-  keywords: [
-    'サプリメント',
-    '比較',
-    '価格比較',
-    '成分分析',
-    '安全性',
-    'コスト分析',
-  ],
-});
+import { ComparePageClient } from './ComparePageClient';
+import { mockSearchResults, searchProducts } from '@/lib/search';
+import type { ResultProduct } from '@/components/search/ResultCard';
+import type { ComparisonProduct } from '@/components/compare/ComparisonTable';
+import { getSiteUrl } from '@/lib/runtimeConfig';
 
-interface SanityProduct {
-  _id: string;
-  name: string;
-  brand: string;
-  priceJPY: number;
-  servingsPerContainer: number;
-  servingsPerDay: number;
-  slug: {
-    current: string;
-  };
-  form?: string;
-  thirdPartyTested?: boolean;
-  ingredients?: Array<{
-    ingredient: {
-      name: string;
-      category?: string;
-    };
-    amountMgPerServing: number;
-  }>;
+export const revalidate = 180;
+
+function formatVolume(product: ResultProduct) {
+  const servingsPerContainer = product.servingsPerContainer ?? 60;
+  const servingsPerDay = product.servingsPerDay ?? 2;
+  return `${servingsPerContainer}回分 / 1日${servingsPerDay}回`;
 }
 
-async function getProducts(): Promise<SanityProduct[]> {
-  const query = `*[_type == "product"] | order(priceJPY asc){
-    _id,
-    name,
-    brand,
-    priceJPY,
-    servingsPerContainer,
-    servingsPerDay,
-    slug,
-    form,
-    thirdPartyTested,
-    ingredients[]{
-      ingredient->{
-        name,
-        category
-      },
-      amountMgPerServing
-    }
-  }`;
+function calculatePricePerDay(product: ResultProduct) {
+  const price = product.priceRange[0];
+  const servingsPerContainer = product.servingsPerContainer ?? 60;
+  const servingsPerDay = product.servingsPerDay ?? 2;
+  const totalDays = Math.max(
+    1,
+    Math.round(servingsPerContainer / Math.max(1, servingsPerDay))
+  );
+  return Math.max(0, Math.round(price / totalDays));
+}
 
+function toComparisonProduct(product: ResultProduct): ComparisonProduct {
+  const lowestPrice = product.priceRange[0];
+  return {
+    id: product.id,
+    name: product.name,
+    brand: product.brand,
+    category: product.category,
+    rating: product.rating,
+    reviewCount: product.reviewCount,
+    lowestPrice,
+    pricePerDay: calculatePricePerDay(product),
+    volume: formatVolume(product),
+    ingredients: product.mainIngredients?.slice(0, 5) ?? [],
+    testing: product.thirdPartyTested ? '第三者検査済み' : '検査情報なし',
+    imageUrl: product.imageUrl,
+    sellers: product.sellers.map(seller => ({ ...seller })),
+  };
+}
+
+export default async function ComparePage({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
+  const idsParam =
+    typeof searchParams?.ids === 'string' ? searchParams?.ids : '';
+  const requestedIds = idsParam
+    .split(',')
+    .map(id => id.trim())
+    .filter(Boolean);
+
+  let results: ResultProduct[] = [];
   try {
-    const products = await sanity.fetch(query);
-    if (products && products.length > 0) {
-      return products;
-    }
+    const response = await searchProducts({ pageSize: 60 });
+    results = response.items;
   } catch (error) {
-    console.error('Failed to fetch products:', error);
+    console.error('Failed to fetch comparison data from Sanity', error);
+    results = mockSearchResults;
   }
 
-  // デモデータを返す（Sanity接続エラーまたはデータなしの場合）
-  return [
-    {
-      _id: 'demo-1',
-      name: 'マルチビタミン プレミアム',
-      brand: 'ヘルスプラス',
-      priceJPY: 2980,
-      servingsPerContainer: 60,
-      servingsPerDay: 2,
-      slug: { current: 'multivitamin-premium' },
-      form: 'カプセル',
-      thirdPartyTested: true,
-      ingredients: [
-        {
-          ingredient: { name: 'ビタミンA', category: 'ビタミン' },
-          amountMgPerServing: 0.8,
-        },
-        {
-          ingredient: { name: 'ビタミンC', category: 'ビタミン' },
-          amountMgPerServing: 100,
-        },
-        {
-          ingredient: { name: 'ビタミンD3', category: 'ビタミン' },
-          amountMgPerServing: 0.025,
-        },
-      ],
-    },
-    {
-      _id: 'demo-2',
-      name: 'オメガ3 フィッシュオイル',
-      brand: 'オーシャンヘルス',
-      priceJPY: 3480,
-      servingsPerContainer: 90,
-      servingsPerDay: 3,
-      slug: { current: 'omega3-fish-oil' },
-      form: 'ソフトカプセル',
-      thirdPartyTested: true,
-      ingredients: [
-        {
-          ingredient: { name: 'EPA', category: 'オメガ3脂肪酸' },
-          amountMgPerServing: 500,
-        },
-        {
-          ingredient: { name: 'DHA', category: 'オメガ3脂肪酸' },
-          amountMgPerServing: 300,
-        },
-      ],
-    },
-    {
-      _id: 'demo-3',
-      name: 'ビタミンD3 + K2',
-      brand: 'サンライト',
-      priceJPY: 1980,
-      servingsPerContainer: 120,
-      servingsPerDay: 1,
-      slug: { current: 'vitamin-d3-k2' },
-      form: 'タブレット',
-      thirdPartyTested: true,
-      ingredients: [
-        {
-          ingredient: { name: 'ビタミンD3', category: 'ビタミン' },
-          amountMgPerServing: 0.025,
-        },
-        {
-          ingredient: { name: 'ビタミンK2', category: 'ビタミン' },
-          amountMgPerServing: 0.1,
-        },
-      ],
-    },
-    {
-      _id: 'demo-4',
-      name: 'プロバイオティクス',
-      brand: 'ガットヘルス',
-      priceJPY: 4280,
-      servingsPerContainer: 30,
-      servingsPerDay: 1,
-      slug: { current: 'probiotics' },
-      form: 'カプセル',
-      thirdPartyTested: true,
-      ingredients: [
-        {
-          ingredient: {
-            name: 'ラクトバチルス・アシドフィルス',
-            category: 'プロバイオティクス',
-          },
-          amountMgPerServing: 100,
-        },
-        {
-          ingredient: {
-            name: 'ビフィドバクテリウム・ラクティス',
-            category: 'プロバイオティクス',
-          },
-          amountMgPerServing: 50,
-        },
-      ],
-    },
-  ];
-}
+  if (results.length === 0) {
+    results = mockSearchResults;
+  }
 
-export default async function ComparePage() {
-  const products = await getProducts();
+  const lookup = new Map(results.map(product => [product.id, product]));
+  const selectedProducts: ResultProduct[] = [];
+
+  requestedIds.forEach(id => {
+    const product = lookup.get(id);
+    if (product) {
+      selectedProducts.push(product);
+    }
+  });
+
+  if (selectedProducts.length === 0) {
+    selectedProducts.push(...results.slice(0, Math.min(4, results.length)));
+  }
+
+  const comparisonProducts = selectedProducts.map(toComparisonProduct);
+
+  const siteUrl = getSiteUrl();
+  const canonicalUrl = `${siteUrl}/compare${idsParam ? `?ids=${encodeURIComponent(idsParam)}` : ''}`;
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ProductCollection',
+    name: 'サプリメント価格比較',
+    url: canonicalUrl,
+    numberOfItems: comparisonProducts.length,
+    hasProduct: comparisonProducts.map(product => ({
+      '@type': 'Product',
+      name: product.name,
+      brand: product.brand,
+      category: product.category,
+      offers: product.sellers.map(seller => ({
+        '@type': 'Offer',
+        priceCurrency: 'JPY',
+        price: seller.price,
+        url: seller.url,
+        availability: 'https://schema.org/InStock',
+      })),
+    })),
+  };
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
-      {/* Hero Section */}
-      <DeferGradientSection className='text-white py-16'>
-        <div className='container mx-auto px-4 text-center min-h-[240px] flex flex-col items-center justify-center'>
-          <h1 className='text-4xl md:text-5xl font-bold leading-tight mb-4'>商品比較</h1>
-          <p className='text-xl md:text-2xl text-primary-100 mb-8 max-w-3xl mx-auto'>
-            科学的データに基づいて、あなたに最適なサプリメントを見つけましょう
-          </p>
-          <div className='flex items-center justify-center gap-4 text-primary-100'>
-            <span className='flex items-center gap-2'>
-              <span>🛡️</span> 安全性
-            </span>
-            <span className='flex items-center gap-2'>
-              <span>💰</span> コスト
-            </span>
-            <span className='flex items-center gap-2'>
-              <span>📊</span> 透明性
-            </span>
+    <div className='bg-surface-subtle'>
+      <section className='bg-gradient-to-r from-trivago-blue to-trivago-teal text-white'>
+        <div className='mx-auto flex w-full max-w-[1100px] flex-col gap-4 px-4 py-16 sm:px-6 md:flex-row md:items-end md:justify-between lg:px-8'>
+          <div>
+            <h1 className='text-3xl font-semibold sm:text-4xl'>
+              サプリメント比較
+            </h1>
+            <p className='mt-3 max-w-xl text-sm text-white/85'>
+              人気のサプリメントを価格・成分・検査情報まで横断比較。トリバゴと同じ横スクロールUIで一目で違いが分かります。
+            </p>
           </div>
-        </div>
-      </DeferGradientSection>
-
-      {/* Comparison Section */}
-      <section className='py-20'>
-        <div className='container mx-auto px-4'>
-          {products.length > 0 ? (
-            <div className='space-y-8'>
-              <div className='text-center'>
-                <h2 className='text-3xl font-bold text-gray-900 mb-4'>
-                  インタラクティブ商品比較
-                </h2>
-                <p className='text-gray-600'>
-                  {products.length}商品から選択して詳細比較を行いましょう
-                </p>
-              </div>
-
-              <OnVisible intrinsicHeight={1200}>
-                <ComparePageClient initialProducts={products} />
-              </OnVisible>
-
-              <div className='mt-8 text-center'>
-                <p className='text-gray-600 mb-4'>
-                  より詳細な分析が必要ですか？
-                </p>
-                <a href='/contact' className='btn-primary'>
-                  専門家に相談する
-                </a>
-              </div>
-            </div>
-          ) : (
-            <div className='text-center py-20'>
-              <div className='animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto mb-6'></div>
-              <h2 className='text-2xl font-semibold text-gray-900 mb-4'>
-                商品データを読み込み中...
-              </h2>
-              <p className='text-gray-600'>最新の商品情報を取得しています</p>
-            </div>
-          )}
+          <div className='rounded-[12px] border border-white/30 bg-white/10 px-4 py-3 text-sm text-white/90 backdrop-blur'>
+            最大4件まで商品を比較できます
+          </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className='py-20 bg-white'>
-        <div className='container mx-auto px-4'>
-          <div className='text-center mb-16'>
-            <h2 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4'>
-              比較機能の特徴
-            </h2>
-            <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
-              サプティアの比較システムが提供する独自の価値
-            </p>
-          </div>
-
-          <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-8'>
-            <div className='text-center'>
-              <div className='w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center mx-auto mb-4'>
-                <span className='text-2xl'>⚡</span>
-              </div>
-              <h3 className='text-lg font-semibold text-gray-900 mb-2'>
-                リアルタイム比較
-              </h3>
-              <p className='text-gray-600 text-sm'>
-                最新の価格と在庫情報で正確な比較
+      <section className='mx-auto w-full max-w-[1100px] px-4 pb-16 sm:px-6 lg:px-8'>
+        <div className='mt-[-40px] rounded-[20px] border border-[#e0e0e0] bg-white p-6 shadow-trivago-card'>
+          <div className='flex flex-col gap-3 border-b border-[#e0e0e0] pb-6 md:flex-row md:items-center md:justify-between'>
+            <div>
+              <h2 className='text-xl font-semibold text-[#1f242f]'>
+                比較テーブル
+              </h2>
+              <p className='mt-1 text-sm text-neutral-600'>
+                価格・成分・検査情報を横並びで確認できます
               </p>
             </div>
-
-            <div className='text-center'>
-              <div className='w-16 h-16 bg-secondary-100 rounded-xl flex items-center justify-center mx-auto mb-4'>
-                <span className='text-2xl'>🎯</span>
-              </div>
-              <h3 className='text-lg font-semibold text-gray-900 mb-2'>
-                パーソナライズ
-              </h3>
-              <p className='text-gray-600 text-sm'>
-                あなたの健康状態に合わせた推奨
-              </p>
-            </div>
-
-            <div className='text-center'>
-              <div className='w-16 h-16 bg-accent-100 rounded-xl flex items-center justify-center mx-auto mb-4'>
-                <span className='text-2xl'>📈</span>
-              </div>
-              <h3 className='text-lg font-semibold text-gray-900 mb-2'>
-                科学的根拠
-              </h3>
-              <p className='text-gray-600 text-sm'>
-                エビデンスレベルに基づく評価
-              </p>
-            </div>
-
-            <div className='text-center'>
-              <div className='w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center mx-auto mb-4'>
-                <span className='text-2xl'>🔒</span>
-              </div>
-              <h3 className='text-lg font-semibold text-gray-900 mb-2'>
-                透明性
-              </h3>
-              <p className='text-gray-600 text-sm'>
-                すべての判断基準を明確に表示
-              </p>
+            <div className='flex items-center gap-2'>
+              <button className='rounded-pill border border-white bg-white px-4 py-2 text-sm font-semibold text-trivago-blue shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition hover:bg-trivago-blue hover:text-white'>
+                CSVでエクスポート
+              </button>
+              <Link
+                href='/search'
+                className='rounded-pill border border-white bg-white px-4 py-2 text-sm font-semibold text-neutral-700 shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition hover:bg-neutral-100'
+              >
+                商品を追加する
+              </Link>
             </div>
           </div>
+          <Script id='compare-products-jsonld' type='application/ld+json'>
+            {JSON.stringify(structuredData)}
+          </Script>
+          <ComparePageClient initialProducts={comparisonProducts} />
         </div>
       </section>
     </div>
   );
+}
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}): Promise<Metadata> {
+  const idsParam =
+    typeof searchParams?.ids === 'string' ? searchParams?.ids : '';
+  const siteUrl = getSiteUrl();
+  const canonicalUrl = `${siteUrl}/compare${idsParam ? `?ids=${encodeURIComponent(idsParam)}` : ''}`;
+  const title = idsParam
+    ? '選択したサプリメント比較 - サプティア'
+    : 'サプリメント比較テーブル - サプティア';
+  const description =
+    '人気サプリメントを横並びで比較。価格・成分・検査情報・レビューをまとめてチェックできます。';
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      type: 'website',
+    },
+  };
 }

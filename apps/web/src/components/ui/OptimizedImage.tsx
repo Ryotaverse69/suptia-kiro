@@ -38,7 +38,7 @@ export function OptimizedImage({
   blurDataURL,
   sizes,
   fill = false,
-  quality = 85,
+  quality = 80,
   onLoad,
   onError,
 }: OptimizedImageProps) {
@@ -76,7 +76,9 @@ export function OptimizedImage({
           'transition-opacity duration-300',
           isLoading ? 'opacity-0' : 'opacity-100',
           fill ? 'object-cover' : '',
-          className?.includes('pointer-events-none') ? 'pointer-events-none' : ''
+          className?.includes('pointer-events-none')
+            ? 'pointer-events-none'
+            : ''
         )}
         onLoad={handleLoad}
         onError={handleError}
@@ -117,7 +119,7 @@ export function ProductImage({
       placeholder='blur'
       blurDataURL='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjhGQUZDIi8+Cjwvc3ZnPg=='
       sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-      quality={90}
+      quality={80}
     />
   );
 }
@@ -144,7 +146,7 @@ export function IngredientImage({
       placeholder='blur'
       blurDataURL='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGOUZGIi8+Cjwvc3ZnPg=='
       sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw'
-      quality={85}
+      quality={80}
     />
   );
 }
@@ -161,7 +163,7 @@ export function HeroBackgroundImage({ className }: { className?: string }) {
       priority
       className={cn('pointer-events-none', className)}
       sizes='100vw'
-      quality={75}
+      quality={78}
     />
   );
 }

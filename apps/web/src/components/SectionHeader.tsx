@@ -90,7 +90,7 @@ export default function SectionHeader({
       {/* メインタイトル - Apple風タイポグラフィ - Apple風広めの余白 */}
       <h2
         className={cn(
-          'font-light-apple text-gray-900 leading-[1.1] tracking-apple-tight mb-component-lg font-apple',
+          'font-light text-gray-900 leading-[1.1] tracking-tight mb-component-lg',
           currentSize.title
         )}
         id={id || `section-${title.replace(/\s+/g, '-').toLowerCase()}`}
@@ -103,7 +103,7 @@ export default function SectionHeader({
       {description && (
         <p
           className={cn(
-            'text-gray-600 font-light-apple max-w-2xl lg:max-w-3xl xl:max-w-4xl font-apple tracking-apple-normal',
+            'text-gray-600 font-light max-w-2xl lg:max-w-3xl xl:max-w-4xl tracking-normal',
             currentSize.description,
             align === 'center' && 'mx-auto',
             align === 'right' && 'ml-auto'

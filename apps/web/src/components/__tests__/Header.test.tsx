@@ -59,15 +59,14 @@ describe('Header', () => {
       // ナビゲーションリンクが表示される（デスクトップ）
       expect(screen.getByText('比較')).toBeInTheDocument();
       expect(screen.getByText('成分ガイド')).toBeInTheDocument();
-      expect(screen.getByText('価格アラート')).toBeInTheDocument();
       expect(screen.getByText('サプティアとは')).toBeInTheDocument();
     });
 
     test('検索ボタンが表示される', () => {
       renderHeader();
 
-      const searchButton = screen.getByLabelText('検索');
-      expect(searchButton).toBeInTheDocument();
+      const searchLink = screen.getByRole('link', { name: '検索ページへ移動' });
+      expect(searchLink).toBeInTheDocument();
     });
   });
 
@@ -202,6 +201,7 @@ describe('Header', () => {
       });
       const compareLink = mobileMenu.querySelector('a[href="/compare"]');
       expect(compareLink).toBeInTheDocument();
+      compareLink?.addEventListener('click', event => event.preventDefault());
       fireEvent.click(compareLink!);
 
       await waitFor(() => {
@@ -218,7 +218,7 @@ describe('Header', () => {
       expect(header).toBeInTheDocument();
 
       const mainNav = screen.getByRole('navigation', {
-        name: 'メインナビゲーション',
+        name: '主要ナビゲーション',
       });
       expect(mainNav).toBeInTheDocument();
 
@@ -243,18 +243,19 @@ describe('Header', () => {
       const header = screen.getByRole('banner');
 
       // 初期状態
-      expect(header).toHaveClass('bg-white/95');
+      expect(header).toHaveClass('bg-white/65');
 
       // スクロールをシミュレート
       Object.defineProperty(window, 'scrollY', {
-        value: 10,
+        value: 24,
         writable: true,
       });
 
       fireEvent.scroll(window);
 
       await waitFor(() => {
-        expect(header).toHaveClass('shadow-sm');
+        expect(header).toHaveClass('bg-white/95');
+        expect(header.className).toContain('shadow-');
       });
     });
   });
@@ -265,7 +266,7 @@ describe('Header', () => {
       renderHeader();
 
       const compareLink = screen.getByText('比較');
-      expect(compareLink).toHaveClass('text-gray-900', 'font-medium');
+      expect(compareLink).toHaveClass('text-primary-600');
     });
 
     test('成分ガイドページでのハイライト', () => {
@@ -273,7 +274,7 @@ describe('Header', () => {
       renderHeader();
 
       const ingredientsLink = screen.getByText('成分ガイド');
-      expect(ingredientsLink).toHaveClass('text-gray-900', 'font-medium');
+      expect(ingredientsLink).toHaveClass('text-primary-600');
     });
   });
 });

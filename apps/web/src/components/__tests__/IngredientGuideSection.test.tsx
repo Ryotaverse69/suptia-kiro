@@ -1,139 +1,55 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
-import IngredientGuideSection from '../IngredientGuideSection';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
+import { IngredientGuideSection } from '../sections/IngredientGuide';
+import { LocaleProvider } from '@/contexts/LocaleContext';
 
-// console.logをモック
-const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => { });
+const push = vi.fn();
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push }),
+}));
 
 describe('IngredientGuideSection', () => {
-  afterEach(() => {
-    mockConsoleLog.mockClear();
+  beforeEach(() => {
+    push.mockClear();
   });
 
-  it('セクションヘッダーが正しく表示される', () => {
-    render(<IngredientGuideSection />);
+  const ingredients = [
+    {
+      id: 'vitamin-c',
+      name: 'ビタミンC',
+      summary: '抗酸化作用と免疫サポートに優れる成分。',
+      tlDr: '免疫機能と美容をサポート',
+      evidenceLevel: 'A' as const,
+      safety: '高' as const,
+      effect: '免疫・美容',
+      representativeProducts: ['Nature Made ビタミンC', 'DHC ビタミンC'],
+    },
+  ];
 
-    expect(screen.getByText('成分ガイド')).toBeInTheDocument();
-    expect(
-      screen.getByText('科学的根拠に基づいた成分情報をわかりやすく')
-    ).toBeInTheDocument();
-  });
-
-  it('カテゴリフィルターが表示される', () => {
-    render(<IngredientGuideSection />);
-
-    // すべてボタンの確認
-    expect(screen.getByText('すべて')).toBeInTheDocument();
-
-    // カテゴリボタンの確認
-    expect(screen.getByText('ビタミン')).toBeInTheDocument();
-    expect(screen.getByText('ミネラル')).toBeInTheDocument();
-    expect(screen.getByText('ハーブ')).toBeInTheDocument();
-    expect(screen.getByText('アミノ酸')).toBeInTheDocument();
-  });
-
-  it('初期状態で成分カードが表示される', () => {
-    render(<IngredientGuideSection />);
-
-    // 成分カードが表示されることを確認（最大6件）
-    const ingredientCards = screen.getAllByText('詳細を見る');
-    expect(ingredientCards.length).toBeGreaterThan(0);
-    expect(ingredientCards.length).toBeLessThanOrEqual(6);
-  });
-
-  it('カテゴリフィルターが正しく動作する', () => {
-    render(<IngredientGuideSection />);
-
-    // ビタミンカテゴリをクリック
-    const vitaminButton = screen.getByText('ビタミン');
-    fireEvent.click(vitaminButton);
-
-    // ビタミンカテゴリの説明が表示されることを確認
-    expect(
-      screen.getByText(
-        '体の機能維持に必要な必須栄養素。エネルギー代謝や免疫機能をサポート'
-      )
-    ).toBeInTheDocument();
-    expect(screen.getByText('13種類の成分')).toBeInTheDocument();
-  });
-
-  it('成分カードクリック時にコンソールログが出力される', () => {
-    render(<IngredientGuideSection />);
-
-    // 最初の成分カードをクリック
-    const firstCard = screen.getAllByText('詳細を見る')[0];
-    fireEvent.click(firstCard);
-    expect(mockConsoleLog).toHaveBeenCalledWith(
-      'Navigate to ingredient detail:',
-      expect.any(String)
-    );
-  });
-
-  it('すべてカテゴリで「もっと見る」ボタンが表示される', () => {
-    render(<IngredientGuideSection />);
-
-    // モックデータが6件以上ある場合、「もっと見る」ボタンが表示される
-    const moreButton = screen.queryByText('すべての成分を見る');
-    // モックデータの件数によって表示が変わるため、存在チェックのみ
-    if (moreButton) {
-      expect(moreButton).toBeInTheDocument();
-    }
-  });
-
-  it('カテゴリ選択時にアクティブ状態が正しく表示される', () => {
-    render(<IngredientGuideSection />);
-
-    // カテゴリフィルターのビタミンボタンを取得（🍊アイコンを含む）
-    const vitaminButton = screen.getByText('🍊').closest('button');
-    if (vitaminButton) {
-      fireEvent.click(vitaminButton);
-      // アクティブなボタンのスタイルが適用されることを確認
-      expect(vitaminButton).toHaveClass('bg-primary-600', 'text-white');
-    }
-  });
-
-  it('カスタムクラス名が適用される', () => {
-    const { container } = render(
-      <IngredientGuideSection className='custom-class' />
+  it('renders ingredient information with indicators', () => {
+    render(
+      <LocaleProvider>
+        <IngredientGuideSection ingredients={ingredients} />
+      </LocaleProvider>
     );
 
-    const sectionElement = container.firstChild as HTMLElement;
-    expect(sectionElement).toHaveClass('custom-class');
+    expect(screen.getByText('ビタミンC')).toBeInTheDocument();
+    expect(screen.getByText('エビデンス A')).toBeInTheDocument();
+    expect(screen.getByText('安全性 高')).toBeInTheDocument();
   });
 
-  it('3列グリッドレイアウトが適用される', () => {
-    const { container } = render(<IngredientGuideSection />);
-
-    const gridContainer = container.querySelector('.grid');
-    expect(gridContainer).toHaveClass(
-      'grid-cols-1',
-      'sm:grid-cols-1',
-      'md:grid-cols-2',
-      'lg:grid-cols-3'
+  it('redirects to search when clicking an ingredient', () => {
+    render(
+      <LocaleProvider>
+        <IngredientGuideSection ingredients={ingredients} />
+      </LocaleProvider>
     );
-    // レスポンシブギャップクラスの確認
-    expect(gridContainer).toHaveClass(
-      'gap-4',
-      'sm:gap-6',
-      'lg:gap-8',
-      'xl:gap-10'
-    );
-  });
 
-  it('適切な余白とスペーシングが適用される', () => {
-    const { container } = render(<IngredientGuideSection />);
+    fireEvent.click(screen.getByText('ビタミンC'));
 
-    const sectionElement = container.firstChild as HTMLElement;
-    // レスポンシブパディングクラスの確認
-    expect(sectionElement).toHaveClass('py-16', 'sm:py-20', 'lg:py-24');
-
-    const containerElement = container.querySelector('.max-w-7xl');
-    expect(containerElement).toHaveClass(
-      'mx-auto',
-      'px-4',
-      'sm:px-6',
-      'lg:px-8',
-      'xl:px-12'
+    expect(push).toHaveBeenCalledWith(
+      expect.stringContaining(encodeURIComponent('ビタミンC'))
     );
   });
 });

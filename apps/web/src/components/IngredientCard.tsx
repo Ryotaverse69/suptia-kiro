@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { Ingredient } from '@/lib/ingredient-data';
 import { IngredientImage } from './ui/OptimizedImage';
 
@@ -122,7 +124,11 @@ export default function IngredientCard({
 
       {/* 効能バッジ - Apple風広めの余白 */}
       <div className='mb-component-lg'>
-        <div className='flex flex-wrap gap-component-sm' role='list' aria-label='効能一覧'>
+        <div
+          className='flex flex-wrap gap-component-sm'
+          role='list'
+          aria-label='効能一覧'
+        >
           {ingredient.benefits.slice(0, 3).map((benefit, index) => (
             <span
               key={index}
@@ -172,15 +178,16 @@ export default function IngredientCard({
       </div>
 
       {/* Apple風CTAボタン */}
-      <button
-        className='w-full bg-primary-600 text-white py-3 sm:py-4 rounded-xl font-medium text-sm sm:text-base
-                             hover:bg-primary-700 transition-all duration-300 
-                             hover:scale-105 active:scale-95 shadow-sm 
-                             hover:shadow-md group-hover:shadow-primary-500/25'
-        aria-label={`${ingredient.name}の詳細を見る`}
+      <Link
+        href={`/ingredients/${ingredient.id}`}
+        onClick={event => event.stopPropagation()}
+        className='w-full inline-flex justify-center items-center bg-primary-600 text-white py-3 sm:py-4 rounded-xl font-medium text-sm sm:text-base
+                             hover:bg-primary-700 transition-all duration-300 hover:scale-105 active:scale-95
+                             shadow-sm hover:shadow-md group-hover:shadow-primary-500/25'
+        aria-label={`${ingredient.name}の詳細ページへ移動`}
       >
-        詳細を見る
-      </button>
+        詳細ページで見る
+      </Link>
     </article>
   );
 }

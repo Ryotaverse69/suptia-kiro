@@ -7,77 +7,95 @@ import { cn } from '@/lib/utils';
  * 成分バッジ、エビデンス強度表示などに使用
  */
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2',
+  'inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium tracking-tight transition-all duration-200 ease-apple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white',
   {
     variants: {
       variant: {
         // デフォルト: Apple風グレー
-        default: 'border-gray-200 bg-gray-100 text-gray-800 hover:bg-gray-200',
+        default:
+          'border-border bg-background-surface text-slate-700 hover:bg-slate-100',
 
         // プライマリ: Apple風ブルー (#2563EB)
         primary:
-          'border-primary-200 bg-primary-100 text-primary-800 hover:bg-primary-200',
+          'border-primary-200 bg-primary-50 text-primary-700 hover:bg-primary-100',
 
         // セカンダリ: グリーン系
         secondary:
-          'border-green-200 bg-green-100 text-green-800 hover:bg-green-200',
+          'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
+
+        // 成分タグ用
+        ingredient:
+          'border-primary-200/70 bg-primary-50 text-primary-700 hover:border-primary-300 hover:bg-primary-100',
+
+        // 効果タグ用
+        effect:
+          'border-emerald-200/70 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100',
+
+        // 価格タグ用
+        price:
+          'border-amber-200/70 bg-amber-50 text-amber-700 hover:border-amber-300 hover:bg-amber-100',
+
+        // レーティングタグ用
+        rating:
+          'border-purple-200/70 bg-purple-50 text-purple-700 hover:border-purple-300 hover:bg-purple-100',
 
         // 成功: 高評価用
-        success: 'border-green-300 bg-green-500 text-white shadow-soft',
+        success: 'border-emerald-400 bg-emerald-500 text-white shadow-soft',
 
         // 警告: 中評価用
-        warning: 'border-yellow-300 bg-yellow-500 text-white shadow-soft',
+        warning: 'border-amber-400 bg-amber-500 text-white shadow-soft',
 
         // エラー: 低評価用
-        error: 'border-red-300 bg-red-500 text-white shadow-soft',
+        error: 'border-rose-400 bg-rose-500 text-white shadow-soft',
 
         // 情報: 一般的な情報用
-        info: 'border-blue-300 bg-blue-500 text-white shadow-soft',
+        info: 'border-primary-200 bg-primary-50 text-primary-700 hover:bg-primary-100',
 
         // アウトライン: ボーダーのみ
-        outline: 'border-gray-300 text-gray-700 hover:bg-gray-50',
+        outline: 'border-border text-slate-700 hover:bg-slate-50',
 
         // エビデンス強度A: 高い信頼性
         evidenceA:
-          'border-green-400 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold shadow-soft',
+          'border-emerald-400 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold shadow-soft',
 
         // エビデンス強度B: 中程度の信頼性
         evidenceB:
-          'border-yellow-400 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold shadow-soft',
+          'border-amber-400 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-soft',
 
         // エビデンス強度C: 低い信頼性
         evidenceC:
-          'border-red-400 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold shadow-soft',
+          'border-rose-400 bg-gradient-to-r from-rose-500 to-rose-600 text-white font-semibold shadow-soft',
 
         // スコア評価用バリアント
-        high: 'border-green-400 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold shadow-soft',
-        medium: 'border-yellow-400 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold shadow-soft',
-        low: 'border-red-400 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold shadow-soft',
-        danger: 'border-red-500 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold shadow-soft',
+        high: 'border-emerald-400 bg-emerald-500 text-white shadow-soft',
+        medium: 'border-amber-400 bg-amber-500 text-white shadow-soft',
+        low: 'border-rose-400 bg-rose-500 text-white shadow-soft',
+        danger: 'border-rose-500 bg-rose-600 text-white shadow-soft',
       },
       size: {
-        sm: 'px-2 py-0.5 text-xs',
-        md: 'px-2.5 py-0.5 text-xs',
-        lg: 'px-3 py-1 text-sm',
+        sm: 'px-2.5 py-0.5 text-[11px]',
+        md: 'px-3 py-1 text-xs',
+        lg: 'px-3.5 py-1.5 text-sm',
       },
       // Apple風のホバー効果
       hover: {
         none: '',
         lift: 'hover:-translate-y-0.5 hover:shadow-soft',
-        scale: 'hover:scale-105',
+        scale: 'hover:scale-[1.02]',
+        glow: 'hover:shadow-[0_0_18px_rgba(37,99,235,0.18)]',
       },
     },
     defaultVariants: {
       variant: 'default',
       size: 'md',
-      hover: 'scale',
+      hover: 'lift',
     },
   }
 );
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof badgeVariants> { }
+    VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, size, hover, ...props }: BadgeProps) {
   return (

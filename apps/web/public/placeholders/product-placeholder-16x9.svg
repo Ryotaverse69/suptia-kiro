@@ -1,0 +1,22 @@
+<svg width="640" height="360" viewBox="0 0 640 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e0f2fe" />
+      <stop offset="100%" stop-color="#bfdbfe" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" rx="36" fill="url(#grad2)" />
+  <g opacity="0.12">
+    <circle cx="520" cy="96" r="72" fill="#1D4ED8" />
+    <circle cx="160" cy="300" r="60" fill="#2563EB" />
+    <circle cx="210" cy="130" r="110" fill="#60A5FA" />
+  </g>
+  <g fill="#1D4ED8" opacity="0.88">
+    <rect x="250" y="80" width="140" height="200" rx="28" />
+    <rect x="278" y="110" width="84" height="140" rx="20" fill="#ffffff" opacity="0.95" />
+    <rect x="298" y="210" width="44" height="48" rx="12" />
+  </g>
+  <text x="50%" y="310" text-anchor="middle" font-family="'Inter', 'Noto Sans JP', sans-serif" font-size="26" fill="#1E3A8A" opacity="0.7">
+    Suptia Visual Placeholder
+  </text>
+</svg>

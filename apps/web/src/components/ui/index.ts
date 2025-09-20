@@ -21,3 +21,5 @@ export {
   badgeVariants,
   type BadgeProps,
 } from './Badge';
+export { Input, type InputProps } from './Input';
+export { Skeleton, type SkeletonProps } from './Skeleton';
