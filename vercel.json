@@ -3,7 +3,7 @@
   "framework": "nextjs",
   "installCommand": "corepack enable && pnpm i -w --frozen-lockfile",
   "buildCommand": "pnpm -C apps/web build",
-  "rootDirectory": "apps/web",
+  "outputDirectory": "apps/web/.next",
   "redirects": [
     {
       "source": "/(.*)",
