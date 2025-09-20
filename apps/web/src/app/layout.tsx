@@ -1,5 +1,4 @@
-// Validate environment variables at startup
-import '@/env';
+// Environment variables are validated in env-validation.ts
 import './globals.css';
 import { headers } from 'next/headers';
 import Script from 'next/script';
@@ -175,34 +174,15 @@ export default function RootLayout({
           {JSON.stringify(organizationJsonLd)}
         </Script>
 
-        {/* Skip links for accessibility */}
-        <SkipLinks />
-
-        {/* Web Vitals monitoring */}
-        <WebVitals />
-
-        {/* Locale Provider for client-side components */}
-        <LocaleProvider>
-          {/* Sync <html lang> on client with current locale */}
-          <LocaleHtmlLangSetter />
-          {/* Header */}
-          <Header />
-
-          {/* Main Content */}
-          <main
-            id='main-content'
-            role='main'
-            tabIndex={-1}
-            className='min-h-screen pt-[96px] md:pt-[110px]'
-          >
-            {children}
-          </main>
-
-          <CookieConsentBanner />
-
-          {/* Footer */}
-          <Footer />
-        </LocaleProvider>
+        {/* Main Content */}
+        <main
+          id='main-content'
+          role='main'
+          tabIndex={-1}
+          className='min-h-screen pt-[96px] md:pt-[110px]'
+        >
+          {children}
+        </main>
       </body>
     </html>
   );

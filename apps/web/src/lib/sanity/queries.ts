@@ -44,7 +44,7 @@ const PRODUCT_SEARCH_QUERY = groq`
     "name": ingredient->name,
     "slug": ingredient->slug.current
   },
-  mainIngredients[]->name,
+  "mainIngredients": mainIngredients[]->name,
   targetGoals,
   primaryEffect,
   rating,
