@@ -3,11 +3,5 @@
   "buildCommand": "pnpm --filter @suptia/web build",
   "installCommand": "pnpm i --frozen-lockfile",
   "outputDirectory": "apps/web/.next",
-  "framework": "nextjs",
-  "env": {
-    "NEXT_PUBLIC_SANITY_PROJECT_ID": "@next_public_sanity_project_id",
-    "NEXT_PUBLIC_SANITY_DATASET": "@next_public_sanity_dataset",
-    "NEXT_PUBLIC_SITE_URL": "@next_public_site_url",
-    "SANITY_API_VERSION": "@sanity_api_version"
-  }
+  "framework": "nextjs"
 }
