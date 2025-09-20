@@ -1,9 +1,6 @@
 {
   "version": 2,
   "framework": "nextjs",
-  "installCommand": "corepack enable && pnpm i --frozen-lockfile",
-  "buildCommand": "cd apps/web && pnpm build",
-  "outputDirectory": "apps/web/.next",
   "redirects": [
     {
       "source": "/(.*)",
