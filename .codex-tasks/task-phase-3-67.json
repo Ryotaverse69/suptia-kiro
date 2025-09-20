@@ -1,0 +1,147 @@
+{
+  "id": "phase-3-67",
+  "title": "Phase 3: 検索・比較機能（タスク6-7）",
+  "status": "not started",
+  "priority": "high",
+  "type": "implementation",
+  "instructions": {
+    "summary": "",
+    "requirements": "# Requirements Document\n\n## Introduction\n\n**Codename: trivago-clone-complete**\n\nトリバゴ完全クローン：**https://www.trivago.jp/ja の完全再現**\n\n**🎯 ゴール**\n\n- **完全模倣**: トリバゴのデザイン、レイアウト、機能を100%再現\n- **同等品質**: 同じレベルのUI/UX、パフォーマンス、SEO対応\n- **サプリ特化**: ホテル→サプリメントに置き換えて実装\n- **段階実装**: ホームページ → 検索結果 → 比較ページの順で完成度高く\n\n**🚫 NG（はっきり禁止）**\n\n- トリバゴと異なるデザイン要素の追加\n- 独自のUI改善や機能追加\n- レイアウトの変更や最適化\n- 色やフォントの変更\n\n### 技術スタック\n\n- Next.js 14.2.5 (App Router)\n- React 18.2.0\n- TypeScript 5\n- Tailwind CSS 4.1.12\n- Sanity CMS 3.99.0 (商品データ)\n- Vitest / Playwright / ESLint / Prettier\n\n### デザイン要件（トリバゴ完全準拠）\n\n**🎨 Visual Design**\n\n- **色**: トリバゴと同じカラーパレット\n- **フォント**: トリバゴと同じフォントファミリー\n- **レイアウト**: 完全に同じ配置・余白・サイズ\n- **画像**: 同じアスペクト比・配置\n- **ボタン**: 同じスタイル・ホバー効果\n\n**📱 Responsive**\n\n- トリバゴと同じブレークポイント\n- 同じモバイル対応\n- 同じタブレット表示\n\n## Requirements\n\n### Requirement 1\n\n**User Story:** サイト訪問者として、トリバゴと同じフルスクリーンヒーローで検索主導の体験を得たい\n\n#### Acceptance Criteria\n\n1. WHEN ユーザーがトップページにアクセス THEN トリバゴと同じフルスクリーンヒーロー（「次回のサプリ購入を最大50%お得に」）が表示される\n2. WHEN ユーザーがヒーローを確認 THEN 「100を超えるサイトのサプリ価格をサプティアが比較します」のキャッチコピーが表示される\n3. WHEN ユーザーが検索バーを確認 THEN トリバゴと同じデザイン・サイズ・配置の検索バーが中央に表示される\n4. WHEN ユーザーがパートナーセクションを確認 THEN iHerb、Amazon、楽天などのロゴがトリバゴと同じレイアウトで表示される\n\n### Requirement 2\n\n**User Story:** 人気商品を確認するユーザーとして、トリバゴと同じカードレイアウトで商品情報を閲覧したい\n\n#### Acceptance Criteria\n\n1. WHEN ユーザーが人気検索セクションを確認 THEN トリバゴと同じ6列カードグリッドが表示される\n2. WHEN ユーザーが各カードを確認 THEN 商品画像・商品数・平均価格がトリバゴのホテルカードと同じレイアウトで表示される\n3. WHEN ユーザーがカードをホバー THEN トリバゴと同じホバー効果が適用される\n4. WHEN ユーザーが価格情報を確認 THEN 「ビタミンD 1,234商品 平均価格 ¥2,980」形式で表示される\n\n### Requirement 3\n\n**User Story:** 最適な購入時期を知りたいユーザーとして、トリバゴと同じ価格グラフで情報を得たい\n\n#### Acceptance Criteria\n\n1. WHEN ユーザーが価格チャートセクションを確認 THEN 「サプリメントの購入に最適な時期をチェック」セクションが表示される\n2. WHEN ユーザーがグラフを確認 THEN 月別の平均価格推移がトリバゴのホテル価格グラフと同じスタイルで表示される\n3. WHEN ユーザーが都市タブを確認 THEN 「ビタミンD」「プロテイン」「マルチビタミン」等のカテゴリタブが表示される\n4. WHEN ユーザーがタブを切り替え THEN 対応する価格グラフが動的に更新される\n\n### Requirement 4\n\n**User Story:** 検索結果を確認するユーザーとして、トリバゴと同じフィルター付き検索結果ページを利用したい\n\n#### Acceptance Criteria\n\n1. WHEN ユーザーが検索を実行 THEN トリバゴの検索結果ページと同じレイアウトの/searchページに遷移する\n2. WHEN ユーザーが検索結果を確認 THEN 左サイドバーフィルター + 右メイン結果リストの構成が表示される\n3. WHEN ユーザーがフィルターを確認 THEN 価格帯・ブランド・成分・評価等のフィルターがトリバゴと同じスタイルで表示される\n4. WHEN ユーザーが商品リストを確認 THEN 商品カード（画像・名前・価格・評価）がトリバゴのホテルリストと同じレイアウトで表示される\n\n### Requirement 5\n\n**User Story:** 商品を比較するユーザーとして、トリバゴと同じ比較テーブルで詳細比較をしたい\n\n#### Acceptance Criteria\n\n1. WHEN ユーザーが比較ページにアクセス THEN トリバゴの比較ページと同じレイアウトが表示される\n2. WHEN ユーザーが比較テーブルを確認 THEN 横スクロール可能な比較テーブルがトリバゴと同じスタイルで表示される\n3. WHEN ユーザーがテーブル項目を確認 THEN 価格・成分・容量・評価等がトリバゴのホテル比較と同じ形式で表示される\n4. WHEN ユーザーがCTAボタンを確認 THEN 「最安値で購入」ボタンがトリバゴの「予約」ボタンと同じスタイルで表示される\n\n### Requirement 6\n\n**User Story:** サイト全体を利用するユーザーとして、トリバゴと同じヘッダー・フッター・ナビゲーションを体験したい\n\n#### Acceptance Criteria\n\n1. WHEN ユーザーがヘッダーを確認 THEN トリバゴと同じシンプルなヘッダー（ロゴ + お気に入り）が表示される\n2. WHEN ユーザーがフッターを確認 THEN トリバゴと同じ大量のSEOリンクが同じレイアウトで表示される\n3. WHEN ユーザーがナビゲーションを確認 THEN トリバゴと同じパンくずナビ・ページネーションが表示される\n4. WHEN ユーザーがモバイル表示を確認 THEN トリバゴと同じレスポンシブ対応が適用される\n\n### Requirement 7\n\n**User Story:** 開発者として、トリバゴと同等のパフォーマンス・SEO・アクセシビリティを実現したい\n\n#### Acceptance Criteria\n\n1. WHEN パフォーマンスを測定 THEN Lighthouse Performance 90+（トリバゴと同等）を達成する\n2. WHEN SEOを確認 THEN トリバゴと同じメタタグ・構造化データ・サイトマップが実装される\n3. WHEN アクセシビリティを確認 THEN トリバゴと同等のWCAG準拠レベルを達成する\n4. WHEN 多言語対応を確認 THEN 日本語・英語切り替えがトリバゴと同じ方式で実装される\n\n### Requirement 8\n\n**User Story:** ユーザーとして、トリバゴと同じ検索・フィルタリング・ソート機能を利用したい\n\n#### Acceptance Criteria\n\n1. WHEN ユーザーが検索機能を利用 THEN トリバゴと同じオートコンプリート・サジェスト機能が動作する\n2. WHEN ユーザーがフィルターを適用 THEN トリバゴと同じリアルタイム絞り込みが実行される\n3. WHEN ユーザーがソート機能を利用 THEN 価格順・評価順・人気順等のソートがトリバゴと同じ方式で動作する\n4. WHEN ユーザーがページネーションを利用 THEN トリバゴと同じページング機能が動作する\n\n## 🚀 Build Phase 1 (Deliverables)\n\n### Pages\n\n- **/** : トリバゴホームページの完全再現（ヒーロー + パートナー + 人気検索 + 価格グラフ + フッター）\n- **/search** : トリバゴ検索結果ページの完全再現（フィルター + 結果リスト）\n- **/compare** : トリバゴ比較ページの完全再現（比較テーブル）\n\n### Components\n\n- **Header, Footer** : トリバゴと同じデザイン\n- **HeroSection** : フルスクリーンヒーロー + 検索バー\n- **PartnerLogos** : パートナーブランドロゴ一覧\n- **PopularSearchCards** : 人気商品カードグリッド\n- **PriceChart** : 価格推移グラフ\n- **SearchFilters** : 左サイドバーフィルター\n- **ProductList** : 商品結果リスト\n- **ComparisonTable** : 商品比較テーブル\n\n### Styles\n\n- **トリバゴ完全準拠CSS** : 色・フォント・レイアウト・アニメーション\n\n### Data\n\n- **商品データ** : Sanityでサプリメント商品データ管理\n- **価格データ** : 複数サイトの価格情報\n- **ブランドデータ** : パートナーブランド情報\n\n### Tests\n\n- **vitest** : コンポーネント単体テスト\n- **playwright** : E2Eテスト（検索→結果→比較フロー）\n\n## ✅ Definition of Done\n\n- トリバゴと見分けがつかないレベルの完全再現\n- Lighthouse Performance/SEO/Accessibility 90+\n- 全主要機能（検索・フィルター・比較）が動作\n- レスポンシブ対応完了\n- テストカバレッジ80%以上\n- PR作成・Vercel Preview確認完了\n",
+    "design": "│   └── layout.tsx                         # 共通レイアウト\n├── components/\n│   ├── layout/\n│   │   ├── Header.tsx                     # トリバゴヘッダー完全再現\n│   │   └── Footer.tsx                     # 大量SEOリンク完全再現\n│   ├── home/\n│   │   ├── HeroSection.tsx                # フルスクリーンヒーロー\n│   │   ├── SearchBar.tsx                  # 中央大型検索バー\n│   │   ├── PartnerLogos.tsx               # パートナーブランドロゴ\n│   │   ├── PopularSearchCards.tsx         # 人気商品6列グリッド\n│   │   ├── PriceChart.tsx                 # 価格推移グラフ\n│   │   └── CategoryLinks.tsx              # 大量カテゴリリンク\n│   ├── search/\n│   │   ├── SearchFilters.tsx              # 左サイドバーフィルター\n│   │   ├── ProductCard.tsx                # 商品結果カード\n│   │   ├── SortOptions.tsx                # ソート・表示オプション\n│   │   └── Pagination.tsx                 # ページネーション\n│   ├── compare/\n│   │   ├── ComparisonTable.tsx            # 横スクロール比較テーブル\n│   │   ├── ComparisonHeader.tsx           # 比較ヘッダー\n│   │   └── ComparisonCTA.tsx              # 購入CTAボタン\n│   └── ui/                                # トリバゴ準拠UIコンポーネント\n└── lib/\n    ├── search.ts                          # 検索ロジック\n    ├── filters.ts                         # フィルタリング\n    ├── comparison.ts                      # 比較機能\n    └── price-tracking.ts                  # 価格追跡\n```\n\n\n- グレースケール → カラー（ホバー時）\n\n\n- レイアウト: 横並び（画像 + 情報 + 価格）\n- 画像サイズ: 200px × 150px\n- カード高さ: 180px\n- ホバー: 影の強化\n- ボタン: トリバゴと同じスタイル\n\n\n  /* トリバゴのメインカラー */\n  --primary: #ff6b35; /* オレンジ（メインCTA） */\n  --primary-dark: #e55a2b; /* ホバー時 */\n  --primary-light: #ff8c69; /* 薄いオレンジ */\n\n  /* トリバゴのグレースケール */\n  --gray-50: #f8f9fa;\n  --gray-100: #f1f3f4;\n  --gray-200: #e8eaed;\n  --gray-300: #dadce0;\n  --gray-400: #bdc1c6;\n  --gray-500: #9aa0a6;\n  --gray-600: #80868b;\n  --gray-700: #5f6368;\n  --gray-800: #3c4043;\n  --gray-900: #202124;\n\n  /* トリバゴの背景色 */\n  --bg-primary: #ffffff;\n  --bg-secondary: #f8f9fa;\n  --bg-hero: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n\n  /* トリバゴのボーダー */\n  --border-light: #e0e0e0;\n  --border-medium: #dadce0;\n  --border-dark: #bdc1c6;\n}\n```\n\n\n## Layout System - トリバゴレイアウト準拠\n\n```css\n/* トリバゴのコンテナ幅 */\n--container-sm: 540px;\n--container-md: 720px;\n--container-lg: 960px;\n--container-xl: 1140px;\n--container-xxl: 1320px;\n\n/* トリバゴのブレークポイント */\n--breakpoint-sm: 576px;\n--breakpoint-md: 768px;\n--breakpoint-lg: 992px;\n--breakpoint-xl: 1200px;\n--breakpoint-xxl: 1400px;\n\n/* トリバゴのスペーシング */\n--space-1: 4px;\n--space-2: 8px;\n--space-3: 12px;\n--space-4: 16px;\n--space-5: 20px;\n--space-6: 24px;\n--space-8: 32px;\n--space-10: 40px;\n--space-12: 48px;\n--space-16: 64px;\n--space-20: 80px;\n```\n\n\n## Responsive Design - トリバゴレスポンシブ準拠\n\n\n- ヘッダー: 同じレイアウト、少し縮小\n- ヒーロー: 検索バー幅調整\n- 人気検索: 3列グリッド\n- 検索結果: フィルター折りたたみ可能\n\n\n- ヒーロー: 縦積みレイアウト\n- 人気検索: 2列グリッド\n- 検索結果: フィルターモーダル\n\n\n- レスポンシブ動作テスト\n",
+    "acceptance_criteria": [
+      "コンポーネントが正常にレンダリングされる",
+      "TypeScriptエラーが発生しない",
+      "レスポンシブデザインが適用されている",
+      "アクセシビリティ要件を満たしている",
+      "検索・フィルタ機能が正常に動作する",
+      "パフォーマンスが最適化されている"
+    ],
+    "files_to_modify": [],
+    "testing_requirements": [
+      "ユニットテストの作成（Jest + React Testing Library）",
+      "インテグレーションテストの実行",
+      "ビジュアルリグレッションテストの確認",
+      "パフォーマンステストの実行",
+      "アクセシビリティテストの実行"
+    ],
+    "project_context": {
+      "name": "Suptia - トリバゴクローン",
+      "description": "サプリメント価格比較サイト（トリバゴのUI/UXを完全再現）",
+      "target_audience": "サプリメント購入を検討している日本のユーザー",
+      "key_features": [
+        "価格比較機能",
+        "人気検索カード",
+        "AI推奨システム",
+        "レスポンシブデザイン",
+        "アクセシビリティ対応"
+      ]
+    },
+    "technical_specifications": {
+      "framework": "Next.js 14 (App Router)",
+      "language": "TypeScript",
+      "styling": "Tailwind CSS",
+      "cms": "Sanity",
+      "deployment": "Vercel",
+      "testing": "Jest + React Testing Library",
+      "accessibility": "WCAG 2.1 AA準拠",
+      "performance": "Core Web Vitals最適化"
+    },
+    "design_system": {
+      "colors": {
+        "primary": "#0066CC (トリバゴブルー)",
+        "secondary": "#FF6B35",
+        "success": "#28A745",
+        "warning": "#FFC107",
+        "error": "#DC3545"
+      },
+      "typography": {
+        "font_family": "Inter, system-ui, sans-serif",
+        "sizes": "12px, 14px, 16px, 18px, 20px, 24px, 32px, 48px"
+      },
+      "spacing": "4px, 8px, 12px, 16px, 20px, 24px, 32px, 40px, 48px, 64px, 80px",
+      "breakpoints": "sm: 640px, md: 768px, lg: 1024px, xl: 1280px, 2xl: 1536px"
+    },
+    "quality_standards": {
+      "code_coverage": "80%以上",
+      "accessibility_score": "90%以上",
+      "performance_score": "85%以上",
+      "typescript_strict": true,
+      "eslint_max_warnings": 0,
+      "prettier_formatting": true
+    }
+  },
+  "code_review": {
+    "enabled": true,
+    "checks": [
+      "typescript_errors",
+      "react_best_practices",
+      "accessibility",
+      "performance",
+      "security",
+      "code_style"
+    ],
+    "auto_fix": false
+  },
+  "environment": {
+    "framework": "Next.js 14",
+    "language": "TypeScript",
+    "styling": "Tailwind CSS",
+    "cms": "Sanity",
+    "deployment": "Vercel"
+  },
+  "reference_files": {
+    "specifications": [
+      ".kiro/specs/trivago-clone-complete/requirements.md",
+      ".kiro/specs/trivago-clone-complete/design.md",
+      ".kiro/specs/trivago-clone-complete/tasks.md"
+    ],
+    "existing_components": [
+      "apps/web/src/components/index.ts",
+      "apps/web/src/components/Header.tsx",
+      "apps/web/src/components/Footer.tsx",
+      "apps/web/src/app/layout.tsx",
+      "apps/web/src/app/page.tsx"
+    ],
+    "schemas": [
+      "packages/schemas/category.ts",
+      "packages/schemas/product.ts",
+      "packages/schemas/ingredient.ts"
+    ],
+    "libraries": [
+      "apps/web/src/lib/categories.ts",
+      "apps/web/src/lib/sanity.client.ts"
+    ],
+    "config_files": [
+      "tailwind.config.js",
+      "tsconfig.json",
+      ".eslintrc.json",
+      "sanity.config.ts"
+    ]
+  },
+  "implementation_guidelines": {
+    "component_structure": [
+      "TypeScript + React Functional Components",
+      "Props interfaceの明確な定義",
+      "デフォルトpropsの適切な設定",
+      "エラーハンドリングの実装"
+    ],
+    "styling_approach": [
+      "Tailwind CSSクラスの使用",
+      "レスポンシブデザインの実装",
+      "ダークモード対応（将来対応）",
+      "カスタムCSSは最小限に"
+    ],
+    "accessibility_requirements": [
+      "セマンティックHTMLの使用",
+      "ARIA属性の適切な設定",
+      "キーボードナビゲーション対応",
+      "スクリーンリーダー対応"
+    ],
+    "performance_optimization": [
+      "React.memoの適切な使用",
+      "画像の最適化（Next.js Image）",
+      "コード分割の実装",
+      "バンドルサイズの最適化"
+    ]
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "project": "Suptia - Trivago Clone",
+  "generated_at": "2025-09-17T13:30:16.112Z",
+  "total_tasks": 8,
+  "tasks_by_status": {
+    "not started": 8,
+    "in_progress": 0,
+    "completed": 0
+  },
+  "execution_order": [
+    {
+      "id": "phase-4-api8",
+      "title": "Phase 4: データ・API（タスク8）",
+      "priority": 10,
+      "estimated_time": "2-3時間"
+    },
+    {
+      "id": "phase-2-35",
+      "title": "Phase 2: ホームページ完成（タスク3-5）",
+      "priority": 6,
+      "estimated_time": "2-3時間"
+    },
+    {
+      "id": "phase-1-12",
+      "title": "Phase 1: 基盤構築（タスク1-2）",
+      "priority": 5,
+      "estimated_time": "2-3時間"
+    },
+    {
+      "id": "phase-3-67",
+      "title": "Phase 3: 検索・比較機能（タスク6-7）",
+      "priority": 5,
+      "estimated_time": "2-3時間"
+    },
+    {
+      "id": "phase-5-912",
+      "title": "Phase 5: 品質保証（タスク9-12）",
+      "priority": 5,
+      "estimated_time": "2-3時間"
+    },
+    {
+      "id": "-",
+      "title": "✅ トリバゴ完全再現確認項目",
+      "priority": 5,
+      "estimated_time": "2-3時間"
+    },
+    {
+      "id": "-visual-quality-checklist",
+      "title": "🎨 Visual Quality Checklist",
+      "priority": 5,
+      "estimated_time": "2-3時間"
+    },
+    {
+      "id": "-responsive-checklist",
+      "title": "📱 Responsive Checklist",
+      "priority": 5,
+      "estimated_time": "2-3時間"
+    }
+  ],
+  "global_code_review": {
+    "eslint_config": ".eslintrc.json",
+    "typescript_config": "tsconfig.json",
+    "prettier_config": ".prettierrc",
+    "test_command": "npm run test",
+    "build_command": "npm run build"
+  }
+}
